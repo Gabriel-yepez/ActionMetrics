@@ -1,0 +1,36 @@
+{
+  "name": "back-evaluacion",
+  "version": "1.0.0",
+  "description": "backend de la tesis",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gabriel-yepez/backend-evaluacion.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Gabriel-yepez/backend-evaluacion/issues"
+  },
+  "homepage": "https://github.com/Gabriel-yepez/backend-evaluacion#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.1",
+    "openai": "^4.100.0",
+    "pdfmake": "^0.2.20",
+    "pg": "^8.13.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
