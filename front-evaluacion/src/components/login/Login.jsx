@@ -37,17 +37,18 @@ export default function Login() {
           body: JSON.stringify({ nombre_usuario, password }),
         })
 
-        if(response.ok){
-          const responseData = await response.json()
+        const responseData = await response.json()
+
+        if(response.ok && responseData.ok){
           login(responseData)
           setLoading(true)
 
           setTimeout(() => {
           router.push('/dashboard')
           }, 3000)
-          toast.success('Inicio de sesion exitoso')
+          toast.success(responseData.message || 'Inicio de sesión exitoso')
         }
-        else toast.error('Datos invalidos')
+        else toast.error(responseData.message || 'Datos inválidos')
     }
 
   return (

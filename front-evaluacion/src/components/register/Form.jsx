@@ -63,13 +63,15 @@ export default function Form() {
         body: JSON.stringify({ nombre_usuario, nombre, apellido,email, password, ci, id_rol }),
       })
 
-      if(response.ok){
-          toast.success('Registro exitoso')
+      const responseData = await response.json()
+
+      if(response.ok && responseData.ok){
+          toast.success(responseData.message || 'Registro exitoso')
           setTimeout(() => {
             router.push('/')
           }, 2000)
       }
-      else toast.error('Error al registrar')
+      else toast.error(responseData.message || 'Error al registrar')
     }
 
   return (
