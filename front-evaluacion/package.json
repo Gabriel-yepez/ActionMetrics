@@ -1,6 +1,8 @@
 {
-  "name": "front-evaluacion",
+  "name": "action-metrics",
   "version": "0.2.0",
+  "description": "Plataforma de evaluación de desempeño y seguimiento de objetivos",
+  "author": "ActionMetrics",
   "private": true,
   "main": "main.js",
   "scripts": {
@@ -8,7 +10,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "electron": "electron ."
+    "electron:dev": "concurrently -k \"next dev --turbopack\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:build": "next build && electron-builder",
+    "electron:pack": "next build && electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -28,10 +33,63 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "concurrently": "^9.1.2",
     "electron": "^34.1.1",
+    "electron-builder": "^25.1.8",
     "eslint": "^9",
     "eslint-config-next": "~15.2.8",
     "postcss": "^8",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "wait-on": "^8.0.3"
+  },
+  "build": {
+    "appId": "com.actionmetrics.app",
+    "productName": "ActionMetrics",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      ".next/standalone/**/*",
+      ".next/static/**/*",
+      "public/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": ".next/static",
+        "to": ".next/static"
+      },
+      {
+        "from": "public",
+        "to": "public"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/icon-512x512.png"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "icon": "public/icon-512x512.png",
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "public/icon-512x512.png",
+      "category": "Office"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/icon-512x512.png",
+      "uninstallerIcon": "public/icon-512x512.png",
+      "installerHeaderIcon": "public/icon-512x512.png"
+    }
   }
 }
