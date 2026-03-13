@@ -8,7 +8,6 @@ const getAllUsers = async (req, res)=>{
         const {search} = req.query
         let filter = null;
         if (search) {
-          // Construir un filtro dinámico para buscar en múltiples campos
           filter = {
               [Op.or]: [
                   { nombre_usuario: { [Op.iLike]: `%${search}%` } },
@@ -20,11 +19,11 @@ const getAllUsers = async (req, res)=>{
       }
 
         const users = await services.getAllUsers(filter)
-        if (users.length === 0) return res.status(404).json({ message: "no users Found." });
-        res.status(200).json(users)
+        if (users.length === 0) return res.status(404).json({ ok: false, data: [], message: "No se encontraron usuarios." });
+        res.status(200).json({ ok: true, data: users, message: "Usuarios obtenidos exitosamente." })
       } catch (error) {
         console.log(error)
-        res.status(500).json({ message: "Error interno del servidor", error: error.message })
+        res.status(500).json({ ok: false, data: null, message: "Error interno del servidor" })
       }
 }
 
@@ -32,11 +31,11 @@ const getByid = async (req, res)=>{
 
     try {
         const user = await services.getByid(req.params.id)
-        if (!user) return res.status(404).json({ message: "user not Found." });
-        res.status(200).json(user)
+        if (!user) return res.status(404).json({ ok: false, data: null, message: "Usuario no encontrado." });
+        res.status(200).json({ ok: true, data: user, message: "Usuario obtenido exitosamente." })
       } catch (error) {
         console.log(error)
-        res.status(500).json({ message: "Error interno del servidor", error: error.message })
+        res.status(500).json({ ok: false, data: null, message: "Error interno del servidor" })
       }
 }
 
@@ -45,10 +44,10 @@ const createUser = async (req, res)=>{
     try {
         const newUser = req.body
         const result = await services.createUser(newUser)
-        res.status(201).json(result)
+        res.status(201).json({ ok: true, data: result, message: "Usuario creado exitosamente." })
       } catch (error) {
         console.log(error)
-        res.status(400).json(error)
+        res.status(400).json({ ok: false, data: null, message: "Error al crear usuario." })
       }
 }
 
@@ -56,11 +55,11 @@ const updateUser = async (req, res)=>{
 
     try {
         const user = await services.updateUser(req.params.id, req.body)
-        if (!user) return res.status(404).json({ message: "user not Found for update." });
-        res.status(200).json(user)
+        if (!user) return res.status(404).json({ ok: false, data: null, message: "Usuario no encontrado para actualizar." });
+        res.status(200).json({ ok: true, data: user, message: "Usuario actualizado exitosamente." })
       } catch (error) {
         console.log(error)
-        res.status(500).json(error)
+        res.status(500).json({ ok: false, data: null, message: "Error interno del servidor" })
       }
 }
 
@@ -68,22 +67,21 @@ const deleteUser = async (req, res)=>{
 
     try {
         const user = await services.deleteUser(req.params.id)
-        if (!user) return res.status(404).json({ message: "user not Found for delete." });
-        res.status(200).json(user)
+        if (!user) return res.status(404).json({ ok: false, data: null, message: "Usuario no encontrado para eliminar." });
+        res.status(200).json({ ok: true, data: null, message: "Usuario eliminado exitosamente." })
       } catch (error) {
         console.log(error)
-        res.status(500).json(error)
+        res.status(500).json({ ok: false, data: null, message: "Error interno del servidor" })
       }
 }
 
 const getUserCount = async (req, res)=>{
     try {
         const count = await services.getUserCount()
-        if (!count) return res.status(404).json({ message: "no users Found.", count });
-        res.status(200).json(count)
+        res.status(200).json({ ok: true, data: count, message: "Conteo de usuarios obtenido." })
     } catch (error) {
         console.log(error)
-        res.status(500).json(error)
+        res.status(500).json({ ok: false, data: null, message: "Error interno del servidor" })
     }
 }
 

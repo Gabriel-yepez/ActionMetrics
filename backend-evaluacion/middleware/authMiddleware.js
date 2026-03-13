@@ -22,7 +22,7 @@ const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Acceso denegado. Token no proporcionado.' });
+    return res.status(401).json({ ok: false, data: null, message: 'Acceso denegado. Token no proporcionado.' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -33,9 +33,9 @@ const verifyToken = (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expirado. Inicie sesión nuevamente.' });
+      return res.status(401).json({ ok: false, data: null, message: 'Token expirado. Inicie sesión nuevamente.' });
     }
-    return res.status(401).json({ message: 'Token inválido.' });
+    return res.status(401).json({ ok: false, data: null, message: 'Token inválido.' });
   }
 };
 
@@ -44,7 +44,7 @@ const verifyToken = (req, res, next) => {
  */
 const requireAdmin = (req, res, next) => {
   if (!req.user || req.user.id_rol !== 1) {
-    return res.status(403).json({ message: 'Acceso denegado. Se requieren permisos de gerente.' });
+    return res.status(403).json({ ok: false, data: null, message: 'Acceso denegado. Se requieren permisos de gerente.' });
   }
   next();
 };
