@@ -73,8 +73,8 @@ export default function ListaPersonal() {
     }
 
   return (
-    <div className="p-8">
-        <h1 className="text-4xl font-bold mb-4">Personal del departamento</h1>
+    <div className="p-4 md:p-8">
+        <h1 className="text-2xl md:text-4xl font-bold mb-4">Personal del departamento</h1>
         <TextField
           label="Buscar usuario..."
           value={search}

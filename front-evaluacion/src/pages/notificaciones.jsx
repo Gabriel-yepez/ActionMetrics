@@ -75,8 +75,8 @@ export default function Notificaciones() {
         <meta property="og:title" content="Notificaciones | ActionMetrics" />
       </Head>
       <ToastContainer />
-      <div className="flex-grow h-full p-4">
-        <h1 className="text-2xl font-bold mb-4">Notificaciones de Objetivos Pendientes</h1>
+      <div className="flex-grow h-full p-4 md:p-6">
+        <h1 className="text-xl md:text-2xl font-bold mb-4">Notificaciones de Objetivos Pendientes</h1>
 
         {objetivosNoCompletados.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64">

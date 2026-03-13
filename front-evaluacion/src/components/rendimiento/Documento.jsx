@@ -34,7 +34,7 @@ export default function Documento({url}) {
 
       {dialog && (
         <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity ${dialogVisible ? 'opacity-100' : 'opacity-0'}`}>
-          <div className={`bg-white rounded-lg shadow-xl overflow-hidden transition-transform ${dialogVisible ? 'scale-100' : 'scale-95'}`} style={{ width: '80%', height: '80%' }}>
+          <div className={`bg-white rounded-lg shadow-xl overflow-hidden transition-transform ${dialogVisible ? 'scale-100' : 'scale-95'} w-[95%] h-[85%] md:w-[80%] md:h-[80%]`}>
             <div className="flex justify-between items-center p-4 border-b">
               <h3 className="text-lg font-medium">Documento</h3>
               <button onClick={cerrarDialog} className="text-gray-500 text-xl hover:text-gray-700">

@@ -199,18 +199,18 @@ export default function Dashboard() {
           </Alert>
         )}
         
-        <div className="grid grid-cols-3 grid-rows-5 gap-4 h-full p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
           <div className="border border-gray-300 rounded-lg shadow-md p-2">
-            <ObjetivoResult 
-              porcentaje={getProgresoGlobal()} 
-              peso={100} 
-              titulo="Resultado global" 
-              descripcion="Porcentaje de cumplimiento de los objetivos asignados" 
+            <ObjetivoResult
+              porcentaje={getProgresoGlobal()}
+              peso={100}
+              titulo="Resultado global"
+              descripcion="Porcentaje de cumplimiento de los objetivos asignados"
             />
           </div>
           <div className="border border-gray-300 rounded-lg shadow-md p-2">
-            <EvaluacionCount 
-              evaluacionCount={evaluacionCount} 
+            <EvaluacionCount
+              evaluacionCount={evaluacionCount}
             />
             {evaluacionesQuery.isFetching && <Cargando />}
           </div>
@@ -218,36 +218,33 @@ export default function Dashboard() {
             <UsuariosCount usuariosCount={usuariosCount}/>
             {usuariosQuery.isFetching && <Cargando />}
           </div>
-          <div className="col-span-3 border border-gray-300 rounded-lg shadow-md p-2">
-            <CrearObjetivo 
-              titulo="Objetivos generales" 
+          <div className="md:col-span-3 border border-gray-300 rounded-lg shadow-md p-2">
+            <CrearObjetivo
+              titulo="Objetivos generales"
               descripcion="Crea objetivos generales para el equipo de trabajo"
               tipo="general"
               objetivos={objetivos.filter(obj => obj.id_tipo_objetivo === 1 && obj.estado_actual === 'no completado')}
               isLoading={createObjetivoMutation.isPending}
             />
           </div>
-          <div className="col-span-3 row-start-3 border border-gray-300 rounded-lg shadow-md p-2">
-            <CrearObjetivo 
-              titulo="Objetivos individuales" 
+          <div className="md:col-span-3 border border-gray-300 rounded-lg shadow-md p-2">
+            <CrearObjetivo
+              titulo="Objetivos individuales"
               descripcion="Crea objetivos individuales y monitoriza el estado de su cumplimiento"
               tipo="individual"
               objetivos={objetivos.filter(obj => {
-                // Filtrar por tipo de objetivo (individual)
                 const esTipoIndividual = obj.id_tipo_objetivo === 2;
-                
-                // Si el usuario es regular (rol 2), mostrar solo sus objetivos
+
                 if (usuario && usuario.id_rol === 2) {
                   return esTipoIndividual && obj.id_usuario === usuario.id && obj.estado_actual === 'no completado';
                 }
-                
-                // Para administradores (rol 1), mostrar todos los objetivos individuales
+
                 return esTipoIndividual && obj.estado_actual === 'no completado';
               })}
               isLoading={createObjetivoMutation.isPending}
             />
           </div>
-          <div className="col-span-3 row-span-2 row-start-4 border border-gray-300 rounded-lg shadow-md p-2">
+          <div className="md:col-span-3 border border-gray-300 rounded-lg shadow-md p-2 min-h-[300px] md:min-h-[400px]">
             <Chart />
           </div>
         </div>
