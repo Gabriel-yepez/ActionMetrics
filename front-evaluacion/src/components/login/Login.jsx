@@ -3,11 +3,11 @@ import { toast,ToastContainer } from 'react-toastify';
 import { useState } from 'react'
 import Cargando from '../Cargando';
 import Link from "next/link"
-import { urlApi } from "@/config/config"
 import LogoInicio from '../LogoInicio';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSesionStore } from '@/store/sesionStore';
 import { validateForm, hasErrors } from '@/helper/formValidation';
+import { urlApi } from '@/config/config';
 
 export default function Login() {
 
