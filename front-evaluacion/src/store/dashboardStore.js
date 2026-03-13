@@ -58,6 +58,11 @@ export const useDashboardStore = create(
         return totalObjetivos > 0 ? parseFloat(((objetivosCompletados / totalObjetivos) * 100).toFixed(2)) : 0;
       },
       
+      // Reemplazar todos los objetivos de una vez (evita N+1 actualizaciones)
+      setObjetivos: (nuevosObjetivos) => {
+        set({ objetivos: nuevosObjetivos });
+      },
+
       resetObjetivos: () => {
         set({ objetivos: [] });
       }

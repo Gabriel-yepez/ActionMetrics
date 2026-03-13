@@ -1,3 +1,4 @@
+import Head from "next/head"
 import Layout from "@/components/dashboard/layout"
 import UsuariosCount from "@/components/dashboard/UsuariosCount"
 import EvaluacionCount from "@/components/dashboard/EvaluacionCount"
@@ -15,13 +16,10 @@ import "react-toastify/dist/ReactToastify.css"
 import NotificationsIcon from '@mui/icons-material/Notifications';
 
 export default function Dashboard() {
-  // Estado global con Zustand
-  const { 
-    objetivos,
-    addObjetivo,
-    resetObjetivos,
-    getProgresoGlobal,
-  } = useDashboardStore();
+  // Estado global con Zustand - selectores granulares para evitar re-renders innecesarios
+  const objetivos = useDashboardStore(state => state.objetivos);
+  const setObjetivos = useDashboardStore(state => state.setObjetivos);
+  const getProgresoGlobal = useDashboardStore(state => state.getProgresoGlobal);
 
   const { usuario } = useSesionStore();
   
@@ -39,18 +37,12 @@ export default function Dashboard() {
   const usuariosQuery = useUsuariosCount();
   const objetivosQuery = useObjetivos();
   const createObjetivoMutation = useCreateObjetivo();
-  // Sincronizar los objetivos de la API con el estado global
+  // Sincronizar los objetivos de la API con el estado global (una sola actualización)
   useEffect(() => {
     if (objetivosQuery.data && objetivosQuery.data.length > 0) {
-      // Primero reseteamos los objetivos para evitar duplicados
-      resetObjetivos();
-      
-      // Luego agregamos cada objetivo de la API al estado global
-      objetivosQuery.data.forEach(objetivo => {
-        addObjetivo(objetivo);
-      });
+      setObjetivos(objetivosQuery.data);
     }
-  }, [objetivosQuery.data, addObjetivo, resetObjetivos]);
+  }, [objetivosQuery.data, setObjetivos]);
   
   // Mostrar notificaciones de objetivos urgentes al cargar la página
   useEffect(() => {
@@ -192,8 +184,13 @@ export default function Dashboard() {
   const evaluacionCount = evaluacionesQuery.data || 0;
   const usuariosCount = usuariosQuery.data || 0;
 
-  return (   
-    <Layout>    
+  return (
+    <Layout>
+      <Head>
+        <title>Dashboard | ActionMetrics</title>
+        <meta name="description" content="Panel principal de ActionMetrics. Visualiza objetivos, evaluaciones y el progreso de tu equipo de trabajo." />
+        <meta property="og:title" content="Dashboard | ActionMetrics" />
+      </Head>
       <ToastContainer />
       <div className="flex-grow h-full">
         {createObjetivoMutation.isError && (

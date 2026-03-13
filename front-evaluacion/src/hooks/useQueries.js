@@ -162,26 +162,11 @@ export function useCreateEvaluacion(){
   return useMutation({
     mutationFn: (data) => createEvaluacion(data),
     onSuccess: () => {
-      // Invalidar todas las consultas relacionadas con evaluaciones para actualizar la UI
       queryClient.invalidateQueries({ queryKey: [queryKeys.evaluaciones] });
-      
-      // Invalidar específicamente el conteo de evaluaciones
       queryClient.invalidateQueries({ queryKey: [queryKeys.evaluacionesCount] });
       queryClient.invalidateQueries({ queryKey: [queryKeys.evaluacionesCountByUser] });
-      
-      // Invalidar las consultas de gráficas para que se actualicen con los nuevos datos
       queryClient.invalidateQueries({ queryKey: [queryKeys.graficaGeneral] });
       queryClient.invalidateQueries({ queryKey: [queryKeys.graficaUsuario] });
-      
-      // Forzar una actualización de los datos después de 500ms para asegurar que el backend ha procesado la nueva evaluación
-      setTimeout(() => {
-        queryClient.refetchQueries({ queryKey: [queryKeys.evaluaciones] });
-        queryClient.refetchQueries({ queryKey: [queryKeys.evaluacionesCount] });
-        queryClient.refetchQueries({ queryKey: [queryKeys.evaluacionesCountByUser] });
-        queryClient.refetchQueries({ queryKey: [queryKeys.graficaGeneral] });
-        // No refrescamos automáticamente graficaUsuario ya que depende del userId específico
-        // y podría causar solicitudes innecesarias para todos los usuarios
-      }, 500);
     },
   });
 }
@@ -244,29 +229,10 @@ export function useGuardarRetroalimentacion() {
   return useMutation({
     mutationFn: (data) => guardarRetroalimentacion(data),
     onSuccess: () => {
-      // Invalidar todas las consultas relacionadas con evaluaciones para actualizar la UI
       queryClient.invalidateQueries({ queryKey: [queryKeys.evaluaciones] });
-      
-      // Invalidar específicamente el conteo de evaluaciones
       queryClient.invalidateQueries({ queryKey: [queryKeys.evaluacionesCount] });
       queryClient.invalidateQueries({ queryKey: [queryKeys.evaluacionesCountByUser] });
-      
-      // Invalidar las consultas de gráficas para que se actualicen con los nuevos datos
-      queryClient.invalidateQueries({ queryKey: [queryKeys.graficaGeneral] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.graficaUsuario] });
-      
-      // Invalidar la consulta de retroalimentación para que se actualice con los nuevos datos
       queryClient.invalidateQueries({ queryKey: [queryKeys.retroalimentacionAll] });
-      
-      // Forzar una actualización de los datos después de 500ms para asegurar que el backend ha procesado la nueva evaluación
-      setTimeout(() => {
-        queryClient.refetchQueries({ queryKey: [queryKeys.evaluaciones] });
-        queryClient.refetchQueries({ queryKey: [queryKeys.evaluacionesCount] });
-        queryClient.refetchQueries({ queryKey: [queryKeys.evaluacionesCountByUser] });
-        queryClient.refetchQueries({ queryKey: [queryKeys.graficaGeneral] });
-        // No refrescamos automáticamente graficaUsuario ya que depende del userId específico
-        // y podría causar solicitudes innecesarias para todos los usuarios
-      }, 500);
     },
   });
 }
