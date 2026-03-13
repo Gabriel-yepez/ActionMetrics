@@ -59,8 +59,9 @@ app.use("/api", routes);
 app.use((err, req, res, next) => {
   console.error('Error no manejado:', err);
   res.status(500).json({
-    message: 'Error interno del servidor',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    ok: false,
+    data: null,
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Error interno del servidor'
   });
 });
 

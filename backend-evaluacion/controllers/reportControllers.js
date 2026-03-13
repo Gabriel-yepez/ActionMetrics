@@ -42,7 +42,7 @@ const getReport = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json(error);
+        res.status(500).json({ ok: false, data: null, message: "Error al generar el reporte" });
     }
 }
 
@@ -72,7 +72,7 @@ const getReportWithAI = async (req, res) => {
 
     } catch (error) {
         console.error('Error al generar reporte con IA:', error);
-        res.status(500).json({ error: 'Error interno del servidor', details: error.message });
+        res.status(500).json({ ok: false, data: null, message: "Error al generar reporte con IA" });
     }
 }
 
