@@ -4,10 +4,12 @@ export const fetchObjetivos = async () => {
 
     try {
         const res = await authFetch('/objetivos')
+        const result = await res.json()
+
         if (res.ok) {
-            const data = await res.json()
-            return data
+            return result.data || []
         }
+        return []
 
     } catch (error) {
         console.log("Error al buscar objetivos", error )
@@ -29,12 +31,13 @@ export const crearObjetivo = async (objetivoData) => {
             })
         })
 
+        const result = await res.json()
+
         if (!res.ok) {
-            throw new Error(`Error al crear objetivo: ${res.status}`)
+            throw new Error(result.message || `Error al crear objetivo: ${res.status}`)
         }
 
-        const data = await res.json()
-        return data
+        return result.data
     } catch (error) {
         console.error("Error al crear objetivo:", error)
         throw error
@@ -51,10 +54,13 @@ export const actualizarObjetivo = async (id) =>{
             })
         })
 
+        const result = await res.json()
+
         if (!res.ok) {
-            throw new Error(`Error al actualizar objetivo: ${res.status}`)
+            throw new Error(result.message || `Error al actualizar objetivo: ${res.status}`)
         }
 
+        return result.data
     } catch (error) {
         console.error("Error al actualizar objetivo:", error)
     }

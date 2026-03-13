@@ -14,11 +14,13 @@ export const guardarRetroalimentacion = async (data) => {
             }),
         });
 
+        const result = await response.json();
+
         if (!response.ok) {
-            console.log('Error al guardar la retroalimentación');
+            console.log('Error al guardar la retroalimentación:', result.message);
         }
 
-        return await response.json();
+        return result.data;
     } catch (error) {
         console.error('Error al guardar la retroalimentación:', error);
     }
@@ -27,10 +29,13 @@ export const guardarRetroalimentacion = async (data) => {
 export const getAllRetroalimentacion = async () => {
     try {
         const response = await authFetch('/retroalimentacion');
+        const result = await response.json();
+
         if (!response.ok) {
-            console.log('Error al obtener la retroalimentación');
+            console.log('Error al obtener la retroalimentación:', result.message);
         }
-        return await response.json();
+
+        return result.data || [];
     } catch (error) {
         console.error('Error al obtener la retroalimentación:', error);
     }

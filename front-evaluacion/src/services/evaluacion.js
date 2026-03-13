@@ -7,11 +7,13 @@ export const createEvaluacion = async(data) =>{
             body: JSON.stringify(data)
         })
 
-        if (!response.ok) {
-            console.log(`Error al crear evaluacion: ${response.status}`)
-        }
         const result = await response.json()
-        return result
+
+        if (!response.ok) {
+            console.log(`Error al crear evaluacion: ${result.message}`)
+        }
+
+        return result.data
     } catch (error) {
         console.error("Error data:", error)
     }
@@ -20,11 +22,13 @@ export const createEvaluacion = async(data) =>{
 export const getEvaluaciones = async() =>{
     try {
         const response = await authFetch('/evaluaciones')
-        if (!response.ok) {
-            console.log(`Error al obtener evaluaciones: ${response.status}`)
-        }
         const result = await response.json()
-        return result
+
+        if (!response.ok) {
+            console.log(`Error al obtener evaluaciones: ${result.message}`)
+        }
+
+        return result.data || []
     } catch (error) {
         console.error("Error data:", error)
     }

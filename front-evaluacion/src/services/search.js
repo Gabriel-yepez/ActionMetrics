@@ -10,7 +10,6 @@ export const fetchUsers = async (query = "") => {
     const res = await authFetch(`/usuarios?search=${query}`)
 
     if (res.status === 404) {
-      // Si es 404, activa el estado de "no encontrado"
       return {
         users: [],
         notFound: true
@@ -18,14 +17,13 @@ export const fetchUsers = async (query = "") => {
     }
 
     if (res.ok) {
-      const data = await res.json()
+      const result = await res.json()
       return {
-        users: data,
+        users: result.data || [],
         notFound: false
       }
     }
 
-    // Default fallback for other non-OK responses
     return {
       users: [],
       notFound: true
@@ -33,7 +31,6 @@ export const fetchUsers = async (query = "") => {
 
   } catch (error) {
     console.error("Error fetching users:", error)
-    // Maneja errores de red como si no se encontraran usuarios
     return {
       users: [],
       notFound: true

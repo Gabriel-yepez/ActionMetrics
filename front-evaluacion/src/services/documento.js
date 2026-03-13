@@ -12,23 +12,13 @@ export const uploadDocument = async (formData) => {
       body: formData,
     });
 
-    if (!response.ok) {
-      // Intentar obtener el mensaje de error del cuerpo de la respuesta
-      let errorMessage = 'Error al subir el archivo';
-      try {
-        const errorData = await response.text();
-        console.error('Cuerpo de respuesta de error:', errorData);
-        errorMessage = `Error ${response.status}: ${errorData || response.statusText}`;
-      } catch (e) {
-        // Si no podemos leer el cuerpo, usamos el mensaje genérico
-      }
+    const result = await response.json();
 
-      throw new Error(errorMessage);
+    if (!response.ok) {
+      throw new Error(result.message || `Error ${response.status} al subir el archivo`);
     }
 
-    const data = await response.json();
-    console.log('Datos de respuesta:', data);
-    return data;
+    return result.data;
   } catch (error) {
     console.error('Error en servicio uploadDocument:', error);
     throw error;
@@ -39,13 +29,13 @@ export const uploadDocument = async (formData) => {
 export const getDocument = async () => {
   try {
     const response = await authFetch('/documentos');
+    const result = await response.json();
+
     if (!response.ok) {
-      throw new Error('Error al obtener el documento');
+      throw new Error(result.message || 'Error al obtener los documentos');
     }
 
-    const res= await response.json();
-    return res;
-
+    return result.data || [];
   } catch (error) {
     console.error('Error al obtener el documento:', error);
     throw error;
