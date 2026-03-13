@@ -4,7 +4,17 @@
       "WebSearch",
       "Bash(cd C:/Projects/misrepos/ActionMetrics/front-evaluacion && npm run electron:dev 2>&1 | head -50)",
       "Bash(cd C:/Projects/misrepos/ActionMetrics/front-evaluacion && npm install 2>&1 | tail -20)",
-      "Bash(cd C:/Projects/misrepos/ActionMetrics/front-evaluacion && npx concurrently -k \"npx next dev --turbopack\" \"npx wait-on http://localhost:3000 && npx electron .\" 2>&1 | head -80)"
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/front-evaluacion && npx concurrently -k \"npx next dev --turbopack\" \"npx wait-on http://localhost:3000 && npx electron .\" 2>&1 | head -80)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && npm audit 2>&1 | head -100)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && npm view express versions --json 2>&1 | tail -20)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && npm view sequelize versions --json 2>&1 | tail -20)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && npm view bcrypt@latest version && npm view multer@latest version && npm view dotenv@latest version && npm view cors@latest version && npm view morgan@latest version && npm view openai@latest version && npm view pdfmake@latest version && npm view pg@latest version && npm view pg-hstore@latest version && npm view nodemon@latest version 2>&1)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && npm view sequelize@6.37.8 version 2>&1)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && rm -rf node_modules package-lock.json && npm install 2>&1)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && node -e \"const express = require\\('express'\\); const app = express\\(\\); app.use\\(express.json\\(\\)\\); app.use\\(express.urlencoded\\({ extended: true }\\)\\); console.log\\('Express version:', require\\('express/package.json'\\).version\\); console.log\\('OK'\\)\" 2>&1)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && npm audit 2>&1)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && node -e \"\nconst express = require\\('express'\\);\nconst morgan = require\\('morgan'\\);\nconst cors = require\\('cors'\\);\nconst PdfPrinter = require\\('pdfmake'\\);\nconst { Sequelize } = require\\('sequelize'\\);\nconst OpenAI = require\\('openai'\\);\nconst bcrypt = require\\('bcrypt'\\);\nconst multer = require\\('multer'\\);\n\nconsole.log\\('express:', require\\('express/package.json'\\).version\\);\nconsole.log\\('sequelize:', require\\('sequelize/package.json'\\).version\\);\nconsole.log\\('bcrypt:', require\\('bcrypt/package.json'\\).version\\);\nconsole.log\\('multer:', require\\('multer/package.json'\\).version\\);\nconsole.log\\('pdfmake:', require\\('pdfmake/package.json'\\).version\\);\nconsole.log\\('openai:', require\\('openai/package.json'\\).version\\);\nconsole.log\\('pg:', require\\('pg/package.json'\\).version\\);\nconsole.log\\('dotenv:', require\\('dotenv/package.json'\\).version\\);\nconsole.log\\('cors:', require\\('cors/package.json'\\).version\\);\nconsole.log\\('All imports OK'\\);\n\" 2>&1)",
+      "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && node -e \"\nconst OpenAI = require\\('openai'\\);\nconst client = new OpenAI\\({ apiKey: 'test', baseURL: 'https://api.deepseek.com/v1' }\\);\nconsole.log\\('OpenAI SDK loaded OK, constructor works'\\);\nconsole.log\\('pg:', require\\('pg/package.json'\\).version\\);\nconsole.log\\('dotenv:', require\\('dotenv/package.json'\\).version\\);\nconsole.log\\('cors:', require\\('cors/package.json'\\).version\\);\nconsole.log\\('All imports OK'\\);\n\" 2>&1)"
     ]
   }
 }
