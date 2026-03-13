@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { calculoDeObjetivos } from "@/helper/calculoDeObjetivos";
 
 const indicators = [
@@ -21,136 +21,74 @@ const optionScores = {
 
 export default function StepTwo({habilidadResult, sethabilidadResult, onValidation, objetivosUsuarios}) {
 
-  // Inicializar el estado local con valores del estado padre (si existen)
   const [responses, setResponses] = useState(habilidadResult?.responses || {});
   const [comments, setComments] = useState(habilidadResult?.comentarioHabilidad || "");
-  
-  // Función para validar las respuestas
-  const validateResponses = () => {
-    // Verificar que todos los indicadores tienen una respuesta seleccionada
+
+  // Validación derivada con useMemo en lugar de useEffect
+  const isFormValid = useMemo(() => {
     const allAnswered = indicators.every(indicator => responses[indicator]);
-    
-    // Verificar que se haya ingresado un comentario (si es requerido)
-    // Si los comentarios no son obligatorios, quita esta condición
     const commentValid = comments && comments.trim().length > 0;
-    
-    // Determinar si el formulario es válido (todas las preguntas respondidas y comentario válido)
-    const isValid = allAnswered && commentValid;
-    
-    // Notificar al componente padre sobre el estado de validación
-    if (onValidation) {
-      onValidation(isValid);
-    }
-    
-    return isValid;
-  };
-  
-  // Cargar datos previos al montar el componente
-  useEffect(() => {
-    if (habilidadResult) {
-      if (habilidadResult.responses) {
-        setResponses(habilidadResult.responses);
-      }
-      if (habilidadResult.comentarioHabilidad) {
-        setComments(habilidadResult.comentarioHabilidad);
-      }
-    }
-    
-    // Validar formulario al iniciar
-    validateResponses();
-  }, []);
-  
-  // Validar cuando cambien las respuestas o comentarios
-  useEffect(() => {
-    validateResponses();
+    return allAnswered && commentValid;
   }, [responses, comments]);
 
-  const handleSelect = (indicator, option) => {
-    setResponses({ ...responses, [indicator]: option });
-        
-  };
-  
-  const handleCommentsChange = (e) => {
-    setComments(e.target.value);
-  };
+  // Notificar validez al padre
+  useEffect(() => {
+    onValidation?.(isFormValid);
+  }, [isFormValid, onValidation]);
 
-  useEffect(()=>{
+  // Calcular puntuación con useMemo en lugar de useEffect + setState
+  const puntuacionFinal = useMemo(() => {
     let puntuacionHabilidades = 0;
     let totalResponsesHabilidades = 0;
-    let puntuacionObjetivos = 0;
-    let totalResponsesObjetivos = 0;
-    
-    // Calcular puntuación de habilidades
-    Object.entries(responses).forEach(([indicator, option]) => {
+
+    Object.entries(responses).forEach(([, option]) => {
       if (option && optionScores[option]) {
-        console.log(`Respuesta: ${indicator} - Opción: ${option} - Puntaje: ${optionScores[option]}`);
         puntuacionHabilidades += optionScores[option];
         totalResponsesHabilidades++;
       }
     });
-    
-    // Calcular promedio de habilidades
-    const promedioHabilidades = totalResponsesHabilidades > 0 
-      ? puntuacionHabilidades / totalResponsesHabilidades 
+
+    const promedioHabilidades = totalResponsesHabilidades > 0
+      ? puntuacionHabilidades / totalResponsesHabilidades
       : 0;
-    
+
     const allAnswered = indicators.every(indicator => responses[indicator]);
-    
-    // Si hay objetivos, calcular su promedio
-    if(allAnswered && objetivosUsuarios.length > 0){
-        const resultado = calculoDeObjetivos(objetivosUsuarios);
-        puntuacionObjetivos = resultado.puntuacionTotalObjetivos;
-        totalResponsesObjetivos = resultado.totalResponsesObjetivos;
-        
-        // Calcular promedio de objetivos
-        const promedioObjetivos = totalResponsesObjetivos > 0 
-          ? puntuacionObjetivos / totalResponsesObjetivos 
-          : 0;
-        
-        // Calcular promedio final (50% habilidades + 50% objetivos)
-        const promedio = (promedioHabilidades + promedioObjetivos) / 2;
-        
-        // Asegurar que el promedio esté entre 1 y 5
-        const finalScore = Math.max(1, Math.min(5, promedio));
-        
-        // Guardar datos en el estado padre y mostrar logs
-        sethabilidadResult({
-          ...habilidadResult,
-          puntuacion: finalScore.toFixed(0),
-          responses
-        });
-        
-        console.log(`Puntuación habilidades: ${promedioHabilidades}, Puntuación objetivos: ${promedioObjetivos}, Promedio final: ${finalScore.toFixed(0)}`);
-    } else{
-        // Si no hay objetivos pero sí se han respondido todas las habilidades
-        // Usar solo el promedio de habilidades
-        const finalScore = promedioHabilidades;
-        
-        // Guardar datos en el estado padre y mostrar logs
-        sethabilidadResult({
-          ...habilidadResult,
-          puntuacion: finalScore.toFixed(0),
-          responses
-        });
-        
-        console.log(`Puntuación habilidades: ${promedioHabilidades}, Promedio final: ${finalScore.toFixed(0)}`);
+
+    if (allAnswered && objetivosUsuarios && objetivosUsuarios.length > 0) {
+      const resultado = calculoDeObjetivos(objetivosUsuarios);
+      const promedioObjetivos = resultado.totalResponsesObjetivos > 0
+        ? resultado.puntuacionTotalObjetivos / resultado.totalResponsesObjetivos
+        : 0;
+      const promedio = (promedioHabilidades + promedioObjetivos) / 2;
+      return Math.max(1, Math.min(5, promedio));
     }
 
-  },[responses, objetivosUsuarios])
+    return promedioHabilidades;
+  }, [responses, objetivosUsuarios]);
 
-   useEffect(()=>{
-       sethabilidadResult({
-       ...habilidadResult,
-       comentarioHabilidad: comments,
-       }) 
-   },[comments])
+  // Sincronizar con el padre solo cuando cambia la puntuación o los comentarios
+  useEffect(() => {
+    sethabilidadResult(prev => ({
+      ...prev,
+      puntuacion: puntuacionFinal.toFixed(0),
+      responses,
+      comentarioHabilidad: comments,
+    }));
+  }, [puntuacionFinal, responses, comments, sethabilidadResult]);
 
+  const handleSelect = useCallback((indicator, option) => {
+    setResponses(prev => ({ ...prev, [indicator]: option }));
+  }, []);
+
+  const handleCommentsChange = useCallback((e) => {
+    setComments(e.target.value);
+  }, []);
 
   return (
     <div className="flex flex-col h-full w-full p-1 overflow-auto">
       <div className="bg-white rounded-lg shadow-lg p-1 w-full h-full overflow-auto">
         <h2 className="text-xl font-semibold mb-4 text-center">Evaluación de habilidades</h2>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full border-collapse border border-gray-300 table-auto">
             <thead className="bg-gray-100 text-lg">
@@ -185,8 +123,7 @@ export default function StepTwo({habilidadResult, sethabilidadResult, onValidati
             </tbody>
           </table>
         </div>
-        
-        {/* Sección de comentarios */}
+
         <div className="mt-6">
           <h3 className="font-medium text-lg mb-2">Comentarios adicionales</h3>
           <textarea
