@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /registro
+
+Disallow: /dashboard
+Disallow: /evaluacion
+Disallow: /historial
+Disallow: /personal
+Disallow: /rendimiento
+Disallow: /notificaciones
+
+Sitemap: /sitemap.xml
