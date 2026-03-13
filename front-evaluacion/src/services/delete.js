@@ -8,13 +8,14 @@ import { authFetch } from "@/services/authFetch"
 export const deleteUser = async (id) => {
   try {
     const res = await authFetch(`/usuarios/${id}`, { method: 'DELETE' })
+    const result = await res.json()
+
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || `Error al eliminar usuario: ${res.status} ${res.statusText}`);
+      throw new Error(result.message || `Error al eliminar usuario: ${res.status}`);
     }
     return true;
   } catch (error) {
     console.error('Error al eliminar el usuario:', error);
-    throw error; // Re-lanzar el error para que sea capturado por la mutación
+    throw error;
   }
 }
