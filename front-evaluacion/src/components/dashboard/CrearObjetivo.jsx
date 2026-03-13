@@ -143,12 +143,12 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
 
   return (
     <Box sx={{ width: '100%', height: '100%', padding: '8px', display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '12px' }}>
-        <Box>
-          <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold', mb: '4px' }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, width: '100%', gap: '12px' }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold', mb: '4px', fontSize: { xs: '1.1rem', md: '1.5rem' } }}>
             {titulo}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', md: '0.875rem' } }}>
             {descripcion}
           </Typography>
         </Box>

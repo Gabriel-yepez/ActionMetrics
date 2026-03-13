@@ -28,64 +28,63 @@ export default function Layout({children}) {
 
         <div className="flex h-full flex-col px-3 py-4 md:px-2">
 
-          <h1 className="mb-2 flex h-20 items-end justify-start md:h-40">
-            <div className="w-32 text-white md:h-40">
+          <h1 className="mb-2 hidden md:flex h-40 items-end justify-start">
+            <div className="w-32 text-white h-40">
               <Logo/>
             </div>
           </h1>
 
-          <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
+          <div className="flex grow flex-row justify-between space-x-1 overflow-x-auto md:flex-col md:space-x-0 md:space-y-2 md:overflow-x-visible">
 
-            <Link href="/dashboard" 
-            className={`flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/dashboard' ? 'bg-indigo-600' : ''}`} >
-            <DashboardIcon size={30} />
-            Inicio
+            <Link href="/dashboard"
+            className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/dashboard' ? 'bg-indigo-600' : ''}`} >
+            <DashboardIcon fontSize="small" className="md:text-[30px]" />
+            <span className="hidden sm:inline">Inicio</span>
             </Link>
-            
+
             {usuario && usuario.id_rol === 1 &&
-            <Link href="/evaluacion" 
-            className={`flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/evaluacion' ? 'bg-indigo-600' : ''}`} >
-            <TextSnippetIcon size={30}/>
-            Generar evaluación
+            <Link href="/evaluacion"
+            className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/evaluacion' ? 'bg-indigo-600' : ''}`} >
+            <TextSnippetIcon fontSize="small" className="md:text-[30px]"/>
+            <span className="hidden sm:inline">Evaluación</span>
             </Link>
             }
-            
-            <Link href="/historial" 
-            className={`flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/historial' ? 'bg-indigo-600' : ''}`} >
-            <HistoryIcon size={30}/>
-            Historial
+
+            <Link href="/historial"
+            className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/historial' ? 'bg-indigo-600' : ''}`} >
+            <HistoryIcon fontSize="small" className="md:text-[30px]"/>
+            <span className="hidden sm:inline">Historial</span>
             </Link>
 
-            <Link href="/personal" 
-            className={`flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/personal' ? 'bg-indigo-600' : ''}`} >
-            <PersonIcon size={30}/>
-            Personal
+            <Link href="/personal"
+            className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/personal' ? 'bg-indigo-600' : ''}`} >
+            <PersonIcon fontSize="small" className="md:text-[30px]"/>
+            <span className="hidden sm:inline">Personal</span>
             </Link>
 
-            <Link href="/rendimiento" 
-            className={`flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/rendimiento' ? 'bg-indigo-600' : ''}`} >
-            <LeaderboardIcon size={30}/>
-            Rendimiento
+            <Link href="/rendimiento"
+            className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/rendimiento' ? 'bg-indigo-600' : ''}`} >
+            <LeaderboardIcon fontSize="small" className="md:text-[30px]"/>
+            <span className="hidden sm:inline">Rendimiento</span>
             </Link>
-            
-            <Link href="/notificaciones" 
-            className={`flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/notificaciones' ? 'bg-indigo-600' : ''}`} >
-            <NotificationsIcon size={30}/>
-            Notificaciones
+
+            <Link href="/notificaciones"
+            className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/notificaciones' ? 'bg-indigo-600' : ''}`} >
+            <NotificationsIcon fontSize="small" className="md:text-[30px]"/>
+            <span className="hidden sm:inline">Alertas</span>
             </Link>
 
             <div className="hidden h-auto w-full grow md:block"></div>
 
-            <Link href="/" 
-            className={`flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/' ? 'bg-indigo-600' : ''}`} 
+            <Link href="/"
+            className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/' ? 'bg-indigo-600' : ''}`}
             onClick={borrarUsuarios}
             >
-            <LogoutIcon size={30}/>
-            Salir
+            <LogoutIcon fontSize="small" className="md:text-[30px]"/>
+            <span className="hidden sm:inline">Salir</span>
             </Link>
 
           </div>
-          
 
         </div>
       </aside>
