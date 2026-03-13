@@ -1,4 +1,4 @@
-import { urlApi } from "@/config/config"
+import { authFetch } from "@/services/authFetch"
 
 /**
  * Deletes a user by ID
@@ -7,7 +7,7 @@ import { urlApi } from "@/config/config"
  */
 export const deleteUser = async (id) => {
   try {
-    const res = await fetch(`${urlApi}/usuarios/${id}`, { method: 'DELETE' })
+    const res = await authFetch(`/usuarios/${id}`, { method: 'DELETE' })
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.message || `Error al eliminar usuario: ${res.status} ${res.statusText}`);
@@ -18,4 +18,3 @@ export const deleteUser = async (id) => {
     throw error; // Re-lanzar el error para que sea capturado por la mutación
   }
 }
-

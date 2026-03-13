@@ -1,4 +1,4 @@
-import { urlApi } from '@/config/config';
+import { authFetch } from '@/services/authFetch';
 
 export const uploadDocument = async (formData) => {
   try {
@@ -6,8 +6,8 @@ export const uploadDocument = async (formData) => {
       console.error('Error: formData no es una instancia de FormData');
       throw new Error('Formato de datos inválido');
     }
-    
-    const response = await fetch(`${urlApi}/documentos`, {
+
+    const response = await authFetch('/documentos', {
       method: 'POST',
       body: formData,
     });
@@ -22,7 +22,7 @@ export const uploadDocument = async (formData) => {
       } catch (e) {
         // Si no podemos leer el cuerpo, usamos el mensaje genérico
       }
-      
+
       throw new Error(errorMessage);
     }
 
@@ -38,17 +38,16 @@ export const uploadDocument = async (formData) => {
 
 export const getDocument = async () => {
   try {
-    const response = await fetch(`${urlApi}/documentos`);
+    const response = await authFetch('/documentos');
     if (!response.ok) {
       throw new Error('Error al obtener el documento');
     }
 
     const res= await response.json();
     return res;
-    
+
   } catch (error) {
     console.error('Error al obtener el documento:', error);
     throw error;
   }
 };
-  

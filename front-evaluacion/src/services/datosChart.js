@@ -1,8 +1,8 @@
-import { urlApi } from "@/config/config";
+import { authFetch } from "@/services/authFetch";
 
 export const graficaGeneral = async () => {
     try {
-        const response = await fetch(`${urlApi}/evaluaciones/grafica`);
+        const response = await authFetch('/evaluaciones/grafica');
         if (!response.ok) {
           throw new Error(`Error al obtener datos para la gráfica: ${response.status}`);
         }
@@ -16,8 +16,8 @@ export const graficaGeneral = async () => {
 
 export const graficaUsuario = async (userId) => {
   try {
-    const response = await fetch(`${urlApi}/evaluaciones/grafica/${userId}`);
-    
+    const response = await authFetch(`/evaluaciones/grafica/${userId}`);
+
     if (!response.ok) {
       throw new Error(`Error al obtener datos para la gráfica del usuario: ${response.status}`);
     }
