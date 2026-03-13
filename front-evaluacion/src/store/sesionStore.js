@@ -6,23 +6,27 @@ export const useSesionStore = create(
   persist(
     (set, get) => ({
       // Datos iniciales
-      usuario: null, 
+      usuario: null,
+      token: null,
       isAuthenticated: false,
 
       // Método para iniciar sesión
       login: (response) => {
-        // La respuesta tiene formato: { message: string, data: {...userData} }
-        const userData = response.data ;
-        
+        // La respuesta tiene formato: { message: string, data: {...userData}, token: string }
+        const userData = response.data;
+        const token = response.token;
+
         set({
           usuario: userData,
+          token: token,
           isAuthenticated: true
         });
       },
 
       // Método para cerrar sesión
       logout: () => set({
-        usuario: null, 
+        usuario: null,
+        token: null,
         isAuthenticated: false,
       }),
 
@@ -36,21 +40,20 @@ export const useSesionStore = create(
 
       // Método para verificar si el usuario está autenticado
       checkAuth: () => {
-        return get().isAuthenticated;
+        return get().isAuthenticated && get().token !== null;
       },
 
       // Método para obtener información del usuario
       getUsuario: () => get().usuario,
 
-      // Método para obtener el token
-      
     }),
     {
       name: 'sesion-storage', // Nombre para el localStorage
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ 
-        usuario: state.usuario, 
-        isAuthenticated: state.isAuthenticated 
+      partialize: (state) => ({
+        usuario: state.usuario,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated
       }),
     }
   )

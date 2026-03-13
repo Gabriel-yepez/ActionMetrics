@@ -1,29 +1,26 @@
-import { urlApi } from "@/config/config";
+import { authFetch } from "@/services/authFetch";
 
 export const getReport = async (data) =>{
     try {
-        const response = await fetch(`${urlApi}/reportes`, {
+        const response = await authFetch('/reportes', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(data)
         });
-        
+
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
         }
-        
+
         // Obtener el ID del reporte del header
         const idreport = response.headers.get("X-Report-ID");
         console.log('ID del reporte:', idreport);
-        
+
         // Get the PDF as a blob
         const pdfBlob = await response.blob();
-        
+
         // Create a URL for the blob
         let pdfUrl = URL.createObjectURL(pdfBlob);
-        
+
         return {
             pdfBlob,
             pdfUrl,
@@ -36,28 +33,25 @@ export const getReport = async (data) =>{
 
 export const getReportIA = async (data) =>{
     try {
-        const response = await fetch(`${urlApi}/reportes/ai`, {
+        const response = await authFetch('/reportes/ai', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify(data)
         });
-        
+
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
         }
-        
+
         // Obtener el ID del reporte del header
         const idreport = response.headers.get("X-Report-ID");
         console.log('ID del reporte:', idreport);
-        
+
         // Get the PDF as a blob
         const pdfBlob = await response.blob();
-        
+
         // Create a URL for the blob
         let pdfUrl = URL.createObjectURL(pdfBlob);
-        
+
         return {
             pdfBlob,
             pdfUrl,

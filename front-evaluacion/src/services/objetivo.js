@@ -1,26 +1,23 @@
-import { urlApi } from "@/config/config"
+import { authFetch } from "@/services/authFetch"
 
-export const fetchObjetivos = async () => { 
+export const fetchObjetivos = async () => {
 
     try {
-        const res = await fetch(`${urlApi}/objetivos`)
+        const res = await authFetch('/objetivos')
         if (res.ok) {
             const data = await res.json()
             return data
         }
-        
+
     } catch (error) {
         console.log("Error al buscar objetivos", error )
     }
 }
 
-export const crearObjetivo = async (objetivoData) => { 
+export const crearObjetivo = async (objetivoData) => {
     try {
-        const res = await fetch(`${urlApi}/objetivos`, {
+        const res = await authFetch('/objetivos', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify({
                 descripcion: objetivoData.descripcion,
                 fecha_inicio: objetivoData.fechaInicio,
@@ -47,11 +44,8 @@ export const crearObjetivo = async (objetivoData) => {
 export const actualizarObjetivo = async (id) =>{
     try {
 
-        const res = await fetch(`${urlApi}/objetivos/${id}`,{
+        const res = await authFetch(`/objetivos/${id}`,{
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify({
                 estado_actual: 'completado'
             })
@@ -60,7 +54,7 @@ export const actualizarObjetivo = async (id) =>{
         if (!res.ok) {
             throw new Error(`Error al actualizar objetivo: ${res.status}`)
         }
-        
+
     } catch (error) {
         console.error("Error al actualizar objetivo:", error)
     }
