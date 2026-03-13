@@ -109,11 +109,11 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
     <div className="flex flex-col h-full w-full overflow-auto p-2">
       <div className="bg-white rounded-lg shadow-lg p-2 w-full h-full overflow-auto">
         
-        <div className="flex flex-row w-full h-full">
+        <div className="flex flex-col md:flex-row w-full h-full gap-4">
           {/* Lado izquierdo - PDF viewer */}
-          <div className="w-1/2 h-full flex flex-col">
+          <div className="w-full md:w-1/2 min-h-[300px] md:h-full flex flex-col">
 
-            <h1 className="font-semibold text-xl text-center mb-2">Resumen de la evaluación</h1>
+            <h1 className="font-semibold text-lg md:text-xl text-center mb-2">Resumen de la evaluación</h1>
             {(isError || errorMessage || isErroria) && (
               <div className="flex flex-col justify-center items-center h-full">
                 <p className="text-red-600 mb-2">{errorMessage || 'Error al cargar el reporte'}</p>
@@ -144,14 +144,13 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
           </div>
           
           {/* Lado derecho - Contenido adicional */}
-          <div className="w-1/2 h-full rounded flex flex-col">
-            {/* Aquí puedes agregar contenido adicional para la mitad derecha */}
+          <div className="w-full md:w-1/2 md:h-full rounded flex flex-col">
 
-            <h1 className="font-semibold text-xl text-center mb-2">Generar plan de mejorar</h1>
+            <h1 className="font-semibold text-lg md:text-xl text-center mb-2">Generar plan de mejorar</h1>
 
-              <section className="flex flex-col justify-center items-center h-[60%] relative">
-                <button 
-                  className={`w-48 h-48 rounded-md ${isLoadingia || desabilitar ? 'bg-indigo-200 cursor-not-allowed' : 'bg-indigo-300 hover:bg-indigo-500 cursor-pointer'} transition-all text-4xl text-white font-serif shadow-lg flex items-center justify-center`}
+              <section className="flex flex-col justify-center items-center py-8 md:h-[60%] relative">
+                <button
+                  className={`w-32 h-32 md:w-48 md:h-48 rounded-md ${isLoadingia || desabilitar ? 'bg-indigo-200 cursor-not-allowed' : 'bg-indigo-300 hover:bg-indigo-500 cursor-pointer'} transition-all text-3xl md:text-4xl text-white font-serif shadow-lg flex items-center justify-center`}
                   onClick={getReportIa}
                   disabled={isLoadingia || desabilitar}
                 >
@@ -159,10 +158,10 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
                 </button>
               </section>
 
-              <article className="flex justify-center items-center">
-                <span className="font-semibold">Despues de este paso ya el proceso esta completado</span>
+              <article className="flex flex-col items-center text-center relative">
+                <span className="font-semibold text-sm md:text-base">Despues de este paso ya el proceso esta completado</span>
                 {isLoadingia && (
-                  <div className="absolute mt-14 flex items-center text-indigo-700">
+                  <div className="mt-4 flex items-center text-indigo-700">
                     <div className="w-5 h-5 border-2 border-indigo-700 border-t-transparent rounded-full animate-spin mr-2"></div>
                     <span>Generando reporte con IA...</span>
                   </div>

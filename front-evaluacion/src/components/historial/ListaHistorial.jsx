@@ -135,11 +135,11 @@ export default function ListaHistorial() {
     }, [retroArray, evaluacionSeleccionada]);
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <ToastContainer />
-        <h1 className="text-4xl font-bold mb-4">Historial de evaluaciones</h1>
+        <h1 className="text-2xl md:text-4xl font-bold mb-4">Historial de evaluaciones</h1>
 
-        <section className="flex gap-3">
+        <section className="flex flex-col sm:flex-row gap-3 flex-wrap">
 
           {usuario && usuario.id_rol === 1 &&
 
@@ -178,7 +178,8 @@ export default function ListaHistorial() {
         </section>
 
 
-        <table className="w-full mt-6 border-collapse">
+        <div className="overflow-x-auto">
+        <table className="w-full mt-6 border-collapse min-w-[600px]">
             <thead className="bg-gray-100 text-lg">
               <tr>
                 <th className="px-4 py-2 border">Nombre</th>
@@ -226,11 +227,12 @@ export default function ListaHistorial() {
               )}
             </tbody>
         </table>
+        </div>
 
         {/* Dialog para mostrar la URL */}
         {dialog && (
           <div className={`fixed inset-0 flex items-center justify-center z-50 transition-all duration-300 ease-in-out ${dialogVisible ? 'bg-black bg-opacity-50' : 'bg-black bg-opacity-0'}`}>
-            <div className={`bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full mx-auto h-[95vh] flex flex-col transform transition-all duration-300 ease-in-out ${dialogVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <div className={`bg-white p-4 md:p-6 rounded-lg shadow-xl max-w-4xl w-[95%] md:w-full mx-auto h-[90vh] md:h-[95vh] flex flex-col transform transition-all duration-300 ease-in-out ${dialogVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-2xl font-semibold">Reporte de Evaluación</h3>
                 <button

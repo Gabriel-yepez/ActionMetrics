@@ -26,7 +26,7 @@ const ModalProgreso = ({ titulo, porcentaje, onClose }) => {
   }, [onClose, router]);
 
   return (
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[70%] h-[90%] bg-white shadow-xl p-6 rounded-xl overflow-y-auto scrollbar-hide">
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] md:w-[70%] h-[90%] bg-white shadow-xl p-4 md:p-6 rounded-xl overflow-y-auto scrollbar-hide">
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
