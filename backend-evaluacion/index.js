@@ -4,14 +4,49 @@ const {sequelize} = require('./db/sequelize');
 const routes = require('./routes/routes');
 const morgan = require('morgan');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const port = process.env.PORT || 4001;
 
+// Headers de seguridad
+app.use(helmet());
+
+// CORS configurado (permitir solo orígenes conocidos)
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',')
+  : ['http://localhost:3000'];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  exposedHeaders: ['X-Report-ID'],
+}));
+
+// Rate limiting global
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 500,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiadas solicitudes, intente de nuevo más tarde.' },
+});
+app.use(globalLimiter);
+
+// Rate limiting estricto para auth (prevenir fuerza bruta)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 20, // máximo 20 intentos de login/registro por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados intentos de autenticación, intente de nuevo en 15 minutos.' },
+});
+app.use('/api/auth', authLimiter);
+
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(cors())
 app.use(morgan("dev"))
 
 // Configuración para servir archivos estáticos
