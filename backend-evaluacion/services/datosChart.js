@@ -18,9 +18,10 @@ const generarConteoGeneral = async () => {
     { name: 'Diciembre', evaluaciones: 0 }
   ];
 
-  // Usar fechas estáticas para todo el año 2024
-  const startDate = new Date('2025-01-01');
-  const endDate = new Date('2025-12-31');
+  // Usar el año actual dinámicamente
+  const currentYear = new Date().getFullYear();
+  const startDate = new Date(`${currentYear}-01-01`);
+  const endDate = new Date(`${currentYear}-12-31`);
   
   const whereClause = {
     fecha: {
@@ -48,9 +49,10 @@ const generarConteoGeneral = async () => {
 };
 
 const generarConteoUsuario = async (idUsuario) => {
-  // Usar fechas estáticas para todo el año 2025
-  const startDate = new Date('2025-01-01');
-  const endDate = new Date('2025-12-31');
+  // Usar el año actual dinámicamente
+  const currentYear = new Date().getFullYear();
+  const startDate = new Date(`${currentYear}-01-01`);
+  const endDate = new Date(`${currentYear}-12-31`);
   
   const whereClause = {
     fecha: {

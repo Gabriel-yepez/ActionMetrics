@@ -4,6 +4,17 @@ const services = new ReportServices();
 // Almacenamiento temporal de definiciones de documentos (en producción usaría Redis)
 const reportCache = new Map();
 
+// Limpieza periódica del caché cada 15 minutos para evitar memory leaks
+const CACHE_EXPIRATION_MS = 30 * 60 * 1000; // 30 minutos
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, value] of reportCache) {
+        if (now - value.timestamp > CACHE_EXPIRATION_MS) {
+            reportCache.delete(key);
+        }
+    }
+}, 15 * 60 * 1000);
+
 const getReport = async (req, res) => {
     try {
         // Generar un ID basado solo en usuario y fecha (igual para ambos tipos de reporte)

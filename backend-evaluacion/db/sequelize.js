@@ -12,10 +12,17 @@ const PlanMejoraModel= require('../models/plan_mejora')
 const RetroalimmentacionModel= require('../models/retroalimentacion') 
 
 //conectando a la BD
-const sequelize = new Sequelize('evaluacion', 'postgres', process.env.passwordDB, {
-    host: 'localhost',
+const sequelize = new Sequelize(
+  process.env.DB_NAME || 'evaluacion',
+  process.env.DB_USER || 'postgres',
+  process.env.passwordDB,
+  {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
     dialect: 'postgres',
-  });
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  }
+);
 
 //declaracion de los modelos
 const Usuario = UsuarioModel(sequelize);

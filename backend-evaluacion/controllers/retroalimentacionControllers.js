@@ -63,7 +63,7 @@ const deleteRetroalimentacion = async (req, res) => {
 
 const getRetroalimentacionesByUsuario = async (req, res) => {
     try {
-        const retroalimentaciones = await services.getRetroalimentacionesByUsuario(req.params.id_usuario)
+        const retroalimentaciones = await services.getRetroalimentacionesByUsuario(req.params.idUsuario)
         if (retroalimentaciones.length === 0) return res.status(404).json({ 
             message: "No se encontraron retroalimentaciones para este usuario." 
         });
@@ -76,7 +76,7 @@ const getRetroalimentacionesByUsuario = async (req, res) => {
 
 const getRetroalimentacionesByEvaluacion = async (req, res) => {
     try {
-        const retroalimentaciones = await services.getRetroalimentacionesByEvaluacion(req.params.id_evaluacion)
+        const retroalimentaciones = await services.getRetroalimentacionesByEvaluacion(req.params.idEvaluacion)
         if (retroalimentaciones.length === 0) return res.status(404).json({ 
             message: "No se encontraron retroalimentaciones para esta evaluación." 
         });

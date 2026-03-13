@@ -2,7 +2,7 @@ const {DataTypes}=require('sequelize')
 
 module.exports = (sequelize)=>{
 
-    return sequelize.define('retroalimenacion',
+    return sequelize.define('retroalimentacion',
         {
             id:{
                 type: DataTypes.INTEGER,

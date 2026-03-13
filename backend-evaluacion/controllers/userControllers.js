@@ -24,7 +24,7 @@ const getAllUsers = async (req, res)=>{
         res.status(200).json(users)
       } catch (error) {
         console.log(error)
-        res.stattus(500).json(error)
+        res.status(500).json({ message: "Error interno del servidor", error: error.message })
       }
 }
 
@@ -36,7 +36,7 @@ const getByid = async (req, res)=>{
         res.status(200).json(user)
       } catch (error) {
         console.log(error)
-        res.stattus(500).json(error)
+        res.status(500).json({ message: "Error interno del servidor", error: error.message })
       }
 }
 
