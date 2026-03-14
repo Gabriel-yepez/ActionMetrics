@@ -11,12 +11,15 @@ const app = express();
 const port = process.env.PORT || 4001;
 
 // Headers de seguridad
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "unsafe-none" },
+}));
 
 // CORS configurado (permitir solo orígenes conocidos)
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',')
-  : ['http://localhost:3000'];
+  : ['http://localhost:3000', 'http://localhost:3001'];
 
 app.use(cors({
   origin: allowedOrigins,
