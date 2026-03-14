@@ -31,24 +31,31 @@ export default function Login() {
           return
         }
 
-        const response = await fetch(`${urlApi}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre_usuario, password }),
-        })
+        try {
+          const response = await fetch(`${urlApi}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre_usuario, password }),
+          })
 
-        const responseData = await response.json()
+          const responseData = await response.json()
 
-        if(response.ok && responseData.ok){
-          login(responseData)
-          setLoading(true)
+          if(response.ok && responseData.ok){
+            login(responseData)
+            setLoading(true)
 
-          setTimeout(() => {
-          router.push('/dashboard')
-          }, 3000)
-          toast.success(responseData.message || 'Inicio de sesión exitoso')
+            setTimeout(() => {
+            router.push('/dashboard')
+            }, 3000)
+            toast.success(responseData.message || 'Inicio de sesión exitoso')
+          }
+          else {
+            toast.error(responseData.message || 'Datos inválidos')
+          }
+        } catch (error) {
+          console.error("Error en login:", error)
+          toast.error('Error de conexión con el servidor')
         }
-        else toast.error(responseData.message || 'Datos inválidos')
     }
 
   return (

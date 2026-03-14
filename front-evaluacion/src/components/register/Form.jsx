@@ -57,21 +57,28 @@ export default function Form() {
           id_rol=2
         } 
 
-      const response = await fetch(`${urlApi}/auth/register`, { //lama para autenticar el usuario
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre_usuario, nombre, apellido,email, password, ci, id_rol }),
-      })
+      try {
+        const response = await fetch(`${urlApi}/auth/register`, { //lama para autenticar el usuario
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre_usuario, nombre, apellido,email, password, ci, id_rol }),
+        })
 
-      const responseData = await response.json()
+        const responseData = await response.json()
 
-      if(response.ok && responseData.ok){
-          toast.success(responseData.message || 'Registro exitoso')
-          setTimeout(() => {
-            router.push('/')
-          }, 2000)
+        if(response.ok && responseData.ok){
+            toast.success(responseData.message || 'Registro exitoso')
+            setTimeout(() => {
+              router.push('/')
+            }, 2000)
+        }
+        else {
+          toast.error(responseData.message || 'Error al registrar')
+        }
+      } catch (error) {
+        console.error("Error en registro:", error)
+        toast.error('Error de conexión con el servidor')
       }
-      else toast.error(responseData.message || 'Error al registrar')
     }
 
   return (
