@@ -1,35 +1,41 @@
-const {Usuario}= require('../db/sequelize')
+const {Usuario, Departamento}= require('../db/sequelize')
 
 class UserServices{
 
     async createUser(user){
         const newUser = await Usuario.create(user)
-        return newUser        
+        return newUser
     }
 
     async getAllUsers(filter = null){
-        if(filter){
-            const users = await Usuario.findAll({where:filter})
-            return users
-        }else{
-            const users = await Usuario.findAll()
-            return users
+        const options = {
+            include: [{ model: Departamento, attributes: ['id', 'nombre'] }]
         }
+        if(filter){
+            options.where = filter
+        }
+        const users = await Usuario.findAll(options)
+        return users
     }
 
     async getByid(id){
-        const user = await Usuario.findByPk(id)
+        const user = await Usuario.findByPk(id, {
+            include: [{ model: Departamento, attributes: ['id', 'nombre'] }]
+        })
         return user
     }
 
-    async getUserByfield(field){   
-        const user = await Usuario.findOne({where:field})
+    async getUserByfield(field){
+        const user = await Usuario.findOne({
+            where: field,
+            include: [{ model: Departamento, attributes: ['id', 'nombre'] }]
+        })
         return user
     }
 
     async updateUser(id, data){
         const user = await Usuario.findByPk(id)
-        
+
         if(user){
 
             const updatedUser = await user.update(data)
@@ -47,8 +53,12 @@ class UserServices{
         return user
     }
 
-    async getUserCount(){
-        const count= await Usuario.count()
+    async getUserCount(departamentoId = null){
+        const where = {}
+        if (departamentoId) {
+            where.id_departamento = departamentoId
+        }
+        const count= await Usuario.count({ where })
         return count
     }
 

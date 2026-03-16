@@ -1,4 +1,5 @@
 const { Objetivo } = require('../db/sequelize');
+const { Op } = require('sequelize');
 
 class ObjetivoServices {
 
@@ -7,8 +8,12 @@ class ObjetivoServices {
         return newObjetivo;
     }
 
-    async getAllObjetivos() {
-        const objetivos = await Objetivo.findAll();
+    async getAllObjetivos(userIds = null) {
+        const where = {};
+        if (userIds) {
+            where.id_usuario = { [Op.in]: userIds };
+        }
+        const objetivos = await Objetivo.findAll({ where });
         return objetivos;
     }
 

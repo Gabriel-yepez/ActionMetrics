@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const { Evaluacion } = require('../db/sequelize');
 
-const generarConteoGeneral = async () => {
+const generarConteoGeneral = async (userIds = null) => {
   // Inicializar array con todos los meses y contadores en cero
   const estadisticasMensuales = [
     { name: 'Enero', evaluaciones: 0 },
@@ -28,7 +28,11 @@ const generarConteoGeneral = async () => {
       [Op.between]: [startDate, endDate]
     }
   };
-  
+
+  if (userIds) {
+    whereClause.id_usuario = { [Op.in]: userIds };
+  }
+
   // Buscar siempre las evaluaciones en la base de datos cuando se hace la petición
   const evaluaciones = await Evaluacion.findAll({
     where: whereClause,

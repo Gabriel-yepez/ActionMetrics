@@ -7,8 +7,9 @@ const {getReport, getReportWithAI}= require("../controllers/reportControllers");
 const { getAllRetroalimentaciones, getRetroalimentacionById, createRetroalimentacion, updateRetroalimentacion, deleteRetroalimentacion, getRetroalimentacionesByUsuario, getRetroalimentacionesByEvaluacion } = require("../controllers/retroalimentacionControllers");
 const { uploadDocument, deleteDocument, getDocuments } = require("../controllers/documentController");
 const { deleteHabilidad, getHabilidad } = require("../controllers/habilidadControllers");
+const { getAllDepartamentos, getDepartamentoById, createDepartamento, updateDepartamento, deleteDepartamento, getDepartamentoCount } = require("../controllers/departamentoControllers");
 const upload = require("../middleware/uploadMiddleware");
-const { verifyToken, requireAdmin } = require("../middleware/authMiddleware");
+const { verifyToken, requireAdmin, requireSuperAdmin } = require("../middleware/authMiddleware");
 
 const router = Router();
 
@@ -19,6 +20,7 @@ const router = Router();
 
     router.post("/auth/register", registerUser)
     router.post("/auth/login", loginUser)
+    router.get("/departamentos/public", getAllDepartamentos)
 
     // --- Todas las rutas siguientes requieren autenticación ---
     router.use(verifyToken);
@@ -69,5 +71,13 @@ const router = Router();
     // habilidades
     router.delete("/habilidades/:id", requireAdmin, deleteHabilidad)
     router.get("/habilidades", getHabilidad)
+
+    // departamentos (CRUD solo super admin)
+    router.get("/departamentos/count", getDepartamentoCount)
+    router.get("/departamentos", getAllDepartamentos)
+    router.get("/departamentos/:id", getDepartamentoById)
+    router.post("/departamentos", requireSuperAdmin, createDepartamento)
+    router.put("/departamentos/:id", requireSuperAdmin, updateDepartamento)
+    router.delete("/departamentos/:id", requireSuperAdmin, deleteDepartamento)
 
 module.exports= router;

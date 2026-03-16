@@ -1,12 +1,17 @@
 const {Evaluacion}= require('../db/sequelize')
+const { Op } = require('sequelize')
 
 class EvaluacionServices{
 
-    async getEvaluacionCount(){
-        const count= await Evaluacion.count()
+    async getEvaluacionCount(userIds = null){
+        const where = {}
+        if (userIds) {
+            where.id_usuario = { [Op.in]: userIds }
+        }
+        const count= await Evaluacion.count({ where })
         return count
     }
-    
+
     async getEvaluacionCountByUser(userId){
         const count = await Evaluacion.count({
             where: { id_usuario: userId }
@@ -14,8 +19,12 @@ class EvaluacionServices{
         return count
     }
 
-    async getAllEvaluacion(){
-        const evaluacion= await Evaluacion.findAll()
+    async getAllEvaluacion(userIds = null){
+        const where = {}
+        if (userIds) {
+            where.id_usuario = { [Op.in]: userIds }
+        }
+        const evaluacion= await Evaluacion.findAll({ where })
         return evaluacion
     }
     
