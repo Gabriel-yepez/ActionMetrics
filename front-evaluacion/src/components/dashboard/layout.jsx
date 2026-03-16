@@ -8,14 +8,18 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import ApartmentIcon from '@mui/icons-material/Apartment';
 import { useSesionStore } from '@/store/sesionStore';
 import { useDashboardStore } from '@/store/dashboardStore';
+import DepartmentSelector from './DepartmentSelector';
 
 export default function Layout({children}) {
  
   const { usuario , logout } = useSesionStore()
   const { resetObjetivos } = useDashboardStore()
   const pathname = usePathname();
+  const isAdmin = usuario && (usuario.id_rol === 1 || usuario.id_rol === 3);
+  const isSuperAdmin = usuario && usuario.id_rol === 3;
   const borrarUsuarios = () =>{
     logout()
     resetObjetivos()
@@ -42,7 +46,7 @@ export default function Layout({children}) {
             <span className="hidden sm:inline">Inicio</span>
             </Link>
 
-            {usuario && usuario.id_rol === 1 &&
+            {isAdmin &&
             <Link href="/evaluacion"
             className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/evaluacion' ? 'bg-indigo-600' : ''}`} >
             <TextSnippetIcon fontSize="small" className="md:text-[30px]"/>
@@ -74,6 +78,14 @@ export default function Layout({children}) {
             <span className="hidden sm:inline">Alertas</span>
             </Link>
 
+            {isSuperAdmin &&
+            <Link href="/departamentos"
+            className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/departamentos' ? 'bg-indigo-600' : ''}`} >
+            <ApartmentIcon fontSize="small" className="md:text-[30px]"/>
+            <span className="hidden sm:inline">Departamentos</span>
+            </Link>
+            }
+
             <div className="hidden h-auto w-full grow md:block"></div>
 
             <Link href="/"
@@ -89,8 +101,13 @@ export default function Layout({children}) {
         </div>
       </aside>
             
-       <div className="flex-grow p-6 md:overflow-y-auto md:p-0">
-          {children}
+       <div className="flex-grow flex flex-col md:overflow-y-auto">
+          <div className="p-3 flex justify-end bg-white shadow-sm">
+            <DepartmentSelector />
+          </div>
+          <div className="flex-grow p-6 md:p-0">
+            {children}
+          </div>
        </div>
 
     </div>

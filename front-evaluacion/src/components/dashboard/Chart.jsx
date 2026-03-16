@@ -12,7 +12,7 @@ export default function Chart() {
   const conseguirUsers = useUserStore(state => state.conseguirUsers)
   const [selectedUser, setSelectedUser] = useState("");
 
-  const isAdmin = usuario && usuario.id_rol === 1;
+  const isAdmin = usuario && (usuario.id_rol === 1 || usuario.id_rol === 3);
   const userId = usuario ? usuario.id : null;
   const userIdToQuery = isAdmin ? selectedUser : userId;
 

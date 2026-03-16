@@ -44,7 +44,7 @@ const ObjetivoResult = ({ porcentaje, peso, titulo, descripcion }) => {
           marginBottom: '4px'
         }}>
           <h1 className='font-bold text-2xl'>{titulo}</h1>
-          {usuario && usuario.id_rol === 1 && 
+          {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) && 
             <Button 
               size="small"
               sx={{ 

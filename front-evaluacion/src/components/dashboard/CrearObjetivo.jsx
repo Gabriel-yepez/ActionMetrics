@@ -155,7 +155,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
         
         <Box sx={{ display: 'flex', gap: 2 }}>
 
-          {usuario && usuario.id_rol===1 &&
+          {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) &&
             <Button 
               variant="contained" 
               startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <AddIcon />}
@@ -318,7 +318,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
                           </Typography>
 
                           {tipo === "general" ? (
-                            usuario && usuario.id_rol === 1 ? (
+                            usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) ? (
                               <BotonListo 
                                 objetivo={objetivo} 
                               />
