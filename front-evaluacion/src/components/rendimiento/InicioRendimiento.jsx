@@ -39,10 +39,10 @@ export default function InicioRendimiento({ selectedUserId: initialSelectedId })
 
   return (
    <div className="p-4 md:p-8">
-     {usuario && usuario.id_rol ===1 && <h1 className="text-2xl md:text-4xl font-bold mb-4">Rendimiento de Empleados</h1>}
+     {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) && <h1 className="text-2xl md:text-4xl font-bold mb-4">Rendimiento de Empleados</h1>}
      {usuario && usuario.id_rol ===2 && <h1 className="text-2xl md:text-4xl font-bold mb-4">Mi Rendimiento</h1>}
 
-      {usuario  && usuario.id_rol ===1 &&
+      {usuario  && (usuario.id_rol === 1 || usuario.id_rol === 3) &&
         <div className="mb-6">
             <label htmlFor="usuario" className="block mb-2 font-medium text-gray-700">Seleccionar Empleado</label>
             <select

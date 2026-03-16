@@ -109,7 +109,8 @@ export default function ListaPersonal() {
                   <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Apellido</strong></TableCell>
                   <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Email</strong></TableCell>
                   <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Cédula</strong></TableCell>
-                  {usuario && usuario.id_rol===1 && <TableCell align="center" sx={{ fontSize: '1.05rem', px: '8px' }}><strong>Acciones</strong></TableCell>}
+                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Departamento</strong></TableCell>
+                  {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) && <TableCell align="center" sx={{ fontSize: '1.05rem', px: '8px' }}><strong>Acciones</strong></TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody sx={{ 
@@ -124,7 +125,8 @@ export default function ListaPersonal() {
                       <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">{user.apellido}</TableCell>
                       <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">{user.email}</TableCell>
                       <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">V-{user.ci}</TableCell>
-                      {usuario && usuario.id_rol===1 &&
+                      <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">{user.departamento?.nombre || 'Sin departamento'}</TableCell>
+                      {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) &&
                       
                       <TableCell align="center" sx={{ px: '8px' }}>
                         <IconButton 
@@ -146,7 +148,7 @@ export default function ListaPersonal() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} align="center">
+                    <TableCell colSpan={6} align="center">
                       {notFound && "No se encontraron usuarios"}
                     </TableCell>
                   </TableRow>

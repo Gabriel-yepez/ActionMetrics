@@ -49,7 +49,7 @@ export default function ListaHistorial() {
       }
 
       // Filtrar por usuario seleccionado (solo admin)
-      if (usuario.id_rol === 1 && filtros.usuario) {
+      if ((usuario.id_rol === 1 || usuario.id_rol === 3) && filtros.usuario) {
         datosFiltrados = datosFiltrados.filter(
           evaluacion => evaluacion.id_usuario.toString() === filtros.usuario
         );
@@ -141,7 +141,7 @@ export default function ListaHistorial() {
 
         <section className="flex flex-col sm:flex-row gap-3 flex-wrap">
 
-          {usuario && usuario.id_rol === 1 &&
+          {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) &&
 
             <select
             name="usuario"
@@ -255,7 +255,7 @@ export default function ListaHistorial() {
               </div>
 
               {/* Feedback basado en rol */}
-              {usuario && usuario.id_rol === 1 && (
+              {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) && (
                 <div className="p-2 border rounded bg-slate-50">
                   <h2 className="text-lg font-semibold mb-2">Opinión del empleado</h2>
                   {retroalimentacionExistente ? (

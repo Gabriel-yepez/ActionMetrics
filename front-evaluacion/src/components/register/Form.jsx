@@ -2,13 +2,29 @@ import { useRouter } from 'next/router'
 import { urlApi } from '@/config/config'
 import { toast,ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { validateForm, hasErrors } from '@/helper/formValidation';
 
 
 export default function Form() {
     const router= useRouter()//enrutamiento
     const [errors, setErrors] = useState({})
+    const [departamentos, setDepartamentos] = useState([])
+
+    useEffect(() => {
+        const fetchDepartamentos = async () => {
+            try {
+                const res = await fetch(`${urlApi}/departamentos/public`)
+                if (res.ok) {
+                    const result = await res.json()
+                    setDepartamentos(result.data || [])
+                }
+            } catch (error) {
+                console.error("Error al obtener departamentos:", error)
+            }
+        }
+        fetchDepartamentos()
+    }, [])
 
     async function handlesubmit(event){ 
 
@@ -22,16 +38,17 @@ export default function Form() {
         const email = form.get('email')
         const cedula= form.get('cedula')
         let id_rol= form.get('rol')
-        
+        const id_departamento = form.get('departamento') ? parseInt(form.get('departamento'), 10) : null
+
         // Validar los campos
-        const formFields = { 
-          nombre, 
-          apellido, 
-          usuario: nombre_usuario, 
-          contraseña: password, 
-          email, 
-          cedula, 
-          rol: id_rol 
+        const formFields = {
+          nombre,
+          apellido,
+          usuario: nombre_usuario,
+          contraseña: password,
+          email,
+          cedula,
+          rol: id_rol
         }
         const formErrors = validateForm(formFields)
         setErrors(formErrors)
@@ -55,13 +72,16 @@ export default function Form() {
         }
         else if(id_rol==="empleado"){
           id_rol=2
-        } 
+        }
+        else if(id_rol==="superadmin"){
+          id_rol=3
+        }
 
       try {
         const response = await fetch(`${urlApi}/auth/register`, { //lama para autenticar el usuario
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre_usuario, nombre, apellido,email, password, ci, id_rol }),
+          body: JSON.stringify({ nombre_usuario, nombre, apellido, email, password, ci, id_rol, id_departamento }),
         })
 
         const responseData = await response.json()
@@ -177,19 +197,35 @@ export default function Form() {
 
             <div className="mb-4">
             <label htmlFor="rol" className="text-gray-700 font-bold mb-2">Cargo</label>
-            
+
                 <select
                     name="rol"
                     id="rol"
                     className={`shadow appearance-none border ${errors.rol ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                 >
                     <option value="">Seleccionar rol</option>
-                    <option value="gerente">Gerente</option>
+                    <option value="superadmin">Super Admin</option>
+                    <option value="gerente">Gerente de departamento</option>
                     <option value="empleado">Empleado</option>
                 </select>
                 {errors.rol && (
                   <p className="text-red-500 text-xs mt-1">{errors.rol}</p>
                 )}
+            </div>
+
+            <div className="mb-4">
+            <label htmlFor="departamento" className="text-gray-700 font-bold mb-2">Departamento</label>
+
+                <select
+                    name="departamento"
+                    id="departamento"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                    <option value="">Seleccionar departamento</option>
+                    {departamentos.map((dept) => (
+                        <option key={dept.id} value={dept.id}>{dept.nombre}</option>
+                    ))}
+                </select>
             </div>
 
             <div className="flex items-center justify-between">
