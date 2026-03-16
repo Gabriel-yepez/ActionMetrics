@@ -26,7 +26,8 @@
       "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && node -e \"const PdfPrinter = require\\('pdfmake/src/Printer'\\); console.log\\('Type:', typeof PdfPrinter\\)\" 2>&1)",
       "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && npm install 2>&1 | tail -10)",
       "Bash(cd C:/Projects/misrepos/ActionMetrics/backend-evaluacion && node -e \"\nrequire\\('./controllers/auth/authControllers'\\);\nrequire\\('./controllers/userControllers'\\);\nrequire\\('./controllers/evaluacionController'\\);\nrequire\\('./controllers/objetivoControllers'\\);\nrequire\\('./controllers/retroalimentacionControllers'\\);\nrequire\\('./controllers/documentController'\\);\nrequire\\('./controllers/habilidadControllers'\\);\nrequire\\('./controllers/reportControllers'\\);\nrequire\\('./middleware/authMiddleware'\\);\nrequire\\('./routes/routes'\\);\nconsole.log\\('Todos los módulos del backend cargan correctamente'\\);\n\" 2>&1)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(cd:*)"
     ]
   }
 }

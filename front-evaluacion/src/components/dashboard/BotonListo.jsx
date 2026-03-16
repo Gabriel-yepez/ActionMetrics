@@ -14,11 +14,11 @@ export default function BotonListo({ objetivo }) {
     // Utilizar el hook actualizarObjetivo para cambiar el estado del objetivo a completado
     actualizarObjetivo.mutate(objetivoId, {
       onSuccess: () => {
-        toast.success('Objetivo completado correctamente');
+        toast.success('El objetivo se marcó como completado.');
       },
       onError: (error) => {
         console.error('Error al actualizar el objetivo:', error);
-        toast.error('Error al actualizar el objetivo. Intente nuevamente.');
+        toast.error('No se pudo marcar el objetivo como completado. Por favor, intente de nuevo más tarde.');
       }
     });
   };

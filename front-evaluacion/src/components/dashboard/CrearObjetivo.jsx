@@ -97,7 +97,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
     const fechaFin = new Date(nuevoObjetivo.fechaFin)
     
     if (fechaFin < fechaInicio) {
-      alert('La fecha de fin no puede ser menor a la fecha de inicio')
+      toast.error('La fecha de finalización debe ser posterior a la fecha de inicio.')
       return
     }
     
@@ -132,10 +132,10 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
       crearObjetivoMutation.mutate(objetivoData, {
         onSuccess: (data) => {
           handleCloseDialog()
-          toast.success('Objetivo creado exitosamente');
+          toast.success('El objetivo se creó correctamente y ya está visible en el panel.');
         },
         onError: (error) => {
-          toast.error(`Error al crear objetivo`)
+          toast.error('No se pudo crear el objetivo. Verifique los datos e intente de nuevo.')
         }
       })
     }
@@ -225,7 +225,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
                   )}
                 </Select>
                 {(!nuevoObjetivo.userId && nuevoObjetivo.descripcion) && (
-                  <FormHelperText error>Tiene que seleccionar un empleado</FormHelperText>
+                  <FormHelperText error>Debe seleccionar un empleado para asignar el objetivo.</FormHelperText>
                 )}
             </FormControl>
             }
@@ -284,7 +284,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
               
               handleInputChange(e);
             }}
-            helperText={nuevoObjetivo.fechaInicio && nuevoObjetivo.fechaFin && new Date(nuevoObjetivo.fechaFin) < new Date(nuevoObjetivo.fechaInicio) ? 'La fecha de fin no puede ser menor a la fecha de inicio' : ''}
+            helperText={nuevoObjetivo.fechaInicio && nuevoObjetivo.fechaFin && new Date(nuevoObjetivo.fechaFin) < new Date(nuevoObjetivo.fechaInicio) ? 'La fecha de finalización debe ser posterior a la fecha de inicio.' : ''}
             error={nuevoObjetivo.fechaInicio && nuevoObjetivo.fechaFin && new Date(nuevoObjetivo.fechaFin) < new Date(nuevoObjetivo.fechaInicio)}
           />
         </DialogContent>
@@ -355,7 +355,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
             </List>
           ) : (
             <Typography align="center" sx={{ my: 2 }}>
-              No hay objetivos {tipo === 'general' ? "generales" : "individuales"} registrados
+              Aún no se han creado objetivos {tipo === 'general' ? "generales" : "individuales"}. Puede agregar uno nuevo con el botón "Agregar".
             </Typography>
           )}
         </DialogContent>

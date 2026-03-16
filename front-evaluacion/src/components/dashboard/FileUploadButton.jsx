@@ -36,12 +36,12 @@ const FileUploadButton = ({ objetivoId, setDialog }) => {
     // Utilizar el hook actualizarObjetivo para cambiar el estado del objetivo a completado
     actualizarObjetivo.mutate(objetivoId, {
       onSuccess: () => {
-        toast.success('Objetivo actualizado correctamente');
-        setDialog(false); // Solo cerramos el diálogo
+        toast.success('El objetivo se marcó como completado.');
+        setDialog(false);
       },
       onError: (error) => {
         console.error('Error al actualizar el objetivo:', error);
-        toast.error('Error al actualizar el objetivo. Intente nuevamente.');
+        toast.error('No se pudo marcar el objetivo como completado. Por favor, intente de nuevo más tarde.');
       }
     });
   }
@@ -67,19 +67,19 @@ const FileUploadButton = ({ objetivoId, setDialog }) => {
             console.log('URL del documento:', fileUrl);
             setDocumentUrl(fileUrl);
           }
-          toast.success('Archivo subido correctamente.');
+          toast.success('El archivo de evidencia se subió correctamente.');
           setUploadComplete(true); // Mark upload as complete
           setUploading(false);
         },
         onError: (error) => {
           console.error('Error al subir el archivo:', error);
-          toast.error(`Error al subir el archivo`);
+          toast.error('No se pudo subir el archivo. Verifique que el formato sea válido (PDF, DOC, JPG, PNG) e intente de nuevo.');
           setUploading(false);
         }
       });
     } catch (error) {
       console.error('Error en proceso de subida:', error);
-      toast.error(`Error al subir el archivo`);
+      toast.error('No se pudo subir el archivo. Verifique que el formato sea válido (PDF, DOC, JPG, PNG) e intente de nuevo.');
       setUploading(false);
     } finally {
       e.target.value = null; // Reset file input
