@@ -135,7 +135,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
           toast.success('El objetivo se creó correctamente y ya está visible en el panel.');
         },
         onError: (error) => {
-          toast.error('No se pudo crear el objetivo. Verifique los datos e intente de nuevo.')
+          toast.error(error.message || 'No se pudo crear el objetivo. Verifique los datos e intente de nuevo.')
         }
       })
     }

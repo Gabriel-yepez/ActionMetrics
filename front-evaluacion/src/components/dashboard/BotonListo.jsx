@@ -18,7 +18,7 @@ export default function BotonListo({ objetivo }) {
       },
       onError: (error) => {
         console.error('Error al actualizar el objetivo:', error);
-        toast.error('No se pudo marcar el objetivo como completado. Por favor, intente de nuevo más tarde.');
+        toast.error(error.message || 'No se pudo marcar el objetivo como completado. Por favor, intente de nuevo más tarde.');
       }
     });
   };
