@@ -1,8 +1,10 @@
 import { authFetch } from "@/services/authFetch";
 
-export const graficaGeneral = async () => {
+export const graficaGeneral = async (departamento = null) => {
     try {
-        const response = await authFetch('/evaluaciones/grafica');
+        let url = '/evaluaciones/grafica'
+        if (departamento) url += `?departamento=${departamento}`
+        const response = await authFetch(url);
         if (!response.ok) {
           throw new Error(`Error al obtener datos para la gráfica: ${response.status}`);
         }

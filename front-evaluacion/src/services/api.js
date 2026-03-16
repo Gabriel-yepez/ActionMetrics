@@ -1,10 +1,12 @@
 import { authFetch } from "@/services/authFetch"
 
 
-export const fetchData= async() =>{
+export const fetchData= async(departamento = null) =>{
 
     try {
-        const response = await authFetch('/usuarios/count')
+        let url = '/usuarios/count'
+        if (departamento) url += `?departamento=${departamento}`
+        const response = await authFetch(url)
         const result = await response.json()
         return result.data
     } catch (error) {
@@ -12,9 +14,11 @@ export const fetchData= async() =>{
     }
 }
 
-export const fetchEvaluaciones = async() =>{
+export const fetchEvaluaciones = async(departamento = null) =>{
     try {
-        const response = await authFetch('/evaluaciones/count')
+        let url = '/evaluaciones/count'
+        if (departamento) url += `?departamento=${departamento}`
+        const response = await authFetch(url)
         const result = await response.json()
         return result.data
     } catch (error) {

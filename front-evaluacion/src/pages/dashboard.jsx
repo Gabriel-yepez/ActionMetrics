@@ -27,7 +27,7 @@ export default function Dashboard() {
   const notificacionesMostradas = useRef(false);
   
   // Seleccionar el hook correcto según el rol del usuario
-  const isAdmin = usuario && usuario.id_rol === 1;
+  const isAdmin = usuario && (usuario.id_rol === 1 || usuario.id_rol === 3);
   const evaluacionesCountGeneralQuery = useEvaluacionesCount();
   const evaluacionesCountUserQuery = useEvaluacionesCountByUser(usuario?.id);
   

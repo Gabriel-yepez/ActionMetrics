@@ -8,6 +8,9 @@ import { createEvaluacion, getEvaluaciones } from '@/services/evaluacion';
 import { graficaGeneral, graficaUsuario } from '@/services/datosChart';
 import { guardarRetroalimentacion, getAllRetroalimentacion } from '@/services/retroalimentacion';
 import { uploadDocument, getDocument } from '@/services/documento';
+import { fetchDepartamentos, crearDepartamento, actualizarDepartamento, eliminarDepartamento } from '@/services/departamento';
+import { useDepartamentoStore } from '@/store/departamentoStore';
+import { useSesionStore } from '@/store/sesionStore';
 
 // Claves de consulta para referencia
 export const queryKeys = {
@@ -24,14 +27,29 @@ export const queryKeys = {
   graficaGeneral: 'graficaGeneral',
   graficaUsuario: 'graficaUsuario',
   retroalimentacion: 'retroalimentacion',
-  retroalimentacionAll: 'retroalimentacionAll'
+  retroalimentacionAll: 'retroalimentacionAll',
+  departamentos: 'departamentos'
 };
+
+/**
+ * Obtiene el filtro de departamento activo según el rol:
+ * - Super Admin (id_rol=3): usa el selector global (puede ver todo o filtrar)
+ * - Admin de departamento (id_rol=1): siempre su departamento
+ * - Empleado (id_rol=2): siempre su departamento
+ */
+function useDeptFilter() {
+  const selectedDepartamento = useDepartamentoStore(state => state.selectedDepartamento);
+  const usuario = useSesionStore(state => state.usuario);
+  const isSuperAdmin = usuario && usuario.id_rol === 3;
+  return isSuperAdmin ? selectedDepartamento : (usuario?.id_departamento || null);
+}
 
 // Hook para obtener usuarios con búsqueda
 export function useUsers(searchTerm = '') {
+  const deptFilter = useDeptFilter();
   return useQuery({
-    queryKey: [queryKeys.users, searchTerm],
-    queryFn: () => fetchUsers(searchTerm),
+    queryKey: [queryKeys.users, searchTerm, deptFilter],
+    queryFn: () => fetchUsers(searchTerm, deptFilter),
     select: (data) => ({
       users: data.users || [],
       notFound: data.notFound || false
@@ -41,9 +59,10 @@ export function useUsers(searchTerm = '') {
 
 // Hook para obtener conteo de evaluaciones
 export function useEvaluacionesCount() {
+  const deptFilter = useDeptFilter();
   return useQuery({
-    queryKey: [queryKeys.evaluacionesCount],
-    queryFn: fetchEvaluaciones,
+    queryKey: [queryKeys.evaluacionesCount, deptFilter],
+    queryFn: () => fetchEvaluaciones(deptFilter),
     select: (data) => data || 0,
     staleTime: 5 * 60 * 1000,
   });
@@ -62,9 +81,10 @@ export function useEvaluacionesCountByUser(userId) {
 
 // Hook para obtener conteo de usuarios
 export function useUsuariosCount() {
+  const deptFilter = useDeptFilter();
   return useQuery({
-    queryKey: [queryKeys.usuariosCount],
-    queryFn: fetchData,
+    queryKey: [queryKeys.usuariosCount, deptFilter],
+    queryFn: () => fetchData(deptFilter),
     select: (data) => data || 0,
     staleTime: 5 * 60 * 1000,
   });
@@ -85,9 +105,10 @@ export function useDeleteUser() {
 
 // Hook para obtener todos los objetivos
 export function useObjetivos() {
+  const deptFilter = useDeptFilter();
   return useQuery({
-    queryKey: [queryKeys.objetivos],
-    queryFn: fetchObjetivos,
+    queryKey: [queryKeys.objetivos, deptFilter],
+    queryFn: () => fetchObjetivos(deptFilter),
     select: (data) => data || [],
     staleTime: 5 * 60 * 1000,
   });
@@ -169,9 +190,10 @@ export function useCreateEvaluacion(){
 
 // Hook para obtener todas las evaluaciones
 export function useEvaluaciones() {
+  const deptFilter = useDeptFilter();
   return useQuery({
-    queryKey: [queryKeys.evaluaciones],
-    queryFn: getEvaluaciones,
+    queryKey: [queryKeys.evaluaciones, deptFilter],
+    queryFn: () => getEvaluaciones(deptFilter),
     select: (data) => data || [],
     staleTime: 5 * 60 * 1000,
   });
@@ -179,9 +201,10 @@ export function useEvaluaciones() {
 
 // Hook para obtener datos de gráfica general
 export function useGraficaGeneral() {
+  const deptFilter = useDeptFilter();
   return useQuery({
-    queryKey: [queryKeys.graficaGeneral],
-    queryFn: graficaGeneral,
+    queryKey: [queryKeys.graficaGeneral, deptFilter],
+    queryFn: () => graficaGeneral(deptFilter),
     select: (data) => data || [],
     staleTime: 5 * 60 * 1000,
     retry: 2,
@@ -228,10 +251,55 @@ export function useGuardarRetroalimentacion() {
 }
 
 export function useGetAllRetroalimentacion() {
+  const deptFilter = useDeptFilter();
   return useQuery({
-    queryKey: [queryKeys.retroalimentacionAll],
-    queryFn: getAllRetroalimentacion,
+    queryKey: [queryKeys.retroalimentacionAll, deptFilter],
+    queryFn: () => getAllRetroalimentacion(deptFilter),
     select: (data) => data || [],
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+// --- Hooks de departamentos ---
+
+export function useDepartamentos() {
+  return useQuery({
+    queryKey: [queryKeys.departamentos],
+    queryFn: fetchDepartamentos,
+    select: (data) => data || [],
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useCreateDepartamento() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data) => crearDepartamento(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.departamentos] });
+    },
+  });
+}
+
+export function useUpdateDepartamento() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }) => actualizarDepartamento(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.departamentos] });
+    },
+  });
+}
+
+export function useDeleteDepartamento() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => eliminarDepartamento(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.departamentos] });
+    },
   });
 }
