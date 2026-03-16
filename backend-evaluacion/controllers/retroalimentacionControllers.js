@@ -1,9 +1,17 @@
 const RetroalimentacionServices = require("../services/retroalimentacionServices")
+const { getDepartmentFilter, getUserIdsByDepartment } = require("../middleware/departmentFilter")
+const { Op } = require("sequelize")
 const services = new RetroalimentacionServices()
 
 const getAllRetroalimentaciones = async (req, res) => {
     try {
-        const retroalimentaciones = await services.getAllRetroalimentaciones()
+        const departamentoId = getDepartmentFilter(req);
+        const userIds = await getUserIdsByDepartment(departamentoId);
+        let filter = null;
+        if (userIds) {
+            filter = { id_usuario: { [Op.in]: userIds } };
+        }
+        const retroalimentaciones = await services.getAllRetroalimentaciones(filter)
         if (retroalimentaciones.length === 0) return res.status(404).json({ ok: false, data: [], message: "No se encontraron retroalimentaciones." });
         res.status(200).json({ ok: true, data: retroalimentaciones, message: "Retroalimentaciones obtenidas exitosamente." })
     } catch (error) {

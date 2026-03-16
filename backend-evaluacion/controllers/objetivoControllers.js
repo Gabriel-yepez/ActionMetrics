@@ -1,9 +1,12 @@
 const ObjetivoServices = require("../services/ObjetivoServices");
+const { getDepartmentFilter, getUserIdsByDepartment } = require("../middleware/departmentFilter");
 const services = new ObjetivoServices();
 
 const getAllObjetivos = async (req, res) => {
     try {
-        const objetivos = await services.getAllObjetivos();
+        const departamentoId = getDepartmentFilter(req);
+        const userIds = await getUserIdsByDepartment(departamentoId);
+        const objetivos = await services.getAllObjetivos(userIds);
         if (objetivos.length === 0)
             return res.status(404).json({ ok: false, data: [], message: "No se encontraron objetivos." });
         res.status(200).json({ ok: true, data: objetivos, message: "Objetivos obtenidos exitosamente." });

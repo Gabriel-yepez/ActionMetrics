@@ -1,12 +1,15 @@
 const userServices = require("../services/userServices")
 const services = new userServices()
 const { Op } = require("sequelize");
+const { getDepartmentFilter } = require("../middleware/departmentFilter");
 
 const getAllUsers = async (req, res)=>{
 
     try {
         const {search} = req.query
-        let filter = null;
+        const departamentoId = getDepartmentFilter(req);
+        let filter = {};
+
         if (search) {
           filter = {
               [Op.or]: [
@@ -18,7 +21,11 @@ const getAllUsers = async (req, res)=>{
           };
       }
 
-        const users = await services.getAllUsers(filter)
+        if (departamentoId) {
+            filter.id_departamento = departamentoId;
+        }
+
+        const users = await services.getAllUsers(Object.keys(filter).length > 0 ? filter : null)
         if (users.length === 0) return res.status(404).json({ ok: false, data: [], message: "No se encontraron usuarios." });
         res.status(200).json({ ok: true, data: users, message: "Usuarios obtenidos exitosamente." })
       } catch (error) {
@@ -77,7 +84,8 @@ const deleteUser = async (req, res)=>{
 
 const getUserCount = async (req, res)=>{
     try {
-        const count = await services.getUserCount()
+        const departamentoId = getDepartmentFilter(req);
+        const count = await services.getUserCount(departamentoId)
         res.status(200).json({ ok: true, data: count, message: "Conteo de usuarios obtenido." })
     } catch (error) {
         console.log(error)

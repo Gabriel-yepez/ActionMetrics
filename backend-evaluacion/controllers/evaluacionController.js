@@ -3,6 +3,7 @@ const HabilidadServices = require("../services/habilidadServices");
 const PrinterServices = require("../services/printerServices");
 const { getReportDefinitionById } = require('../controllers/reportControllers');
 const { generarConteoGeneral, generarConteoUsuario } = require('../services/datosChart');
+const { getDepartmentFilter, getUserIdsByDepartment } = require('../middleware/departmentFilter');
 
 const evaluacionServices = new EvaluacionServices();
 const habilidadServices = new HabilidadServices();
@@ -11,7 +12,9 @@ const printerServices = new PrinterServices();
 const getEvaluacionCount = async (req, res)=>{
 
     try {
-        const count = await evaluacionServices.getEvaluacionCount()
+        const departamentoId = getDepartmentFilter(req);
+        const userIds = await getUserIdsByDepartment(departamentoId);
+        const count = await evaluacionServices.getEvaluacionCount(userIds)
         res.status(200).json({ ok: true, data: count, message: "Conteo de evaluaciones obtenido." })
       } catch (error) {
         console.log(error)
@@ -21,7 +24,9 @@ const getEvaluacionCount = async (req, res)=>{
 
 const getAllEvaluacion = async (req, res)=>{
     try {
-        const evaluacion = await evaluacionServices.getAllEvaluacion()
+        const departamentoId = getDepartmentFilter(req);
+        const userIds = await getUserIdsByDepartment(departamentoId);
+        const evaluacion = await evaluacionServices.getAllEvaluacion(userIds)
         if(evaluacion.length === 0) return res.status(404).json({ ok: false, data: [], message: "No se encontraron evaluaciones." });
         res.status(200).json({ ok: true, data: evaluacion, message: "Evaluaciones obtenidas exitosamente." })
       } catch (error) {
@@ -92,7 +97,9 @@ const createEvaluacion = async (req, res) => {
 
 const getEstadisticasGenerales = async (req, res) => {
   try {
-    const estadisticasMensuales = await generarConteoGeneral();
+    const departamentoId = getDepartmentFilter(req);
+    const userIds = await getUserIdsByDepartment(departamentoId);
+    const estadisticasMensuales = await generarConteoGeneral(userIds);
 
     res.status(200).json({
       ok: true,
