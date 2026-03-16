@@ -103,13 +103,13 @@ export default function ListaDepartamentos() {
 
             {isError && (
                 <Alert severity="error" className="mb-4">
-                    Error: {error?.message || "Ocurrió un error al cargar los departamentos"}
+                    No se pudo cargar la lista de departamentos. {error?.message || "Verifique su conexión e intente de nuevo."}
                 </Alert>
             )}
 
             {deleteDepartamento.isError && (
                 <Alert severity="error" className="mb-4">
-                    Error al eliminar: {deleteDepartamento.error?.message || "No se pudo eliminar el departamento"}
+                    No se pudo eliminar el departamento. {deleteDepartamento.error?.message || "Es posible que tenga usuarios asignados. Reasigne los usuarios antes de eliminar."}
                 </Alert>
             )}
 
@@ -165,7 +165,7 @@ export default function ListaDepartamentos() {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={3} align="center">
-                                        No se encontraron departamentos
+                                        Aún no hay departamentos registrados. Cree uno nuevo con el botón "+".
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -179,7 +179,7 @@ export default function ListaDepartamentos() {
                 <DialogTitle>Confirmar eliminación</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        ¿Está seguro que desea eliminar este departamento? Los usuarios asignados quedarán sin departamento.
+                        Al eliminar este departamento, los usuarios asignados quedarán sin departamento y deberán ser reasignados manualmente. ¿Desea continuar?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

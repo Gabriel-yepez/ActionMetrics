@@ -49,12 +49,12 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
             setPdfUrl(result.pdfUrl);
           } else {
             console.warn('La respuesta del servidor no incluye la URL del PDF');
-            setErrorMessage('No se pudo generar el reporte correctamente. Por favor, inténtalo nuevamente.');
+            setErrorMessage('El reporte se generó pero no se obtuvo el documento PDF. Haga clic en "Reintentar" para volver a generarlo.');
           }
         },
         onError: (error) => {
           console.error("Error al obtener el reporte con ia:", error);
-          setErrorMessage('Ocurrió un error al generar el reporte. Por favor, inténtalo más tarde.');
+          setErrorMessage('No se pudo conectar con el servicio de reportes. Verifique su conexión e intente de nuevo.');
         }
       });
       
@@ -92,12 +92,12 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
             setPdfUrl(result.pdfUrl);
           } else {
             console.warn('La respuesta del servidor no incluye la URL del PDF');
-            setErrorMessage('No se pudo generar el reporte correctamente. Por favor, inténtalo nuevamente.');
+            setErrorMessage('El reporte se generó pero no se obtuvo el documento PDF. Haga clic en "Reintentar" para volver a generarlo.');
           }
         },
         onError: (error) => {
           console.error("Error al obtener el reporte:", error);
-          setErrorMessage('Ocurrió un error al generar el reporte. Por favor, inténtalo más tarde.');
+          setErrorMessage('No se pudo conectar con el servicio de reportes. Verifique su conexión e intente de nuevo.');
         }
       });
     } catch (error) {
@@ -116,7 +116,7 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
             <h1 className="font-semibold text-lg md:text-xl text-center mb-2">Resumen de la evaluación</h1>
             {(isError || errorMessage || isErroria) && (
               <div className="flex flex-col justify-center items-center h-full">
-                <p className="text-red-600 mb-2">{errorMessage || 'Error al cargar el reporte'}</p>
+                <p className="text-red-600 mb-2">{errorMessage || 'Hubo un problema al cargar el reporte. Haga clic en "Reintentar".'}</p>
                 <button 
                   className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
                   onClick={handleGetReport}
@@ -163,7 +163,7 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
                 {isLoadingia && (
                   <div className="mt-4 flex items-center text-indigo-700">
                     <div className="w-5 h-5 border-2 border-indigo-700 border-t-transparent rounded-full animate-spin mr-2"></div>
-                    <span>Generando reporte con IA...</span>
+                    <span>Generando plan de mejora con IA. Esto puede tardar unos segundos...</span>
                   </div>
                 )}
               </article>

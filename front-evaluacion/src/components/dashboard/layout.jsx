@@ -11,16 +11,21 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import { useSesionStore } from '@/store/sesionStore';
 import { useDashboardStore } from '@/store/dashboardStore';
+import { urlApi } from '@/config/config';
 import DepartmentSelector from './DepartmentSelector';
 
 export default function Layout({children}) {
- 
+
   const { usuario , logout } = useSesionStore()
   const { resetObjetivos } = useDashboardStore()
   const pathname = usePathname();
   const isAdmin = usuario && (usuario.id_rol === 1 || usuario.id_rol === 3);
   const isSuperAdmin = usuario && usuario.id_rol === 3;
-  const borrarUsuarios = () =>{
+  const borrarUsuarios = async () =>{
+    // Limpiar cookie en el servidor
+    try {
+      await fetch(`${urlApi}/auth/logout`, { method: 'POST', credentials: 'include' })
+    } catch (e) { /* ignorar errores de red */ }
     logout()
     resetObjetivos()
   }

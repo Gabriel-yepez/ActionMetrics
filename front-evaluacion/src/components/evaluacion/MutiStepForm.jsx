@@ -79,7 +79,7 @@ export default function MutiStepForm() {
           step2: false,
           step3: true
         })
-        toast.success("Evaluación creada exitosamente", {
+        toast.success("La evaluación se creó y guardó correctamente. Puede consultarla en el historial.", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -90,7 +90,7 @@ export default function MutiStepForm() {
       },
       onError: (error) => {
         console.error("Error al crear la evaluación:", error)
-        toast.error("Error al crear la evaluación", {
+        toast.error("No se pudo guardar la evaluación. Verifique que todos los pasos estén completos e intente de nuevo.", {
           position: "top-right",
           autoClose: 3000,
           closeOnClick: true,

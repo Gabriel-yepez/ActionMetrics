@@ -79,7 +79,7 @@ export default function ListaHistorial() {
       const comentario = e.target.comentario.value;
 
       if (!comentario.trim()) {
-        toast.error('Por favor ingrese un comentario');
+        toast.error('Debe escribir un comentario antes de enviar la retroalimentación.');
         return;
       }
 
@@ -99,7 +99,7 @@ export default function ListaHistorial() {
       });
 
       cerrarDialog();
-      toast.success('Retroalimentación guardada correctamente');
+      toast.success('Su retroalimentación fue enviada correctamente.');
     }, [evaluacionSeleccionada, usuario, guardadoRetroalimentacion])
 
     const abrirDialog = useCallback((url, evaluacion) => {
@@ -221,7 +221,7 @@ export default function ListaHistorial() {
               ) : (
                 <tr>
                   <td colSpan="5" className="px-4 py-4 text-center border">
-                    No hay evaluaciones
+                    Aún no se han registrado evaluaciones. Las evaluaciones aparecerán aquí una vez que sean creadas.
                   </td>
                 </tr>
               )}
