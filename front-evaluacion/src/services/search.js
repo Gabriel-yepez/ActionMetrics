@@ -5,9 +5,11 @@ import { authFetch } from "@/services/authFetch"
  * @param {string} query - Search term to filter users
  * @returns {Promise<{users: Array, notFound: boolean}>} - Object containing users array and notFound status
  */
-export const fetchUsers = async (query = "") => {
+export const fetchUsers = async (query = "", departamento = null) => {
   try {
-    const res = await authFetch(`/usuarios?search=${query}`)
+    let url = `/usuarios?search=${query}`
+    if (departamento) url += `&departamento=${departamento}`
+    const res = await authFetch(url)
 
     if (res.status === 404) {
       return {

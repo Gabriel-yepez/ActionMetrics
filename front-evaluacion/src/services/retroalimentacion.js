@@ -26,9 +26,11 @@ export const guardarRetroalimentacion = async (data) => {
     }
 };
 
-export const getAllRetroalimentacion = async () => {
+export const getAllRetroalimentacion = async (departamento = null) => {
     try {
-        const response = await authFetch('/retroalimentacion');
+        let url = '/retroalimentacion'
+        if (departamento) url += `?departamento=${departamento}`
+        const response = await authFetch(url);
         const result = await response.json();
 
         if (!response.ok) {

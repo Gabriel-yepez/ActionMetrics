@@ -19,9 +19,11 @@ export const createEvaluacion = async(data) =>{
     }
 }
 
-export const getEvaluaciones = async() =>{
+export const getEvaluaciones = async(departamento = null) =>{
     try {
-        const response = await authFetch('/evaluaciones')
+        let url = '/evaluaciones'
+        if (departamento) url += `?departamento=${departamento}`
+        const response = await authFetch(url)
         const result = await response.json()
 
         if (!response.ok) {

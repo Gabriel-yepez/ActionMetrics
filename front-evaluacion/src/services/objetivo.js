@@ -1,9 +1,11 @@
 import { authFetch } from "@/services/authFetch"
 
-export const fetchObjetivos = async () => {
+export const fetchObjetivos = async (departamento = null) => {
 
     try {
-        const res = await authFetch('/objetivos')
+        let url = '/objetivos'
+        if (departamento) url += `?departamento=${departamento}`
+        const res = await authFetch(url)
         const result = await res.json()
 
         if (res.ok) {
