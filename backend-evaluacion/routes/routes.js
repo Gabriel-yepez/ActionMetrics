@@ -1,6 +1,6 @@
 const { Router }= require ("express");
 const { getAllUsers, getByid, createUser, updateUser, deleteUser, getUserCount}= require("../controllers/userControllers");
-const { registerUser, loginUser } = require("../controllers/auth/authControllers");
+const { registerUser, loginUser, logoutUser } = require("../controllers/auth/authControllers");
 const { getEvaluacionCount, getAllEvaluacion, createEvaluacion, getEstadisticasGenerales, getEstadisticasUsuario, getUserEvaluationCount, deleteEvaluacion } = require("../controllers/evaluacionController");
 const { getAllObjetivos, getObjetivoById, createObjetivo, updateObjetivoEstado, deleteObjetivo } = require("../controllers/objetivoControllers");
 const {getReport, getReportWithAI}= require("../controllers/reportControllers");
@@ -21,6 +21,9 @@ const router = Router();
     router.post("/auth/register", registerUser)
     router.post("/auth/login", loginUser)
     router.get("/departamentos/public", getAllDepartamentos)
+
+    // Logout (limpia la cookie)
+    router.post("/auth/logout", logoutUser)
 
     // --- Todas las rutas siguientes requieren autenticación ---
     router.use(verifyToken);

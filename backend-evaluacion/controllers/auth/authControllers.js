@@ -1,7 +1,7 @@
 const userServices = require("../../services/userServices")
 const services = new userServices()
 const bcrypt = require("bcrypt");
-const { generateToken } = require("../../middleware/authMiddleware");
+const { generateToken, setTokenCookie, clearTokenCookie } = require("../../middleware/authMiddleware");
 
 
 const registerUser = async (req, res)=>{
@@ -22,10 +22,13 @@ const registerUser = async (req, res)=>{
         // Excluir el password de la respuesta
         const { password: _, ...userSinPassword } = newUser.toJSON ? newUser.toJSON() : newUser;
 
+        // Setear token en cookie httpOnly
+        const token = generateToken(newUser);
+        setTokenCookie(res, token);
+
         res.status(201).json({
             ok: true,
             data: userSinPassword,
-            token: generateToken(newUser),
             message: "Registro exitoso"
         })
     } catch (error) {
@@ -55,10 +58,13 @@ const loginUser = async (req, res) => {
       // Excluir el password del objeto de respuesta
       const { password: _, ...userSinPassword } = user.toJSON ? user.toJSON() : user;
 
+      // Setear token en cookie httpOnly
+      const token = generateToken(user);
+      setTokenCookie(res, token);
+
       res.status(200).json({
         ok: true,
         data: userSinPassword,
-        token: generateToken(user),
         message: "Login exitoso"
       });
     } catch (error) {
@@ -67,4 +73,9 @@ const loginUser = async (req, res) => {
     }
   };
 
-  module.exports = { registerUser, loginUser };
+const logoutUser = (req, res) => {
+    clearTokenCookie(res);
+    res.status(200).json({ ok: true, data: null, message: "Sesión cerrada exitosamente" });
+};
+
+  module.exports = { registerUser, loginUser, logoutUser };
