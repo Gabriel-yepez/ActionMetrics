@@ -78,26 +78,27 @@ export default function Form() {
         }
 
       try {
-        const response = await fetch(`${urlApi}/auth/register`, { //lama para autenticar el usuario
+        const response = await fetch(`${urlApi}/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nombre_usuario, nombre, apellido, email, password, ci, id_rol, id_departamento }),
+          credentials: 'include',
         })
 
         const responseData = await response.json()
 
         if(response.ok && responseData.ok){
-            toast.success(responseData.message || 'Registro exitoso')
+            toast.success('Cuenta creada correctamente. Redirigiendo al inicio de sesión...')
             setTimeout(() => {
               router.push('/')
             }, 2000)
         }
         else {
-          toast.error(responseData.message || 'Error al registrar')
+          toast.error(responseData.message || 'No se pudo crear la cuenta. Verifique los datos ingresados e intente de nuevo.')
         }
       } catch (error) {
         console.error("Error en registro:", error)
-        toast.error('Error de conexión con el servidor')
+        toast.error('No se pudo conectar con el servidor. Verifique su conexión a internet e intente de nuevo.')
       }
     }
 

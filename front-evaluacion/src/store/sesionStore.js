@@ -2,23 +2,21 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 // Store para manejar la sesión de usuario con persistencia
+// El token JWT se guarda en cookie httpOnly (no accesible desde JS).
+// Solo se persiste la info del usuario para la UI.
 export const useSesionStore = create(
   persist(
     (set, get) => ({
       // Datos iniciales
       usuario: null,
-      token: null,
       isAuthenticated: false,
 
-      // Método para iniciar sesión
+      // Método para iniciar sesión (ya no recibe token, viene en cookie)
       login: (response) => {
-        // La respuesta tiene formato: { message: string, data: {...userData}, token: string }
         const userData = response.data;
-        const token = response.token;
 
         set({
           usuario: userData,
-          token: token,
           isAuthenticated: true
         });
       },
@@ -26,7 +24,6 @@ export const useSesionStore = create(
       // Método para cerrar sesión
       logout: () => set({
         usuario: null,
-        token: null,
         isAuthenticated: false,
       }),
 
@@ -40,7 +37,7 @@ export const useSesionStore = create(
 
       // Método para verificar si el usuario está autenticado
       checkAuth: () => {
-        return get().isAuthenticated && get().token !== null;
+        return get().isAuthenticated && get().usuario !== null;
       },
 
       // Método para obtener información del usuario
@@ -48,11 +45,10 @@ export const useSesionStore = create(
 
     }),
     {
-      name: 'sesion-storage', // Nombre para el localStorage
+      name: 'sesion-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         usuario: state.usuario,
-        token: state.token,
         isAuthenticated: state.isAuthenticated
       }),
     }

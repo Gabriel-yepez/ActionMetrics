@@ -86,13 +86,13 @@ export default function ListaPersonal() {
         
         {isError && (
           <Alert severity="error" className="mb-4">
-            Error: {error?.message || "Ocurrió un error al cargar los usuarios"}
+            No se pudo cargar la lista de personal. {error?.message || "Verifique su conexión e intente de nuevo."}
           </Alert>
         )}
         
         {deleteUser.isError && (
           <Alert severity="error" className="mb-4">
-            Error al eliminar: {deleteUser.error?.message || "No se pudo eliminar el usuario"}
+            No se pudo eliminar el usuario. {deleteUser.error?.message || "Es posible que tenga evaluaciones u objetivos asociados. Intente de nuevo más tarde."}
           </Alert>
         )}
         
@@ -149,7 +149,7 @@ export default function ListaPersonal() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6} align="center">
-                      {notFound && "No se encontraron usuarios"}
+                      {notFound && "No se encontraron usuarios con los criterios de búsqueda. Intente con otro término."}
                     </TableCell>
                   </TableRow>
                 )}
@@ -170,7 +170,7 @@ export default function ListaPersonal() {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              ¿Está seguro que desea eliminar este usuario? Esta acción no se puede deshacer.
+              Esta acción eliminará al usuario y todos sus datos asociados de forma permanente. ¿Desea continuar?
             </DialogContentText>
           </DialogContent>
           <DialogActions>

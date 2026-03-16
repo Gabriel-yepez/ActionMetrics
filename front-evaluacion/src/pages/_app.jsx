@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
+import AuthGuard from '@/components/AuthGuard';
 
 const SITE_NAME = "ActionMetrics";
 const DEFAULT_DESCRIPTION = "Plataforma de evaluación de desempeño y seguimiento de objetivos para equipos de trabajo. Gestiona evaluaciones, objetivos y rendimiento de tu equipo.";
@@ -31,7 +32,9 @@ export default function App({ Component, pageProps }) {
         <meta name="robots" content="index, follow" />
         <title>{SITE_NAME}</title>
       </Head>
-      <Component {...pageProps} />
+      <AuthGuard>
+        <Component {...pageProps} />
+      </AuthGuard>
       <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
     </QueryClientProvider>
   );

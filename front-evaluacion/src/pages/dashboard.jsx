@@ -100,9 +100,9 @@ export default function Dashboard() {
         <div className="flex items-center">
           <NotificationsIcon className="mr-2" />
           <div>
-            <strong>¡Atención!</strong> {usuario.id_rol === 2 ? 'Tienes' : 'Hay'} {objetivosVencidos.length} {objetivosVencidos.length === 1 ? 'objetivo retrasado' : 'objetivos retrasados'}
+            <strong>¡Atención!</strong> {usuario.id_rol === 2 ? 'Tienes' : 'Hay'} {objetivosVencidos.length} {objetivosVencidos.length === 1 ? 'objetivo vencido que requiere acción inmediata' : 'objetivos vencidos que requieren acción inmediata'}.
             <div className="mt-1">
-              <a href="/notificaciones" className="text-white underline">Ver notificaciones</a>
+              <a href="/notificaciones" className="text-white underline">Ver detalles</a>
             </div>
           </div>
         </div>, 
@@ -116,9 +116,9 @@ export default function Dashboard() {
           <div className="flex items-center">
             <NotificationsIcon className="mr-2" />
             <div>
-              <strong>¡Urgente!</strong> {usuario.id_rol === 2 ? 'Tienes' : 'Hay'} {objetivosUrgentes.length} {objetivosUrgentes.length === 1 ? 'objetivo' : 'objetivos'} a punto de terminar
+              <strong>¡Urgente!</strong> {usuario.id_rol === 2 ? 'Tienes' : 'Hay'} {objetivosUrgentes.length} {objetivosUrgentes.length === 1 ? 'objetivo que vence en menos de 3 días' : 'objetivos que vencen en menos de 3 días'}.
               <div className="mt-1">
-                <a href="/notificaciones" className="text-yellow-900 underline">Ver notificaciones</a>
+                <a href="/notificaciones" className="text-yellow-900 underline">Ver detalles</a>
               </div>
             </div>
           </div>,
@@ -133,9 +133,9 @@ export default function Dashboard() {
           <div className="flex items-center">
             <NotificationsIcon className="mr-2" />
             <div>
-              <strong>Recordatorio:</strong> {usuario.id_rol === 2 ? 'Tienes' : 'Hay'} {objetivosProximos.length} {objetivosProximos.length === 1 ? 'objetivo próximo' : 'objetivos próximos'} que {objetivosProximos.length === 1 ? 'tiene' : 'tienen'} un plazo de 7 dias para terminar los objetivos
+              <strong>Recordatorio:</strong> {usuario.id_rol === 2 ? 'Tienes' : 'Hay'} {objetivosProximos.length} {objetivosProximos.length === 1 ? 'objetivo que vence dentro de 7 días' : 'objetivos que vencen dentro de 7 días'}.
               <div className="mt-1">
-                <a href="/notificaciones" className="text-blue-900 underline">Ver notificaciones</a>
+                <a href="/notificaciones" className="text-blue-900 underline">Ver detalles</a>
               </div>
             </div>
           </div>,
@@ -164,7 +164,7 @@ export default function Dashboard() {
       <Layout>
         <div className="flex-grow h-full flex flex-col items-center justify-center p-4">
           <Alert severity="error" className="mb-4 w-full max-w-md">
-            {evaluacionesQuery.error?.message || usuariosQuery.error?.message || "Error al cargar datos"}
+            {"No se pudieron cargar los datos del panel. Verifique su conexión e intente de nuevo."}
           </Alert>
           <button 
             onClick={() => {
@@ -195,7 +195,7 @@ export default function Dashboard() {
       <div className="flex-grow h-full">
         {createObjetivoMutation.isError && (
           <Alert severity="error" className="m-4">
-            Error al crear objetivo: {createObjetivoMutation.error?.message || "No se pudo crear el objetivo"}
+            No se pudo crear el objetivo. {createObjetivoMutation.error?.message || "Verifique los datos ingresados e intente de nuevo."}
           </Alert>
         )}
         

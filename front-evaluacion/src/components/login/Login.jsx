@@ -36,6 +36,7 @@ export default function Login() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre_usuario, password }),
+            credentials: 'include',
           })
 
           const responseData = await response.json()
@@ -47,14 +48,14 @@ export default function Login() {
             setTimeout(() => {
             router.push('/dashboard')
             }, 3000)
-            toast.success(responseData.message || 'Inicio de sesión exitoso')
+            toast.success('Bienvenido de vuelta. Redirigiendo al panel...')
           }
           else {
-            toast.error(responseData.message || 'Datos inválidos')
+            toast.error(responseData.message || 'Usuario o contraseña incorrectos. Verifique sus credenciales.')
           }
         } catch (error) {
           console.error("Error en login:", error)
-          toast.error('Error de conexión con el servidor')
+          toast.error('No se pudo conectar con el servidor. Verifique su conexión a internet e intente de nuevo.')
         }
     }
 

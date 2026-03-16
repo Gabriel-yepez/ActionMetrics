@@ -54,7 +54,7 @@ export default function Notificaciones() {
       <Layout>
         <div className="flex-grow h-full flex flex-col items-center justify-center p-4">
           <Alert severity="error" className="mb-4 w-full max-w-md">
-            {objetivosQuery.error?.message || "Error al cargar datos"}
+            {"No se pudieron cargar las notificaciones. Verifique su conexión e intente de nuevo."}
           </Alert>
           <button
             onClick={() => objetivosQuery.refetch()}
@@ -80,7 +80,7 @@ export default function Notificaciones() {
 
         {objetivosNoCompletados.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64">
-            <p className="text-lg text-gray-500">No hay objetivos pendientes</p>
+            <p className="text-lg text-gray-500">No tiene objetivos pendientes. ¡Todo al día!</p>
           </div>
         ) : (
           <NotificacionesObjetivos
