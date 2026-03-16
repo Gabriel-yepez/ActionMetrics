@@ -11,6 +11,7 @@ const generateToken = (user) => {
     id: user.id,
     nombre_usuario: user.nombre_usuario,
     id_rol: user.id_rol,
+    id_departamento: user.id_departamento,
   };
   return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
@@ -40,13 +41,23 @@ const verifyToken = (req, res, next) => {
 };
 
 /**
- * Middleware que verifica si el usuario tiene rol de gerente (id_rol === 1)
+ * Middleware que verifica si el usuario es admin de departamento (id_rol === 1) o super admin (id_rol === 3)
  */
 const requireAdmin = (req, res, next) => {
-  if (!req.user || req.user.id_rol !== 1) {
-    return res.status(403).json({ ok: false, data: null, message: 'Acceso denegado. Se requieren permisos de gerente.' });
+  if (!req.user || (req.user.id_rol !== 1 && req.user.id_rol !== 3)) {
+    return res.status(403).json({ ok: false, data: null, message: 'Acceso denegado. Se requieren permisos de administrador.' });
   }
   next();
 };
 
-module.exports = { generateToken, verifyToken, requireAdmin, JWT_SECRET };
+/**
+ * Middleware que verifica si el usuario es super admin (id_rol === 3)
+ */
+const requireSuperAdmin = (req, res, next) => {
+  if (!req.user || req.user.id_rol !== 3) {
+    return res.status(403).json({ ok: false, data: null, message: 'Acceso denegado. Se requieren permisos de super administrador.' });
+  }
+  next();
+};
+
+module.exports = { generateToken, verifyToken, requireAdmin, requireSuperAdmin, JWT_SECRET };

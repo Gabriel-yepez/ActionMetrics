@@ -9,7 +9,8 @@ const TipoObjetivoModel= require('../models/tipo_objetivo')
 const HabilidadModel= require('../models/habilidades')
 const ResultadoHabilidadModel= require('../models/resultado_habilidad')
 const PlanMejoraModel= require('../models/plan_mejora')
-const RetroalimmentacionModel= require('../models/retroalimentacion') 
+const RetroalimmentacionModel= require('../models/retroalimentacion')
+const DepartamentoModel= require('../models/departamento')
 
 //conectando a la BD
 const sequelize = new Sequelize(
@@ -34,9 +35,11 @@ const Habilidad = HabilidadModel(sequelize);
 const ResultadoHabilidad = ResultadoHabilidadModel(sequelize);
 const PlanMejora = PlanMejoraModel(sequelize);
 const Retroalimentacion = RetroalimmentacionModel(sequelize);
+const Departamento = DepartamentoModel(sequelize);
 
 //relaciones
 Usuario.belongsTo(Rol, {foreignKey: 'id_rol'})
+Usuario.belongsTo(Departamento, {foreignKey: 'id_departamento'})
 Evaluacion.belongsTo(Usuario, {foreignKey: 'id_usuario'})
 ResultadoHabilidad.belongsTo(Evaluacion, {foreignKey: 'id_evaluacion'})
 ResultadoHabilidad.belongsTo(Habilidad, {foreignKey: 'id_habilidad'})
@@ -69,6 +72,7 @@ module.exports={
   Habilidad,
   ResultadoHabilidad,
   PlanMejora,
-  Retroalimentacion
+  Retroalimentacion,
+  Departamento
 }
   

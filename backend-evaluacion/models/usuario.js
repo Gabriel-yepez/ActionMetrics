@@ -33,7 +33,11 @@ module.exports = (sequelize)=>{
             ci:{
                 type: DataTypes.INTEGER,
                 allowNull: false,
-            }, 
+            },
+            id_departamento:{
+                type: DataTypes.INTEGER,
+                allowNull: true,
+            },
         },{
             freezeTableName: true,
             timestamps: false,
