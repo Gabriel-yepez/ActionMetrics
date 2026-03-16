@@ -96,10 +96,16 @@ export default function ListaHistorial() {
         usuarioId: usuario.id,
         comentario,
         fecha: new Date().toISOString().split('T')[0]
+      }, {
+        onSuccess: () => {
+          toast.success('Su retroalimentación fue enviada correctamente.');
+        },
+        onError: (error) => {
+          toast.error(error.message || 'No se pudo enviar la retroalimentación. Intente de nuevo.');
+        }
       });
 
       cerrarDialog();
-      toast.success('Su retroalimentación fue enviada correctamente.');
     }, [evaluacionSeleccionada, usuario, guardadoRetroalimentacion])
 
     const abrirDialog = useCallback((url, evaluacion) => {

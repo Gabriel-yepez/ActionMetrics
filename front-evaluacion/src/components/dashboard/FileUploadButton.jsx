@@ -41,7 +41,7 @@ const FileUploadButton = ({ objetivoId, setDialog }) => {
       },
       onError: (error) => {
         console.error('Error al actualizar el objetivo:', error);
-        toast.error('No se pudo marcar el objetivo como completado. Por favor, intente de nuevo más tarde.');
+        toast.error(error.message || 'No se pudo marcar el objetivo como completado. Por favor, intente de nuevo más tarde.');
       }
     });
   }
@@ -73,13 +73,13 @@ const FileUploadButton = ({ objetivoId, setDialog }) => {
         },
         onError: (error) => {
           console.error('Error al subir el archivo:', error);
-          toast.error('No se pudo subir el archivo. Verifique que el formato sea válido (PDF, DOC, JPG, PNG) e intente de nuevo.');
+          toast.error(error.message || 'No se pudo subir el archivo. Verifique que el formato sea válido (PDF, DOC, JPG, PNG) e intente de nuevo.');
           setUploading(false);
         }
       });
     } catch (error) {
       console.error('Error en proceso de subida:', error);
-      toast.error('No se pudo subir el archivo. Verifique que el formato sea válido (PDF, DOC, JPG, PNG) e intente de nuevo.');
+      toast.error(error.message || 'No se pudo subir el archivo. Verifique que el formato sea válido (PDF, DOC, JPG, PNG) e intente de nuevo.');
       setUploading(false);
     } finally {
       e.target.value = null; // Reset file input

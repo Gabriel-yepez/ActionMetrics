@@ -90,7 +90,7 @@ export default function MutiStepForm() {
       },
       onError: (error) => {
         console.error("Error al crear la evaluación:", error)
-        toast.error("No se pudo guardar la evaluación. Verifique que todos los pasos estén completos e intente de nuevo.", {
+        toast.error(error.message || "No se pudo guardar la evaluación. Verifique que todos los pasos estén completos e intente de nuevo.", {
           position: "top-right",
           autoClose: 3000,
           closeOnClick: true,

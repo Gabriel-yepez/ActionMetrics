@@ -54,7 +54,7 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
         },
         onError: (error) => {
           console.error("Error al obtener el reporte con ia:", error);
-          setErrorMessage('No se pudo conectar con el servicio de reportes. Verifique su conexión e intente de nuevo.');
+          setErrorMessage(error.message || 'No se pudo conectar con el servicio de reportes. Verifique su conexión e intente de nuevo.');
         }
       });
       
@@ -97,7 +97,7 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
         },
         onError: (error) => {
           console.error("Error al obtener el reporte:", error);
-          setErrorMessage('No se pudo conectar con el servicio de reportes. Verifique su conexión e intente de nuevo.');
+          setErrorMessage(error.message || 'No se pudo conectar con el servicio de reportes. Verifique su conexión e intente de nuevo.');
         }
       });
     } catch (error) {
