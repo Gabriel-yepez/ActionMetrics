@@ -1,16 +1,26 @@
 import Head from "next/head";
 import InicioRegister from '../components/register/InicioRegister';
+import { useTranslations } from 'next-intl';
 
 export default function Registro() {
+  const t = useTranslations('meta');
   return (
     <>
       <Head>
-        <title>Registro | ActionMetrics</title>
-        <meta name="description" content="Crea tu cuenta en ActionMetrics para comenzar a gestionar el desempeño y los objetivos de tu equipo." />
-        <meta property="og:title" content="Registro | ActionMetrics" />
-        <meta property="og:description" content="Regístrate en la plataforma de evaluación de desempeño y seguimiento de objetivos." />
+        <title>{t('registerTitle')}</title>
+        <meta name="description" content={t('registerDescription')} />
+        <meta property="og:title" content={t('registerTitle')} />
+        <meta property="og:description" content={t('registerOgDescription')} />
       </Head>
       <InicioRegister />
     </>
   )
+}
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      messages: (await import(`../../messages/${locale}.json`)).default
+    }
+  };
 }

@@ -9,8 +9,13 @@ import { useEffect, useMemo } from "react"
 import Alert from "@mui/material/Alert"
 import { ToastContainer } from "react-toastify"
 import { ordenarObjetivosPorFecha } from "@/helper/FiltrarFecha"
+import { useTranslations } from 'next-intl';
 
 export default function Notificaciones() {
+  const tMeta = useTranslations('meta');
+  const tNotif = useTranslations('notifications');
+  const tCommon = useTranslations('common');
+
   const objetivos = useDashboardStore(state => state.objetivos);
   const setObjetivos = useDashboardStore(state => state.setObjetivos);
   const usuario = useSesionStore(state => state.usuario);
@@ -54,13 +59,13 @@ export default function Notificaciones() {
       <Layout>
         <div className="flex-grow h-full flex flex-col items-center justify-center p-4">
           <Alert severity="error" className="mb-4 w-full max-w-md">
-            {"No se pudieron cargar las notificaciones. Verifique su conexión e intente de nuevo."}
+            {tNotif('loadError')}
           </Alert>
           <button
             onClick={() => objetivosQuery.refetch()}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Reintentar
+            {tCommon('retry')}
           </button>
         </div>
       </Layout>
@@ -70,17 +75,17 @@ export default function Notificaciones() {
   return (
     <Layout>
       <Head>
-        <title>Notificaciones | ActionMetrics</title>
-        <meta name="description" content="Revisa las notificaciones de objetivos pendientes y vencidos en ActionMetrics." />
-        <meta property="og:title" content="Notificaciones | ActionMetrics" />
+        <title>{tMeta('notificationsTitle')}</title>
+        <meta name="description" content={tMeta('notificationsDescription')} />
+        <meta property="og:title" content={tMeta('notificationsTitle')} />
       </Head>
       <ToastContainer />
       <div className="flex-grow h-full p-4 md:p-6">
-        <h1 className="text-xl md:text-2xl font-bold mb-4">Notificaciones de Objetivos Pendientes</h1>
+        <h1 className="text-xl md:text-2xl font-bold mb-4">{tNotif('title')}</h1>
 
         {objetivosNoCompletados.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64">
-            <p className="text-lg text-gray-500">No tiene objetivos pendientes. ¡Todo al día!</p>
+            <p className="text-lg text-gray-500">{tNotif('noPending')}</p>
           </div>
         ) : (
           <NotificacionesObjetivos
@@ -90,4 +95,12 @@ export default function Notificaciones() {
       </div>
     </Layout>
   )
+}
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      messages: (await import(`../../messages/${locale}.json`)).default
+    }
+  };
 }

@@ -1,16 +1,26 @@
 import Head from "next/head";
 import Login from "@/components/login/Login";
+import { useTranslations } from 'next-intl';
 
 export default function Home() {
+  const t = useTranslations('meta');
   return (
     <>
       <Head>
-        <title>Iniciar Sesión | ActionMetrics</title>
-        <meta name="description" content="Inicia sesión en ActionMetrics para gestionar evaluaciones de desempeño, objetivos y rendimiento de tu equipo de trabajo." />
-        <meta property="og:title" content="Iniciar Sesión | ActionMetrics" />
-        <meta property="og:description" content="Accede a la plataforma de evaluación de desempeño y seguimiento de objetivos." />
+        <title>{t('loginTitle')}</title>
+        <meta name="description" content={t('loginDescription')} />
+        <meta property="og:title" content={t('loginTitle')} />
+        <meta property="og:description" content={t('loginOgDescription')} />
       </Head>
       <Login />
     </>
   );
+}
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      messages: (await import(`../../messages/${locale}.json`)).default
+    }
+  };
 }

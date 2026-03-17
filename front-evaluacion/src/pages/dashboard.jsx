@@ -14,26 +14,32 @@ import { useSesionStore } from "@/store/sesionStore"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import { useTranslations } from 'next-intl';
 
 export default function Dashboard() {
+  const tMeta = useTranslations('meta');
+  const tDash = useTranslations('dashboard');
+  const tCommon = useTranslations('common');
+  const tNotif = useTranslations('notifications');
+
   // Estado global con Zustand - selectores granulares para evitar re-renders innecesarios
   const objetivos = useDashboardStore(state => state.objetivos);
   const setObjetivos = useDashboardStore(state => state.setObjetivos);
   const getProgresoGlobal = useDashboardStore(state => state.getProgresoGlobal);
 
   const { usuario } = useSesionStore();
-  
+
   // Referencia para controlar que las notificaciones solo se muestren una vez
   const notificacionesMostradas = useRef(false);
-  
+
   // Seleccionar el hook correcto según el rol del usuario
   const isAdmin = usuario && (usuario.id_rol === 1 || usuario.id_rol === 3);
   const evaluacionesCountGeneralQuery = useEvaluacionesCount();
   const evaluacionesCountUserQuery = useEvaluacionesCountByUser(usuario?.id);
-  
+
   // Usar la consulta adecuada según el rol
   const evaluacionesQuery = isAdmin ? evaluacionesCountGeneralQuery : evaluacionesCountUserQuery;
-  
+
   const usuariosQuery = useUsuariosCount();
   const objetivosQuery = useObjetivos();
   const createObjetivoMutation = useCreateObjetivo();
@@ -43,82 +49,82 @@ export default function Dashboard() {
       setObjetivos(objetivosQuery.data);
     }
   }, [objetivosQuery.data, setObjetivos]);
-  
+
   // Mostrar notificaciones de objetivos urgentes al cargar la página
   useEffect(() => {
     // Solo mostrar notificaciones si no se han mostrado antes y hay usuario y objetivos
     if (!usuario || objetivos.length === 0 || notificacionesMostradas.current) return;
-    
+
     // Marcar que las notificaciones ya fueron mostradas
     notificacionesMostradas.current = true;
-    
+
     // Función para determinar la urgencia de un objetivo
     const getUrgencyLevel = (fechaFin) => {
       if (!fechaFin) return 'normal';
-      
+
       const hoy = new Date();
       const fechaObj = new Date(fechaFin);
       fechaObj.setDate(fechaObj.getDate() + 1);
       const diferenciaDias = Math.ceil((fechaObj - hoy) / (1000 * 60 * 60 * 24));
-      
-      if (diferenciaDias < 0) return 'retrasado'; // Vencido
-      if (diferenciaDias <= 3) return 'Pocos dias para que termine el objetivo'; // A punto de vencer
-      if (diferenciaDias <= 7) return 'Te queda un plazo de 7 dias para terminar los objetivos'; // Próximo a vencer
-      return 'normal'; // Tiempo suficiente
+
+      if (diferenciaDias < 0) return 'overdue';
+      if (diferenciaDias <= 3) return 'urgent';
+      if (diferenciaDias <= 7) return 'upcoming';
+      return 'normal';
     };
-    
+
     // Filtrar objetivos según el usuario
     const objetivosFiltrados = objetivos.filter(obj => {
       // Solo mostrar notificaciones de objetivos no completados
       const estaNoCompletado = obj.estado_actual === 'no completado';
-      
+
       // Si el usuario es regular, mostrar solo sus objetivos
       if (usuario.id_rol === 2) {
         return estaNoCompletado && obj.id_usuario === usuario.id;
       }
-      
+
       // Para administradores, mostrar todos los objetivos no completados
       return estaNoCompletado;
     });
-    
+
     // Agrupar objetivos por nivel de urgencia
     const objetivosVencidos = [];
     const objetivosUrgentes = [];
     const objetivosProximos = [];
-    
+
     objetivosFiltrados.forEach(obj => {
       const urgencia = getUrgencyLevel(obj.fecha_fin);
-      
-      if (urgencia === 'retrasado') objetivosVencidos.push(obj);
-      else if (urgencia === 'Pocos dias para que termine el objetivo') objetivosUrgentes.push(obj);
-      else if (urgencia === 'Te queda un plazo de 7 dias para terminar los objetivos') objetivosProximos.push(obj);
+
+      if (urgencia === 'overdue') objetivosVencidos.push(obj);
+      else if (urgencia === 'urgent') objetivosUrgentes.push(obj);
+      else if (urgencia === 'upcoming') objetivosProximos.push(obj);
     });
-    
+
     // Mostrar notificaciones toast según urgencia
     if (objetivosVencidos.length > 0) {
       toast.error(
         <div className="flex items-center">
           <NotificationsIcon className="mr-2" />
           <div>
-            <strong>¡Atención!</strong> {usuario.id_rol === 2 ? 'Tienes' : 'Hay'} {objetivosVencidos.length} {objetivosVencidos.length === 1 ? 'objetivo vencido que requiere acción inmediata' : 'objetivos vencidos que requieren acción inmediata'}.
+            <strong>{tNotif('attention')}</strong> {usuario.id_rol === 2 ? tNotif('youHave') : tNotif('thereAre')} {objetivosVencidos.length} {objetivosVencidos.length === 1 ? tNotif('overdueObjectiveSingular') : tNotif('overdueObjectivePlural')}.
             <div className="mt-1">
-              <a href="/notificaciones" className="text-white underline">Ver detalles</a>
+              <a href="/notificaciones" className="text-white underline">{tNotif('viewDetails')}</a>
             </div>
           </div>
-        </div>, 
+        </div>,
         { autoClose: false }
       );
     }
-    
+
     if (objetivosUrgentes.length > 0) {
       setTimeout(() => {
         toast.warning(
           <div className="flex items-center">
             <NotificationsIcon className="mr-2" />
             <div>
-              <strong>¡Urgente!</strong> {usuario.id_rol === 2 ? 'Tienes' : 'Hay'} {objetivosUrgentes.length} {objetivosUrgentes.length === 1 ? 'objetivo que vence en menos de 3 días' : 'objetivos que vencen en menos de 3 días'}.
+              <strong>{tNotif('urgent')}</strong> {usuario.id_rol === 2 ? tNotif('youHave') : tNotif('thereAre')} {objetivosUrgentes.length} {objetivosUrgentes.length === 1 ? tNotif('urgentSingular') : tNotif('urgentPlural')}.
               <div className="mt-1">
-                <a href="/notificaciones" className="text-yellow-900 underline">Ver detalles</a>
+                <a href="/notificaciones" className="text-yellow-900 underline">{tNotif('viewDetails')}</a>
               </div>
             </div>
           </div>,
@@ -126,16 +132,16 @@ export default function Dashboard() {
         );
       }, 1000); // Retraso para no mostrar todos los toasts a la vez
     }
-    
+
     if (objetivosProximos.length > 0) {
       setTimeout(() => {
         toast.info(
           <div className="flex items-center">
             <NotificationsIcon className="mr-2" />
             <div>
-              <strong>Recordatorio:</strong> {usuario.id_rol === 2 ? 'Tienes' : 'Hay'} {objetivosProximos.length} {objetivosProximos.length === 1 ? 'objetivo que vence dentro de 7 días' : 'objetivos que vencen dentro de 7 días'}.
+              <strong>{tNotif('reminder')}</strong> {usuario.id_rol === 2 ? tNotif('youHave') : tNotif('thereAre')} {objetivosProximos.length} {objetivosProximos.length === 1 ? tNotif('reminderSingular') : tNotif('reminderPlural')}.
               <div className="mt-1">
-                <a href="/notificaciones" className="text-blue-900 underline">Ver detalles</a>
+                <a href="/notificaciones" className="text-blue-900 underline">{tNotif('viewDetails')}</a>
               </div>
             </div>
           </div>,
@@ -143,12 +149,12 @@ export default function Dashboard() {
         );
       }, 2000); // Retraso para no mostrar todos los toasts a la vez
     }
-  }, [objetivos, usuario]);
+  }, [objetivos, usuario, tNotif]);
 
   // Verificar si hay errores o está cargando
   const isLoading = evaluacionesQuery.isLoading || usuariosQuery.isLoading;
   const hasErrors = evaluacionesQuery.isError || usuariosQuery.isError;
-  
+
   if (isLoading) {
     return (
       <Layout>
@@ -164,16 +170,16 @@ export default function Dashboard() {
       <Layout>
         <div className="flex-grow h-full flex flex-col items-center justify-center p-4">
           <Alert severity="error" className="mb-4 w-full max-w-md">
-            {"No se pudieron cargar los datos del panel. Verifique su conexión e intente de nuevo."}
+            {tDash('panelError')}
           </Alert>
-          <button 
+          <button
             onClick={() => {
               evaluacionesQuery.refetch();
               usuariosQuery.refetch();
             }}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Reintentar
+            {tCommon('retry')}
           </button>
         </div>
       </Layout>
@@ -187,25 +193,25 @@ export default function Dashboard() {
   return (
     <Layout>
       <Head>
-        <title>Dashboard | ActionMetrics</title>
-        <meta name="description" content="Panel principal de ActionMetrics. Visualiza objetivos, evaluaciones y el progreso de tu equipo de trabajo." />
-        <meta property="og:title" content="Dashboard | ActionMetrics" />
+        <title>{tDash('title')}</title>
+        <meta name="description" content={tMeta('dashboardDescription')} />
+        <meta property="og:title" content={tDash('title')} />
       </Head>
       <ToastContainer />
       <div className="flex-grow h-full">
         {createObjetivoMutation.isError && (
           <Alert severity="error" className="m-4">
-            No se pudo crear el objetivo. {createObjetivoMutation.error?.message || "Verifique los datos ingresados e intente de nuevo."}
+            {tDash('createObjectiveError')} {createObjetivoMutation.error?.message || tDash('verifyDataError')}
           </Alert>
         )}
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
           <div className="border border-gray-300 rounded-lg shadow-md p-2">
             <ObjetivoResult
               porcentaje={getProgresoGlobal()}
               peso={100}
-              titulo="Resultado global"
-              descripcion="Porcentaje de cumplimiento de los objetivos asignados"
+              titulo={tDash('globalResult')}
+              descripcion={tDash('globalResultDescription')}
             />
           </div>
           <div className="border border-gray-300 rounded-lg shadow-md p-2">
@@ -220,8 +226,8 @@ export default function Dashboard() {
           </div>
           <div className="md:col-span-3 border border-gray-300 rounded-lg shadow-md p-2">
             <CrearObjetivo
-              titulo="Objetivos generales"
-              descripcion="Crea objetivos generales para el equipo de trabajo"
+              titulo={tDash('generalObjectives')}
+              descripcion={tDash('generalObjectivesDesc')}
               tipo="general"
               objetivos={objetivos.filter(obj => obj.id_tipo_objetivo === 1 && obj.estado_actual === 'no completado')}
               isLoading={createObjetivoMutation.isPending}
@@ -229,8 +235,8 @@ export default function Dashboard() {
           </div>
           <div className="md:col-span-3 border border-gray-300 rounded-lg shadow-md p-2">
             <CrearObjetivo
-              titulo="Objetivos individuales"
-              descripcion="Crea objetivos individuales y monitoriza el estado de su cumplimiento"
+              titulo={tDash('individualObjectives')}
+              descripcion={tDash('individualObjectivesDesc')}
               tipo="individual"
               objetivos={objetivos.filter(obj => {
                 const esTipoIndividual = obj.id_tipo_objetivo === 2;
@@ -249,6 +255,14 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </Layout> 
+    </Layout>
   )
+}
+
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      messages: (await import(`../../messages/${locale}.json`)).default
+    }
+  };
 }
