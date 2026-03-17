@@ -29,8 +29,11 @@ import { toast } from 'react-toastify'
 import FileUploadButton from './FileUploadButton'
 import 'react-toastify/dist/ReactToastify.css'
 import BotonListo from './BotonListo'
+import { useTranslations } from 'next-intl';
 
 export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , objetivos = [], isLoading = false, useExternalMutation = false}) {
+  const t = useTranslations('objectives');
+  const tCommon = useTranslations('common');
   // useExternalMutation indica si se debe usar la mutación del componente padre (true) o la interna (false)
   const usuariosQuery = useUsers();
   const crearObjetivoMutation = useCreateObjetivo();
@@ -97,7 +100,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
     const fechaFin = new Date(nuevoObjetivo.fechaFin)
     
     if (fechaFin < fechaInicio) {
-      toast.error('La fecha de finalización debe ser posterior a la fecha de inicio.')
+      toast.error(t('endDateError'))
       return
     }
     
@@ -132,10 +135,10 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
       crearObjetivoMutation.mutate(objetivoData, {
         onSuccess: (data) => {
           handleCloseDialog()
-          toast.success('El objetivo se creó correctamente y ya está visible en el panel.');
+          toast.success(t('createSuccess'));
         },
         onError: (error) => {
-          toast.error(error.message || 'No se pudo crear el objetivo. Verifique los datos e intente de nuevo.')
+          toast.error(error.message || t('createError'))
         }
       })
     }
@@ -166,7 +169,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
                 '&:hover': {backgroundColor: '#A5b5fc'}
               }}
             >
-              {isLoading ? 'Agregando...' : 'Agregar'}
+              {isLoading ? tCommon('adding') : tCommon('add')}
             </Button>
           }
           
@@ -184,14 +187,14 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
               }
             }}
           >
-            Ver
+            {tCommon('view')}
           </Button>
         </Box>
       </Box>
 
       {/* Diálogo para agregar objetivos */}
       <Dialog open={openAddDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Agregar nuevo objetivo</DialogTitle>
+        <DialogTitle>{t('addNew')}</DialogTitle>
         <DialogContent>
           {tipo==="individual" &&
             <FormControl 
@@ -201,18 +204,18 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
               error={!nuevoObjetivo.userId && nuevoObjetivo.descripcion}
             >
 
-                <InputLabel id="usuario-label">Usuario asignado</InputLabel>
+                <InputLabel id="usuario-label">{t('assignedUser')}</InputLabel>
                 <Select
                   labelId="usuario-label"
                   name="userId"
                   value={nuevoObjetivo.userId}
                   onChange={handleInputChange}
-                  label="Usuario asignado"
+                  label={t('assignedUser')}
                   disabled={usuariosQuery.isLoading}
                 >
                   {usuariosQuery.isLoading ? (
                     <MenuItem disabled>
-                      <CircularProgress size={20} /> Cargando usuarios...
+                      <CircularProgress size={20} /> {t('loadingUsers')}
                     </MenuItem>
                   ) : usuariosQuery.data?.users && usuariosQuery.data.users.length > 0 ? (
                     filtrarUsuariosEmpleados(usuariosQuery.data.users).map((usuario) => (
@@ -221,11 +224,11 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
                       </MenuItem>
                     ))
                   ) : (
-                    <MenuItem disabled>No hay usuarios disponibles</MenuItem>
+                    <MenuItem disabled>{t('noUsersAvailable')}</MenuItem>
                   )}
                 </Select>
                 {(!nuevoObjetivo.userId && nuevoObjetivo.descripcion) && (
-                  <FormHelperText error>Debe seleccionar un empleado para asignar el objetivo.</FormHelperText>
+                  <FormHelperText error>{t('selectEmployeeRequired')}</FormHelperText>
                 )}
             </FormControl>
             }
@@ -234,7 +237,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
           <TextField
             margin="dense"
             name="descripcion"
-            label="Escribe el objetivo"
+            label={t('writeObjective')}
             type="text"
             fullWidth
             multiline
@@ -247,7 +250,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
           <TextField
             margin="dense"
             name="fechaInicio"
-            label="Fecha de inicio"
+            label={t('startDate')}
             type="date"
             fullWidth
             variant="outlined"
@@ -264,7 +267,7 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
           <TextField
             margin="normal"
             name="fechaFin"
-            label="Fecha de fin"
+            label={t('endDate')}
             type="date"
             fullWidth
             variant="outlined"
@@ -284,26 +287,26 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
               
               handleInputChange(e);
             }}
-            helperText={nuevoObjetivo.fechaInicio && nuevoObjetivo.fechaFin && new Date(nuevoObjetivo.fechaFin) < new Date(nuevoObjetivo.fechaInicio) ? 'La fecha de finalización debe ser posterior a la fecha de inicio.' : ''}
+            helperText={nuevoObjetivo.fechaInicio && nuevoObjetivo.fechaFin && new Date(nuevoObjetivo.fechaFin) < new Date(nuevoObjetivo.fechaInicio) ? t('endDateError') : ''}
             error={nuevoObjetivo.fechaInicio && nuevoObjetivo.fechaFin && new Date(nuevoObjetivo.fechaFin) < new Date(nuevoObjetivo.fechaInicio)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancelar</Button>
+          <Button onClick={handleCloseDialog}>{tCommon('cancel')}</Button>
           <Button 
             onClick={handleSubmit} 
             variant="contained" 
             color="primary"
             disabled={isLoading || crearObjetivoMutation.isPending || (tipo === "individual" && !nuevoObjetivo.userId) || !nuevoObjetivo.descripcion || !nuevoObjetivo.fechaInicio || !nuevoObjetivo.fechaFin}
           >
-            {isLoading || crearObjetivoMutation.isPending ? <CircularProgress size={24} /> : 'Guardar'}
+            {isLoading || crearObjetivoMutation.isPending ? <CircularProgress size={24} /> : tCommon('save')}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Diálogo para ver objetivos */}
       <Dialog open={openViewDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>Objetivos existentes</DialogTitle>
+        <DialogTitle>{t('existing')}</DialogTitle>
         <DialogContent>
           {objetivosToShow.length > 0 ? (
             <List>
@@ -337,13 +340,13 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
                       secondary={
                         <>
                           <Typography component="span" variant="body2">
-                            Estado actual:
-                            <span className={`ml-2 ${objetivo.estado_actual === 'completado' ? 'text-green-600 bg-green-100 rounded-full px-2 py-1' : 'text-red-600 bg-red-100 rounded-full px-2 py-1'}`}>{objetivo.estado_actual}</span>
+                            {t('currentStatus')}
+                            <span className={`ml-2 ${objetivo.estado_actual === 'completado' ? 'text-green-600 bg-green-100 rounded-full px-2 py-1' : 'text-red-600 bg-red-100 rounded-full px-2 py-1'}`}>{objetivo.estado_actual === 'completado' ? tCommon('completedStatus') : tCommon('notCompletedStatus')}</span>
                           </Typography>
 
                           <br />
                           <Typography component="span" variant="body2">
-                            Periodo: {formatearFecha(objetivo.fechaInicio || objetivo.fecha_inicio)} - {formatearFecha(objetivo.fechaFin || objetivo.fecha_fin)}
+                            {t('period')} {formatearFecha(objetivo.fechaInicio || objetivo.fecha_inicio)} - {formatearFecha(objetivo.fechaFin || objetivo.fecha_fin)}
                           </Typography>
                         </>
                       }
@@ -355,12 +358,12 @@ export default function CrearObjetivo({titulo, descripcion, onAgregar, tipo , ob
             </List>
           ) : (
             <Typography align="center" sx={{ my: 2 }}>
-              Aún no se han creado objetivos {tipo === 'general' ? "generales" : "individuales"}. Puede agregar uno nuevo con el botón "Agregar".
+              {tipo === 'general' ? t('noObjectivesGeneral') : t('noObjectivesIndividual')}
             </Typography>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cerrar</Button>
+          <Button onClick={handleCloseDialog}>{tCommon('close')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

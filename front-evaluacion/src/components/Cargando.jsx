@@ -1,6 +1,8 @@
 import styles from "@/styles/Loader.module.css"
+import { useTranslations } from 'next-intl';
 
 export default function Cargando() {
+  const t = useTranslations('common');
   return (
     <div className="flex h-screen w-full justify-center items-center bg-white">
       <div className="flex flex-col items-center">
@@ -14,7 +16,7 @@ export default function Cargando() {
           <div className={`${styles.dot} absolute bg-indigo-500 w-12 h-12 rounded-full`}></div>
           <div className={`${styles.dot} absolute bg-indigo-500 w-12 h-12 rounded-full`}></div>
         </div>
-        <div className="text-4xl font-bold text-gray-700 mt-5">Cargando</div>
+        <div className="text-4xl font-bold text-gray-700 mt-5">{t('loading')}</div>
       </div>
     </div>
   )

@@ -5,8 +5,10 @@ import MenuItem from "@mui/material/MenuItem"
 import { useDepartamentoStore } from "@/store/departamentoStore"
 import { useDepartamentos } from "@/hooks/useQueries"
 import { useSesionStore } from "@/store/sesionStore"
+import { useTranslations } from 'next-intl'
 
 export default function DepartmentSelector() {
+  const t = useTranslations('department');
   const { usuario } = useSesionStore()
   const { selectedDepartamento, setSelectedDepartamento, clearDepartamento } = useDepartamentoStore()
   const { data: departamentos = [] } = useDepartamentos()
@@ -26,12 +28,12 @@ export default function DepartmentSelector() {
   return (
     <FormControl size="small" sx={{ minWidth: 200 }}>
       <InputLabel id="dept-selector-label" sx={{ color: 'white', '&.Mui-focused': { color: 'white' } }}>
-        Departamento
+        {t('department')}
       </InputLabel>
       <Select
         labelId="dept-selector-label"
         value={selectedDepartamento || ''}
-        label="Departamento"
+        label={t('department')}
         onChange={handleChange}
         sx={{
           color: 'white',
@@ -41,7 +43,7 @@ export default function DepartmentSelector() {
           '.MuiSvgIcon-root': { color: 'white' }
         }}
       >
-        <MenuItem value="">Todos los departamentos</MenuItem>
+        <MenuItem value="">{t('allDepartments')}</MenuItem>
         {departamentos.map((dept) => (
           <MenuItem key={dept.id} value={dept.id}>
             {dept.nombre}

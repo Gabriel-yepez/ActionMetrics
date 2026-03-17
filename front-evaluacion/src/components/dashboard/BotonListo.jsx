@@ -1,7 +1,10 @@
 import { useUpdateObjetivo } from '@/hooks/useQueries';
 import { toast } from 'react-toastify';
+import { useTranslations } from 'next-intl';
 
 export default function BotonListo({ objetivo }) {
+  const t = useTranslations('objectives');
+  const tCommon = useTranslations('common');
   const actualizarObjetivo = useUpdateObjetivo();
 
   const handleListo = (e) => {
@@ -14,11 +17,11 @@ export default function BotonListo({ objetivo }) {
     // Utilizar el hook actualizarObjetivo para cambiar el estado del objetivo a completado
     actualizarObjetivo.mutate(objetivoId, {
       onSuccess: () => {
-        toast.success('El objetivo se marcó como completado.');
+        toast.success(t('markCompleted'));
       },
       onError: (error) => {
         console.error('Error al actualizar el objetivo:', error);
-        toast.error(error.message || 'No se pudo marcar el objetivo como completado. Por favor, intente de nuevo más tarde.');
+        toast.error(error.message || t('markCompletedError'));
       }
     });
   };
@@ -31,7 +34,7 @@ export default function BotonListo({ objetivo }) {
       disabled={objetivo.estado_actual === "completado"}
       hidden={objetivo.estado_actual === "completado"}
     >
-      listo
+      {tCommon('done')}
     </button>
   );
 }

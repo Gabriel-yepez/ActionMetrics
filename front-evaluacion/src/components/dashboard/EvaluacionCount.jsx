@@ -1,6 +1,8 @@
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import { useTranslations } from 'next-intl';
 
 export default function EvaluacionCount({evaluacionCount}) {
+    const t = useTranslations('dashboard');
 
     return (
     <div className="flex justify-normal items-center w-full h-full p-3 md:p-6">
@@ -10,7 +12,7 @@ export default function EvaluacionCount({evaluacionCount}) {
 
         <section className="text-center min-w-0">
             <h1 className="text-lg md:text-2xl font-semibold mb-1 md:mb-2">
-                Evaluaciones totales
+                {t('totalEvaluations')}
             </h1>
             <span className="text-lg md:text-2xl font-medium">
                 {evaluacionCount !== null ? evaluacionCount : 0}
