@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import Card from "./Card"
 import { useUserStore } from '@/store/userStore'
 import { useSesionStore } from '@/store/sesionStore'
@@ -6,6 +7,7 @@ import { filtrarUsuariosEmpleados } from '@/helper/filtroUsers'
 import { useObjetivos } from '@/hooks/useQueries'
 
 export default function InicioRendimiento({ selectedUserId: initialSelectedId }) {
+  const t = useTranslations('performance');
   const users = useUserStore(state => state.users)
   const usuario = useSesionStore(state => state.usuario)
   const { data: objetivosData } = useObjetivos()
@@ -39,12 +41,12 @@ export default function InicioRendimiento({ selectedUserId: initialSelectedId })
 
   return (
    <div className="p-4 md:p-8">
-     {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) && <h1 className="text-2xl md:text-4xl font-bold mb-4">Rendimiento de Empleados</h1>}
-     {usuario && usuario.id_rol ===2 && <h1 className="text-2xl md:text-4xl font-bold mb-4">Mi Rendimiento</h1>}
+     {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) && <h1 className="text-2xl md:text-4xl font-bold mb-4">{t('employeePerformance')}</h1>}
+     {usuario && usuario.id_rol ===2 && <h1 className="text-2xl md:text-4xl font-bold mb-4">{t('myPerformance')}</h1>}
 
       {usuario  && (usuario.id_rol === 1 || usuario.id_rol === 3) &&
         <div className="mb-6">
-            <label htmlFor="usuario" className="block mb-2 font-medium text-gray-700">Seleccionar Empleado</label>
+            <label htmlFor="usuario" className="block mb-2 font-medium text-gray-700">{t('selectEmployee')}</label>
             <select
             id="usuario"
             name="usuario"
@@ -52,7 +54,7 @@ export default function InicioRendimiento({ selectedUserId: initialSelectedId })
             onChange={handleUserChange}
             value={selectedUserId}
             >
-            <option value="">Seleccionar un empleado</option>
+            <option value="">{t('selectAnEmployee')}</option>
             {users && filtrarUsuariosEmpleados(users).map(user => (
                 <option key={user.id} value={user.id}>
                 {user.nombre} {user.apellido}
@@ -68,13 +70,13 @@ export default function InicioRendimiento({ selectedUserId: initialSelectedId })
 
       {!selectedUser && selectedUserId && (
         <div className="bg-yellow-100 p-4 rounded-md border border-yellow-300 text-yellow-800">
-          <p>No se encontraron datos para el empleado seleccionado.</p>
+          <p>{t('noDataFound')}</p>
         </div>
       )}
 
       {!selectedUserId && (
         <div className="bg-blue-100 p-4 rounded-md border border-blue-300 text-blue-800">
-          <p>Seleccione un empleado para ver su rendimiento.</p>
+          <p>{t('selectToView')}</p>
         </div>
       )}
     </div>

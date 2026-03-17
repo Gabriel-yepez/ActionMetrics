@@ -3,12 +3,14 @@ import Head from 'next/head';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { NextIntlClientProvider } from 'next-intl';
 import AuthGuard from '@/components/AuthGuard';
 
 const SITE_NAME = "ActionMetrics";
-const DEFAULT_DESCRIPTION = "Plataforma de evaluación de desempeño y seguimiento de objetivos para equipos de trabajo. Gestiona evaluaciones, objetivos y rendimiento de tu equipo.";
 
 export default function App({ Component, pageProps }) {
+  const router = useRouter();
   // Crear una instancia de QueryClient para cada sesión de usuario
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
@@ -22,20 +24,25 @@ export default function App({ Component, pageProps }) {
   }));
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content={DEFAULT_DESCRIPTION} />
-        <meta property="og:site_name" content={SITE_NAME} />
-        <meta property="og:type" content="website" />
-        <meta property="og:locale" content="es_ES" />
-        <meta name="robots" content="index, follow" />
-        <title>{SITE_NAME}</title>
-      </Head>
-      <AuthGuard>
-        <Component {...pageProps} />
-      </AuthGuard>
-      <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
-    </QueryClientProvider>
+    <NextIntlClientProvider
+      locale={router.locale}
+      timeZone="America/Caracas"
+      messages={pageProps.messages}
+    >
+      <QueryClientProvider client={queryClient}>
+        <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta property="og:site_name" content={SITE_NAME} />
+          <meta property="og:type" content="website" />
+          <meta property="og:locale" content={router.locale === 'en' ? 'en_US' : 'es_ES'} />
+          <meta name="robots" content="index, follow" />
+          <title>{SITE_NAME}</title>
+        </Head>
+        <AuthGuard>
+          <Component {...pageProps} />
+        </AuthGuard>
+        <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+      </QueryClientProvider>
+    </NextIntlClientProvider>
   );
 }

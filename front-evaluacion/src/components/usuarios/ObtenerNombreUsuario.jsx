@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import React from 'react';
 import Typography from '@mui/material/Typography';
 import { useUsers } from '@/hooks/useQueries';
@@ -7,6 +8,8 @@ import { useUsers } from '@/hooks/useQueries';
  * Busca el usuario en la lista de usuarios disponibles si es necesario
  */
 const ObtenerNombreUsuario = ({ objetivo, typographyProps = {} }) => {
+  const t = useTranslations('notifications');
+  const tProgress = useTranslations('progress');
   // Usamos el hook de usuarios para tener acceso a la lista
   const usuariosQuery = useUsers();
   const usuarios = usuariosQuery.data?.users || [];
@@ -19,11 +22,11 @@ const ObtenerNombreUsuario = ({ objetivo, typographyProps = {} }) => {
     if (idUsuario && usuarios.length > 0) {
       const usuarioEncontrado = usuarios.find(u => u.id === idUsuario);
       if (usuarioEncontrado) {
-        return `Responsable: ${usuarioEncontrado.nombre} ${usuarioEncontrado.apellido || ''}`;
+        return `${t('responsible')}${usuarioEncontrado.nombre} ${usuarioEncontrado.apellido || ''}`;
       }
     }
     
-    return idUsuario ? `Usuario ID: ${idUsuario}` : 'No asignado';
+    return idUsuario ? `${t('userId')}${idUsuario}` : tProgress('notAssigned');
   };
   
   // Combinamos los estilos por defecto con los props pasados al componente
@@ -37,7 +40,7 @@ const ObtenerNombreUsuario = ({ objetivo, typographyProps = {} }) => {
       {...typographyProps}
       sx={combinedStyles}
     >
-      {usuariosQuery.isLoading ? 'Cargando usuario...' : buscarNombreUsuario()}
+      {usuariosQuery.isLoading ? t('loadingUser') : buscarNombreUsuario()}
     </Typography>
   );
 };
