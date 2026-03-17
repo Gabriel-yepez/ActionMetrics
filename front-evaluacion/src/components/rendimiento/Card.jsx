@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
+import React, { useMemo } from 'react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -29,50 +30,38 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 export default function Card({ userData, objetivos }) {
-  // Estado para almacenar los datos procesados para la gráfica
-  const [chartData, setChartData] = useState([]);
-  const [stats, setStats] = useState({
-    completados: 0,
-    pendientes: 0,
-    total: 0
-  });
-
+  const t = useTranslations('performance');
+  const tCommon = useTranslations('common');
   const { data: documentos } = useGetDocuments();
-  
+
   // Procesar objetivos con sus documentos correspondientes
   const objetivosConDocumentos = useMemo(() => {
     return documentos ? emparejarDocumentosConObjetivos(documentos, objetivos) : objetivos;
   }, [documentos, objetivos]);
-  
+
   const objetivosToShow = ordenarObjetivosPorFecha(objetivosConDocumentos, 'inicio');
-  // Procesar datos cuando cambien los objetivos
-  console.log(objetivosToShow)
-  useEffect(() => {
-    if (objetivos && objetivos.length > 0) {
-      // Contar objetivos completados y pendientes
-      const completados = objetivos.filter(obj => obj.estado_actual === 'completado').length;
-      const pendientes = objetivos.filter(obj => obj.estado_actual === 'no completado').length;
-      
-      // Actualizar estadísticas
-      setStats({
-        completados,
-        pendientes,
-        total: objetivos.length
-      });
-      
-      // Preparar datos para la gráfica
-      setChartData([
-        { name: 'Completados', value: completados },
-        { name: 'Pendientes', value: pendientes }
-      ]);
-    }
+
+  // Derivar stats y chartData con useMemo en lugar de useEffect + setState
+  const stats = useMemo(() => {
+    if (!objetivos || objetivos.length === 0) return { completados: 0, pendientes: 0, total: 0 };
+    const completados = objetivos.filter(obj => obj.estado_actual === 'completado').length;
+    const pendientes = objetivos.filter(obj => obj.estado_actual === 'no completado').length;
+    return { completados, pendientes, total: objetivos.length };
   }, [objetivos]);
+
+  const chartData = useMemo(() => {
+    if (!objetivos || objetivos.length === 0) return [];
+    return [
+      { name: t('completed'), value: stats.completados },
+      { name: t('pendingItems'), value: stats.pendientes }
+    ];
+  }, [objetivos, stats, t]);
 
   // Si no hay datos o no hay objetivos, mostrar mensaje apropiado
   if (!userData) {
     return (
       <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-        <p className="text-center text-gray-500">Cargando datos del usuario...</p>
+        <p className="text-center text-gray-500">{t('loadingUserData')}</p>
       </div>
     );
   }
@@ -82,7 +71,7 @@ export default function Card({ userData, objetivos }) {
       <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
         <div className="text-center py-4">
           <div className="bg-yellow-50 p-4 rounded-md border border-yellow-200 inline-block">
-            <p className="text-yellow-700">Este empleado no tiene objetivos asignados todavía.</p>
+            <p className="text-yellow-700">{t('noObjectivesYet')}</p>
           </div>
         </div>
       </div>
@@ -95,7 +84,7 @@ export default function Card({ userData, objetivos }) {
       <div className="md:flex">
         {/* Primera sección: Gráfica */}
         <div className="md:w-1/2 p-4 border-r border-gray-200">
-          <h2 className="text-xl font-bold mb-4 text-gray-800">Progreso de Objetivos</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-800">{t('objectivesProgress')}</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -127,10 +116,9 @@ export default function Card({ userData, objetivos }) {
           </div>
           
           <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2">Resumen de Objetivos</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('objectivesSummary')}</h3>
             <p className="text-gray-700 mb-2">
-              El empleado tiene un total de {stats.total} objetivos asignados, 
-              de los cuales ha completado {stats.completados} y tiene {stats.pendientes} pendientes.
+              {t('summaryText', { total: stats.total, completed: stats.completados, pending: stats.pendientes })}
             </p>
             
             {/* Barra de progreso */}
@@ -141,18 +129,18 @@ export default function Card({ userData, objetivos }) {
               ></div>
             </div>
             <p className="text-sm text-gray-500">
-              Progreso: {stats.total > 0 ? ((stats.completados / stats.total) * 100).toFixed(0) : 0}%
+              {t('progressLabel')} {stats.total > 0 ? ((stats.completados / stats.total) * 100).toFixed(0) : 0}%
             </p>
           </div>
           
           <div className="flex justify-between">
             <div className="text-center p-2 bg-green-100 rounded-lg w-5/12">
               <span className="block text-2xl font-bold text-green-600">{stats.completados}</span>
-              <span className="text-sm text-green-700">Completados</span>
+              <span className="text-sm text-green-700">{t('completed')}</span>
             </div>
             <div className="text-center p-2 bg-red-100 rounded-lg w-5/12">
               <span className="block text-2xl font-bold text-red-600">{stats.pendientes}</span>
-              <span className="text-sm text-red-700">Pendientes</span>
+              <span className="text-sm text-red-700">{t('pendingItems')}</span>
             </div>
           </div>
         </div>
@@ -160,18 +148,18 @@ export default function Card({ userData, objetivos }) {
       
       {/* Tercera sección: Lista de Objetivos */}
       <div className="p-4 border-t border-gray-200">
-        <h3 className="text-lg font-semibold mb-3">Sus Objetivos</h3>
+        <h3 className="text-lg font-semibold mb-3">{t('theirObjectives')}</h3>
         
         {objetivos.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">Documento</th>
-                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha Inicio</th>
-                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha Fin</th>
+                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">{tCommon('description')}</th>
+                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">{tCommon('status')}</th>
+                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">{t('document')}</th>
+                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">{t('startDate')}</th>
+                  <th scope="col" className="px-4 py-2 text-sm font-medium text-gray-500 uppercase tracking-wider">{t('endDate')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -188,19 +176,19 @@ export default function Card({ userData, objetivos }) {
                             : 'bg-red-100 text-red-800'
                         }`}
                       >
-                        {objetivo.estado_actual === 'completado' ? 'Completado' : 'No completado'}
+                        {objetivo.estado_actual === 'completado' ? t('completedStatus') : t('notCompletedStatus')}
                       </span>
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-sm text-center text-gray-500">
                       {objetivo.documento_url ? (
                         <Documento url={objetivo.documento_url} />
-                      ) : 'No hay documento'}
+                      ) : t('noDocument')}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-sm text-center text-gray-500">
-                      {objetivo.fecha_inicio ? formatearFecha(objetivo.fecha_inicio) : 'N/A'}
+                      {objetivo.fecha_inicio ? formatearFecha(objetivo.fecha_inicio) : tCommon('na')}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-sm text-center text-gray-500">
-                      {objetivo.fecha_fin ? formatearFecha(objetivo.fecha_fin) : 'N/A'}
+                      {objetivo.fecha_fin ? formatearFecha(objetivo.fecha_fin) : tCommon('na')}
                     </td>
                   </tr>
                 ))}
@@ -208,7 +196,7 @@ export default function Card({ userData, objetivos }) {
             </table>
           </div>
         ) : (
-          <p className="text-gray-500 text-center py-4">No hay objetivos disponibles para mostrar.</p>
+          <p className="text-gray-500 text-center py-4">{t('noObjectivesAvailable')}</p>
         )}
       </div>
     </div>

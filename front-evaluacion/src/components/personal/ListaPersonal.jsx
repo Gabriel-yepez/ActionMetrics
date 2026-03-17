@@ -17,6 +17,7 @@ import DialogContentText from "@mui/material/DialogContentText"
 import DialogTitle from "@mui/material/DialogTitle"
 import Button from "@mui/material/Button"
 
+import { useTranslations } from 'next-intl'
 import { useDebounce } from "@uidotdev/usehooks"
 import { useUserStore } from "@/store/userStore"
 import { useSesionStore } from "@/store/sesionStore"
@@ -26,6 +27,9 @@ import { useState } from "react"
 const DEBOUNCE_TIME = 300
 
 export default function ListaPersonal() {
+    const t = useTranslations('staff');
+    const tCommon = useTranslations('common');
+    const tDept = useTranslations('department');
     // Estado de la interfaz con Zustand
     const { search, setSearch } = useUserStore()
     const { usuario } = useSesionStore()
@@ -74,9 +78,9 @@ export default function ListaPersonal() {
 
   return (
     <div className="p-4 md:p-8">
-        <h1 className="text-2xl md:text-4xl font-bold mb-4">Personal del departamento</h1>
+        <h1 className="text-2xl md:text-4xl font-bold mb-4">{t('title')}</h1>
         <TextField
-          label="Buscar usuario..."
+          label={t('searchPlaceholder')}
           value={search}
           variant="outlined"
           onChange={handleSearch}
@@ -86,13 +90,13 @@ export default function ListaPersonal() {
         
         {isError && (
           <Alert severity="error" className="mb-4">
-            No se pudo cargar la lista de personal. {error?.message || "Verifique su conexión e intente de nuevo."}
+            {t('loadError')} {error?.message || tCommon('connectionError')}
           </Alert>
         )}
         
         {deleteUser.isError && (
           <Alert severity="error" className="mb-4">
-            No se pudo eliminar el usuario. {deleteUser.error?.message || "Es posible que tenga evaluaciones u objetivos asociados. Intente de nuevo más tarde."}
+            {t('deleteError')} {deleteUser.error?.message || t('deleteErrorDetail')}
           </Alert>
         )}
         
@@ -105,12 +109,12 @@ export default function ListaPersonal() {
             <Table>
               <TableHead style={{ backgroundColor: "#f5f5f5" }}>
                 <TableRow>
-                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Nombre</strong></TableCell>
-                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Apellido</strong></TableCell>
-                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Email</strong></TableCell>
-                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Cédula</strong></TableCell>
-                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Departamento</strong></TableCell>
-                  {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) && <TableCell align="center" sx={{ fontSize: '1.05rem', px: '8px' }}><strong>Acciones</strong></TableCell>}
+                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>{tCommon('name')}</strong></TableCell>
+                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>{tCommon('lastName')}</strong></TableCell>
+                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>{tCommon('email')}</strong></TableCell>
+                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>{t('cedula')}</strong></TableCell>
+                  <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>{tDept('department')}</strong></TableCell>
+                  {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) && <TableCell align="center" sx={{ fontSize: '1.05rem', px: '8px' }}><strong>{tCommon('actions')}</strong></TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody sx={{ 
@@ -124,14 +128,14 @@ export default function ListaPersonal() {
                       <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">{user.nombre}</TableCell>
                       <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">{user.apellido}</TableCell>
                       <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">{user.email}</TableCell>
-                      <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">V-{user.ci}</TableCell>
-                      <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">{user.departamento?.nombre || 'Sin departamento'}</TableCell>
+                      <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">{t('vPrefix')}{user.ci}</TableCell>
+                      <TableCell sx={{ fontSize: '1rem', px: '8px' }} align="center">{user.departamento?.nombre || tDept('noDepartment')}</TableCell>
                       {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) &&
                       
                       <TableCell align="center" sx={{ px: '8px' }}>
                         <IconButton 
                           color="error" 
-                          aria-label="Eliminar"
+                          aria-label={tCommon('delete')}
                           onClick={() => handleDeleteClick(user.id)}
                           disabled={deleteUser.isPending}
                           >
@@ -149,7 +153,7 @@ export default function ListaPersonal() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6} align="center">
-                      {notFound && "No se encontraron usuarios con los criterios de búsqueda. Intente con otro término."}
+                      {notFound && t('noUsersFound')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -166,19 +170,19 @@ export default function ListaPersonal() {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            Confirmar eliminación
+            {tCommon('confirmDelete')}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              Esta acción eliminará al usuario y todos sus datos asociados de forma permanente. ¿Desea continuar?
+              {t('confirmDeleteMessage')}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCancelDelete} color="error">
-              Cancelar
+              {tCommon('cancel')}
             </Button>
             <Button onClick={handleConfirmDelete} color="primary" autoFocus>
-              Aceptar
+              {tCommon('accept')}
             </Button>
           </DialogActions>
         </Dialog>

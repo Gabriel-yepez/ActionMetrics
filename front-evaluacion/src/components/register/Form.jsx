@@ -4,9 +4,12 @@ import { toast,ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useState, useEffect } from 'react'
 import { validateForm, hasErrors } from '@/helper/formValidation';
+import { useTranslations } from 'next-intl';
 
 
 export default function Form() {
+    const t = useTranslations('register');
+    const tCommon = useTranslations('common');
     const router= useRouter()//enrutamiento
     const [errors, setErrors] = useState({})
     const [departamentos, setDepartamentos] = useState([])
@@ -88,17 +91,17 @@ export default function Form() {
         const responseData = await response.json()
 
         if(response.ok && responseData.ok){
-            toast.success('Cuenta creada correctamente. Redirigiendo al inicio de sesión...')
+            toast.success(t('success'))
             setTimeout(() => {
               router.push('/')
             }, 2000)
         }
         else {
-          toast.error(responseData.message || 'No se pudo crear la cuenta. Verifique los datos ingresados e intente de nuevo.')
+          toast.error(responseData.message || t('error'))
         }
       } catch (error) {
         console.error("Error en registro:", error)
-        toast.error('No se pudo conectar con el servidor. Verifique su conexión a internet e intente de nuevo.')
+        toast.error(tCommon('serverError'))
       }
     }
 
@@ -109,13 +112,13 @@ export default function Form() {
 
             <div className="mb-4">
 
-            <label htmlFor="nombre" className="text-gray-700 font-bold mb-2">Nombre</label>
+            <label htmlFor="nombre" className="text-gray-700 font-bold mb-2">{t('firstName')}</label>
                 <input
                     name="nombre" 
                     type="text" 
                     id="nombre"
                     className={`shadow appearance-none border ${errors.nombre ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
-                    placeholder="introducir nombre"
+                    placeholder={t('firstNamePlaceholder')}
                 />
                 {errors.nombre && (
                   <p className="text-red-500 text-xs mt-1">{errors.nombre}</p>
@@ -124,13 +127,13 @@ export default function Form() {
 
             <div className='mb-4'>
 
-            <label htmlFor="apellido" className="text-gray-700 font-bold mb-2">Apellido</label>
+            <label htmlFor="apellido" className="text-gray-700 font-bold mb-2">{t('lastName')}</label>
                 <input
                     name="apellido" 
                     type="text" 
                     id="apellido"
                     className={`shadow appearance-none border ${errors.apellido ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
-                    placeholder="introducir apellido"
+                    placeholder={t('lastNamePlaceholder')}
                 />
                 {errors.apellido && (
                   <p className="text-red-500 text-xs mt-1">{errors.apellido}</p>
@@ -138,13 +141,13 @@ export default function Form() {
             </div>
 
             <div className="mb-4">
-            <label htmlFor="usuario" className="text-gray-700 font-bold mb-2">Usuario</label>
+            <label htmlFor="usuario" className="text-gray-700 font-bold mb-2">{t('username')}</label>
                 <input
                     name="usuario" 
                     type="text" 
                     id="usuario"
                     className={`shadow appearance-none border ${errors.usuario ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
-                    placeholder="introducir usuario"
+                    placeholder={t('usernamePlaceholder')}
                 />
                 {errors.usuario && (
                   <p className="text-red-500 text-xs mt-1">{errors.usuario}</p>
@@ -153,13 +156,13 @@ export default function Form() {
 
             <div className="mb-4">
 
-            <label htmlFor="password" className="text-gray-700 font-bold mb-2">Contraseña</label>
+            <label htmlFor="password" className="text-gray-700 font-bold mb-2">{t('password')}</label>
                 <input 
                     name="password"
                     type="password" 
                     id="password"
                     className={`shadow appearance-none border ${errors.contraseña ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
-                    placeholder="introduce contraseña"       
+                    placeholder={t('passwordPlaceholder')}
                 />
                 {errors.contraseña && (
                   <p className="text-red-500 text-xs mt-1">{errors.contraseña}</p>
@@ -168,13 +171,13 @@ export default function Form() {
 
             <div className="mb-4">
 
-            <label htmlFor="email" className="text-gray-700 font-bold mb-2">email</label>
+            <label htmlFor="email" className="text-gray-700 font-bold mb-2">{t('email')}</label>
                 <input 
                     name="email"
                     type="email" 
                     id="email"
                     className={`shadow appearance-none border ${errors.email ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
-                    placeholder="introduce tu email"       
+                    placeholder={t('emailPlaceholder')}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -183,13 +186,13 @@ export default function Form() {
 
             <div className="mb-4">
 
-            <label htmlFor="cedula" className="text-gray-700 font-bold mb-2">cedula</label>
+            <label htmlFor="cedula" className="text-gray-700 font-bold mb-2">{t('cedula')}</label>
                 <input 
                     name="cedula"
                     type="number" 
                     id="cedula"
                     className={`shadow appearance-none border ${errors.cedula ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
-                    placeholder="introduce tu cedula"       
+                    placeholder={t('cedulaPlaceholder')}
                 />
                 {errors.cedula && (
                   <p className="text-red-500 text-xs mt-1">{errors.cedula}</p>
@@ -197,17 +200,17 @@ export default function Form() {
             </div>
 
             <div className="mb-4">
-            <label htmlFor="rol" className="text-gray-700 font-bold mb-2">Cargo</label>
+            <label htmlFor="rol" className="text-gray-700 font-bold mb-2">{t('role')}</label>
 
                 <select
                     name="rol"
                     id="rol"
                     className={`shadow appearance-none border ${errors.rol ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                 >
-                    <option value="">Seleccionar rol</option>
-                    <option value="superadmin">Super Admin</option>
-                    <option value="gerente">Gerente de departamento</option>
-                    <option value="empleado">Empleado</option>
+                    <option value="">{t('selectRole')}</option>
+                    <option value="superadmin">{t('superAdmin')}</option>
+                    <option value="gerente">{t('departmentManager')}</option>
+                    <option value="empleado">{t('employee')}</option>
                 </select>
                 {errors.rol && (
                   <p className="text-red-500 text-xs mt-1">{errors.rol}</p>
@@ -215,14 +218,14 @@ export default function Form() {
             </div>
 
             <div className="mb-4">
-            <label htmlFor="departamento" className="text-gray-700 font-bold mb-2">Departamento</label>
+            <label htmlFor="departamento" className="text-gray-700 font-bold mb-2">{t('department')}</label>
 
                 <select
                     name="departamento"
                     id="departamento"
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 >
-                    <option value="">Seleccionar departamento</option>
+                    <option value="">{t('selectDepartment')}</option>
                     {departamentos.map((dept) => (
                         <option key={dept.id} value={dept.id}>{dept.nombre}</option>
                     ))}
@@ -234,7 +237,7 @@ export default function Form() {
                     type="submit" 
                     className="bg-indigo-400 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
 
-                    Registar
+                    {t('submit')}
                 </button>
             </div>
                 

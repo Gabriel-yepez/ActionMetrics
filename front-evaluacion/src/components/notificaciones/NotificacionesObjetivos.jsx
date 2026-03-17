@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, Typography, Box, Divider, Button, Chip } from '@mui/material'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
@@ -8,10 +9,13 @@ import { es } from 'date-fns/locale'
 import {useUserStore} from '@/store/userStore'
 
 const NotificacionesObjetivos = ({ objetivos }) => {
+  const t = useTranslations('notifications');
+  const tUrgency = useTranslations('urgency');
+  const tCommon = useTranslations('common');
   const { users } = useUserStore();
   // Función para formatear la fecha de vencimiento
   const formatearFecha = (fecha) => {
-    if (!fecha) return 'Sin fecha límite';
+    if (!fecha) return tCommon('noDateLimit');
     
     try {
       // Convertir la cadena de fecha a un objeto Date
@@ -24,7 +28,7 @@ const NotificacionesObjetivos = ({ objetivos }) => {
       return format(fechaObj, "d 'de' MMMM 'de' yyyy", { locale: es });
     } catch (error) {
       console.error("Error al formatear fecha:", error);
-      return 'Fecha inválida';
+      return tCommon('invalidDate');
     }
   };
   
@@ -46,11 +50,11 @@ const NotificacionesObjetivos = ({ objetivos }) => {
   // Obtener el texto de urgencia según el color
   const getUrgencyText = (color) => {
     switch (color) {
-      case 'error': return 'Retrasado';
-      case 'warning': return 'Falta pocos días para que termine el objetivo';
-      case 'info': return 'Tiene 7 dias para terminar el objetivo';
-      case 'success': return 'En plazo';
-      default: return 'Sin plazo';
+      case 'error': return tUrgency('overdue');
+      case 'warning': return tUrgency('fewDays');
+      case 'info': return tUrgency('sevenDays');
+      case 'success': return tUrgency('onTrack');
+      default: return tUrgency('noDeadline');
     }
   };
   
@@ -112,14 +116,14 @@ const NotificacionesObjetivos = ({ objetivos }) => {
                 <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
                   <AccessTimeIcon fontSize="small" sx={{ mr: 0.5, color: 'text.secondary' }} />
                   <Typography variant="body2" color="text.secondary">
-                    Fecha de culminación: {formatearFecha(objetivo.fecha_fin)}
+                    {t('dueDate')} {formatearFecha(objetivo.fecha_fin)}
                   </Typography>
                 </Box>
                 
                 <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
                   <FlagIcon fontSize="small" sx={{ mr: 0.5, color: 'text.secondary' }} />
                   <Typography variant="body2" color="text.secondary">
-                    Tipo: {objetivo.id_tipo_objetivo === 1 ? 'General' : 'Individual'}
+                    {t('type')}{objetivo.id_tipo_objetivo === 1 ? t('general') : t('individual')}
                   </Typography>
                 </Box>
                 
@@ -127,7 +131,7 @@ const NotificacionesObjetivos = ({ objetivos }) => {
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <PersonIcon fontSize="small" sx={{ mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="body2" color="text.secondary">
-                      Asignado a: {users.find(user => user.id === objetivo.id_usuario).nombre} {users.find(user => user.id === objetivo.id_usuario).apellido}
+                      {t('assignedTo')} {users.find(user => user.id === objetivo.id_usuario).nombre} {users.find(user => user.id === objetivo.id_usuario).apellido}
                     </Typography>
                   </Box>
                 )}

@@ -1,6 +1,8 @@
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from "react"
 
 export default function Documento({url}) {
+  const t = useTranslations('performance');
   const [dialog, setDialog] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
   
@@ -29,14 +31,14 @@ export default function Documento({url}) {
       <button 
         onClick={abrirDialog}
         className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-full'>
-        Ver documento
+        {t('viewDocument')}
       </button>
 
       {dialog && (
         <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity ${dialogVisible ? 'opacity-100' : 'opacity-0'}`}>
           <div className={`bg-white rounded-lg shadow-xl overflow-hidden transition-transform ${dialogVisible ? 'scale-100' : 'scale-95'} w-[95%] h-[85%] md:w-[80%] md:h-[80%]`}>
             <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="text-lg font-medium">Documento</h3>
+              <h3 className="text-lg font-medium">{t('document')}</h3>
               <button onClick={cerrarDialog} className="text-gray-500 text-xl hover:text-gray-700">
               ✕
               </button>
@@ -50,14 +52,14 @@ export default function Documento({url}) {
                   type="application/pdf"
                   className="w-full h-full"
                 >
-                  <p>Tu navegador no puede mostrar el PDF. <a href={`http://localhost:4001${url}`} target="_blank" rel="noopener noreferrer">Descárgalo aquí</a>.</p>
+                  <p>{t('pdfNotSupported')} <a href={`http://localhost:4001${url}`} target="_blank" rel="noopener noreferrer">{t('downloadHere')}</a>.</p>
                 </object>
               ) : url && /\.(jpe?g|png|gif|bmp|webp)$/i.test(url) ? (
                 // Visualizador de imágenes
                 <div className="flex items-center justify-center h-full bg-gray-100">
                   <img 
                     src={`http://localhost:4001${url}`} 
-                    alt="Documento" 
+                    alt={t('document')}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
@@ -66,7 +68,7 @@ export default function Documento({url}) {
                 <iframe 
                   src={`http://localhost:4001${url}#zoom=page-fit&toolbar=0`} 
                   className="w-full h-full"
-                  title="Documento"
+                  title={t('document')}
                   sandbox="allow-same-origin allow-scripts"
                 ></iframe>
               )}
