@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { useUserStore } from '@/store/userStore';
 import { useSesionStore } from '@/store/sesionStore';
 import { useState, useMemo, useCallback } from 'react';
@@ -9,6 +10,8 @@ import { filtrarUsuariosEmpleados } from '@/helper/filtroUsers'
 import { ordenarPorFechaMasReciente } from '@/helper/FiltrarFecha';
 
 export default function ListaHistorial() {
+    const t = useTranslations('history');
+    const tCommon = useTranslations('common');
 
     const users = useUserStore(state => state.users)
     const usuario = useSesionStore(state => state.usuario)
@@ -79,7 +82,7 @@ export default function ListaHistorial() {
       const comentario = e.target.comentario.value;
 
       if (!comentario.trim()) {
-        toast.error('Debe escribir un comentario antes de enviar la retroalimentación.');
+        toast.error(t('feedbackRequired'));
         return;
       }
 
@@ -98,10 +101,10 @@ export default function ListaHistorial() {
         fecha: new Date().toISOString().split('T')[0]
       }, {
         onSuccess: () => {
-          toast.success('Su retroalimentación fue enviada correctamente.');
+          toast.success(t('feedbackSuccess'));
         },
         onError: (error) => {
-          toast.error(error.message || 'No se pudo enviar la retroalimentación. Intente de nuevo.');
+          toast.error(error.message || t('feedbackError'));
         }
       });
 
@@ -143,7 +146,7 @@ export default function ListaHistorial() {
   return (
     <div className="p-4 md:p-8">
       <ToastContainer />
-        <h1 className="text-2xl md:text-4xl font-bold mb-4">Historial de evaluaciones</h1>
+        <h1 className="text-2xl md:text-4xl font-bold mb-4">{t('title')}</h1>
 
         <section className="flex flex-col sm:flex-row gap-3 flex-wrap">
 
@@ -155,7 +158,7 @@ export default function ListaHistorial() {
             onChange={ManejoFiltro}
             value={filtros.usuario}
             >
-            <option value="">Selecionar un usuario</option>
+            <option value="">{t('selectUser')}</option>
             {users && filtrarUsuariosEmpleados(users).map(user => (
               <option key={user.id} value={user.id}>
                 {user.nombre} {user.apellido}
@@ -163,7 +166,7 @@ export default function ListaHistorial() {
             ))}
             </select>
           }
-            <label htmlFor="fecha_inicio" className='py-2'>Fecha</label>
+            <label htmlFor="fecha_inicio" className='py-2'>{tCommon('date')}</label>
                 <input type="date"
                 name="fecha"
                 className='shadow appearance-none border border-gray-300 rounded px-1'
@@ -177,9 +180,9 @@ export default function ListaHistorial() {
             onChange={ManejoFiltro}
             value={filtros.estado}
             >
-                <option value="">Todos</option>
-                <option value="1">Respondido</option>
-                <option value="0">Pendiente</option>
+                <option value="">{tCommon('all')}</option>
+                <option value="1">{t('responded')}</option>
+                <option value="0">{t('pending')}</option>
             </select>
         </section>
 
@@ -188,11 +191,11 @@ export default function ListaHistorial() {
         <table className="w-full mt-6 border-collapse min-w-[600px]">
             <thead className="bg-gray-100 text-lg">
               <tr>
-                <th className="px-4 py-2 border">Nombre</th>
-                <th className="px-4 py-2 border">Fecha</th>
-                <th className="px-4 py-2 border">Comentario</th>
-                <th className="px-4 py-2 border">Estado</th>
-                <th className="px-4 py-2 border">Ver reporte</th>
+                <th className="px-4 py-2 border">{tCommon('name')}</th>
+                <th className="px-4 py-2 border">{tCommon('date')}</th>
+                <th className="px-4 py-2 border">{t('comment')}</th>
+                <th className="px-4 py-2 border">{tCommon('status')}</th>
+                <th className="px-4 py-2 border">{t('viewReport')}</th>
               </tr>
             </thead>
 
@@ -204,13 +207,13 @@ export default function ListaHistorial() {
                   return (
                     <tr key={evaluacion.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2 border">
-                        {userEvaluado ? `${userEvaluado.nombre} ${userEvaluado.apellido}` : 'Usuario desconocido'}
+                        {userEvaluado ? `${userEvaluado.nombre} ${userEvaluado.apellido}` : t('unknownUser')}
                       </td>
                       <td className="px-4 py-2 border text-center">{evaluacion.fecha}</td>
                       <td className="px-4 py-2 border whitespace-normal break-words">{evaluacion.comentario}</td>
                       <td className="px-4 py-2 border text-center">
                         <span className={`inline-block px-3 py-1 rounded text-white ${evaluacion.estado ? 'bg-green-500 rounded-full' : 'bg-yellow-500 rounded-full'} mx-auto`}>
-                          {evaluacion.estado ? 'Respondido' : 'Pendiente'}
+                          {evaluacion.estado ? t('responded') : t('pending')}
                         </span>
                       </td>
                       <td className="px-4 py-2 border text-center">
@@ -218,7 +221,7 @@ export default function ListaHistorial() {
                           onClick={() => abrirDialog(evaluacion.url, evaluacion)}
                           className="bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition-colors"
                         >
-                          Ver
+                          {tCommon('view')}
                         </button>
                       </td>
                     </tr>
@@ -227,7 +230,7 @@ export default function ListaHistorial() {
               ) : (
                 <tr>
                   <td colSpan="5" className="px-4 py-4 text-center border">
-                    Aún no se han registrado evaluaciones. Las evaluaciones aparecerán aquí una vez que sean creadas.
+                    {t('noEvaluations')}
                   </td>
                 </tr>
               )}
@@ -240,7 +243,7 @@ export default function ListaHistorial() {
           <div className={`fixed inset-0 flex items-center justify-center z-50 transition-all duration-300 ease-in-out ${dialogVisible ? 'bg-black bg-opacity-50' : 'bg-black bg-opacity-0'}`}>
             <div className={`bg-white p-4 md:p-6 rounded-lg shadow-xl max-w-4xl w-[95%] md:w-full mx-auto h-[90vh] md:h-[95vh] flex flex-col transform transition-all duration-300 ease-in-out ${dialogVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-semibold">Reporte de Evaluación</h3>
+                <h3 className="text-2xl font-semibold">{t('evaluationReport')}</h3>
                 <button
                   onClick={cerrarDialog}
                   className="text-gray-500 hover:text-gray-700 text-xl"
@@ -263,24 +266,24 @@ export default function ListaHistorial() {
               {/* Feedback basado en rol */}
               {usuario && (usuario.id_rol === 1 || usuario.id_rol === 3) && (
                 <div className="p-2 border rounded bg-slate-50">
-                  <h2 className="text-lg font-semibold mb-2">Opinión del empleado</h2>
+                  <h2 className="text-lg font-semibold mb-2">{t('employeeOpinion')}</h2>
                   {retroalimentacionExistente ? (
                     <div>
-                      <p className="mb-2">Fecha: {retroalimentacionExistente.fecha}</p>
+                      <p className="mb-2">{tCommon('date')}: {retroalimentacionExistente.fecha}</p>
                       <div className="whitespace-normal break-words">
-                        {retroalimentacionExistente.comentario || 'No hay comentario disponible'}
+                        {retroalimentacionExistente.comentario || t('noCommentAvailable')}
                       </div>
                     </div>
                   ) : (
-                    <p>El empleado aún no ha proporcionado ningún comentario a esta evaluación.</p>
+                    <p>{t('noCommentYet')}</p>
                   )}
                 </div>
               )}
 
               {usuario && usuario.id_rol === 2 && retroalimentacionExistente && (
                 <div className="p-2 border rounded bg-slate-50">
-                  <h2 className="text-lg font-semibold mb-2">Su comentario sobre esta evaluación</h2>
-                  <p className="mb-2">Fecha: {retroalimentacionExistente.fecha}</p>
+                  <h2 className="text-lg font-semibold mb-2">{t('yourComment')}</h2>
+                  <p className="mb-2">{tCommon('date')}: {retroalimentacionExistente.fecha}</p>
                   <div className="whitespace-normal break-words">
                     {retroalimentacionExistente.comentario}
                   </div>
@@ -290,11 +293,11 @@ export default function ListaHistorial() {
               {usuario && usuario.id_rol === 2 && !retroalimentacionExistente && (
                 <div className="p-2 border rounded bg-slate-50">
                   <form id="retroalimentacionForm" onSubmit={guardarRetroalimentacion}>
-                    <h2 className="text-lg font-semibold mb-2">Opine sobre su evaluación aquí</h2>
+                    <h2 className="text-lg font-semibold mb-2">{t('opineHere')}</h2>
                     <textarea
                       name="comentario"
                       className="w-full h-24 border border-gray-300 rounded p-2 resize-none"
-                      placeholder="Escriba su comentario..."
+                      placeholder={t('writePlaceholder')}
                     />
                   </form>
                 </div>
@@ -305,7 +308,7 @@ export default function ListaHistorial() {
                   onClick={cerrarDialog}
                   className="px-6 py-2 border border-gray-300 rounded hover:bg-gray-100 font-medium"
                 >
-                  Cerrar
+                  {tCommon('close')}
                 </button>
 
                 {usuario && usuario.id_rol === 2 && !retroalimentacionExistente && (
@@ -314,7 +317,7 @@ export default function ListaHistorial() {
                     form="retroalimentacionForm"
                     className="px-6 py-2 border bg-blue-600 text-white rounded hover:bg-blue-700 font-medium"
                   >
-                    Guardar
+                    {tCommon('save')}
                   </button>
                 )}
               </div>

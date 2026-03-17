@@ -1,7 +1,10 @@
 import { useGetReport ,useGetReportIA } from "@/hooks/useQueries"
 import { useEffect, useState } from "react"
+import { useTranslations } from 'next-intl'
 
 export default function StepThree({dataEvaluacion,habilidadResult, setreportId}) {
+  const t = useTranslations('evaluation');
+  const tCommon = useTranslations('common');
   const { mutate: fetchReport, isPending: isLoading, isError } = useGetReport()
   const {mutate: fetchReportIA, isPending: isLoadingia, isErroria } = useGetReportIA()
   const [pdfUrl, setPdfUrl] = useState(null)
@@ -49,12 +52,12 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
             setPdfUrl(result.pdfUrl);
           } else {
             console.warn('La respuesta del servidor no incluye la URL del PDF');
-            setErrorMessage('El reporte se generó pero no se obtuvo el documento PDF. Haga clic en "Reintentar" para volver a generarlo.');
+            setErrorMessage(t('reportNoPdf'));
           }
         },
         onError: (error) => {
           console.error("Error al obtener el reporte con ia:", error);
-          setErrorMessage(error.message || 'No se pudo conectar con el servicio de reportes. Verifique su conexión e intente de nuevo.');
+          setErrorMessage(error.message || t('reportConnectionError'));
         }
       });
       
@@ -92,12 +95,12 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
             setPdfUrl(result.pdfUrl);
           } else {
             console.warn('La respuesta del servidor no incluye la URL del PDF');
-            setErrorMessage('El reporte se generó pero no se obtuvo el documento PDF. Haga clic en "Reintentar" para volver a generarlo.');
+            setErrorMessage(t('reportNoPdf'));
           }
         },
         onError: (error) => {
           console.error("Error al obtener el reporte:", error);
-          setErrorMessage(error.message || 'No se pudo conectar con el servicio de reportes. Verifique su conexión e intente de nuevo.');
+          setErrorMessage(error.message || t('reportConnectionError'));
         }
       });
     } catch (error) {
@@ -113,15 +116,15 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
           {/* Lado izquierdo - PDF viewer */}
           <div className="w-full md:w-1/2 min-h-[300px] md:h-full flex flex-col">
 
-            <h1 className="font-semibold text-lg md:text-xl text-center mb-2">Resumen de la evaluación</h1>
+            <h1 className="font-semibold text-lg md:text-xl text-center mb-2">{t('evaluationSummary')}</h1>
             {(isError || errorMessage || isErroria) && (
               <div className="flex flex-col justify-center items-center h-full">
-                <p className="text-red-600 mb-2">{errorMessage || 'Hubo un problema al cargar el reporte. Haga clic en "Reintentar".'}</p>
+                <p className="text-red-600 mb-2">{errorMessage || t('reportLoadError')}</p>
                 <button 
                   className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
                   onClick={handleGetReport}
                 >
-                  Reintentar
+                  {tCommon('retry')}
                 </button>
               </div>
             )}
@@ -137,7 +140,7 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
                 <iframe
                   src={`${pdfUrl}#zoom=page-fit&toolbar=0`}
                   className="w-full h-full border-none"
-                  title="Resumen de Evaluación"
+                  title={t('evaluationReport')}
                 ></iframe>
               )}
             </div>
@@ -146,7 +149,7 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
           {/* Lado derecho - Contenido adicional */}
           <div className="w-full md:w-1/2 md:h-full rounded flex flex-col">
 
-            <h1 className="font-semibold text-lg md:text-xl text-center mb-2">Generar plan de mejorar</h1>
+            <h1 className="font-semibold text-lg md:text-xl text-center mb-2">{t('generatePlan')}</h1>
 
               <section className="flex flex-col justify-center items-center py-8 md:h-[60%] relative">
                 <button
@@ -154,16 +157,16 @@ export default function StepThree({dataEvaluacion,habilidadResult, setreportId})
                   onClick={getReportIa}
                   disabled={isLoadingia || desabilitar}
                 >
-                  IA
+                  {t('ai')}
                 </button>
               </section>
 
               <article className="flex flex-col items-center text-center relative">
-                <span className="font-semibold text-sm md:text-base">Despues de este paso ya el proceso esta completado</span>
+                <span className="font-semibold text-sm md:text-base">{t('processComplete')}</span>
                 {isLoadingia && (
                   <div className="mt-4 flex items-center text-indigo-700">
                     <div className="w-5 h-5 border-2 border-indigo-700 border-t-transparent rounded-full animate-spin mr-2"></div>
-                    <span>Generando plan de mejora con IA. Esto puede tardar unos segundos...</span>
+                    <span>{t('generatingAI')}</span>
                   </div>
                 )}
               </article>

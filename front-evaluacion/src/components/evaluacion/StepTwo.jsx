@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { calculoDeObjetivos } from "@/helper/calculoDeObjetivos";
+import { useTranslations } from 'next-intl';
 
 const indicators = [
   "Comunicación efectiva",
@@ -20,6 +21,24 @@ const optionScores = {
 };
 
 export default function StepTwo({habilidadResult, sethabilidadResult, onValidation, objetivosUsuarios}) {
+  const t = useTranslations('evaluation');
+
+  const indicatorLabels = useMemo(() => ({
+    "Comunicación efectiva": t('effectiveCommunication'),
+    "Trabajo en equipo": t('teamwork'),
+    "Capacidad de organizacion": t('organizationCapacity'),
+    "Iniciativa en las actividades": t('activityInitiative'),
+    "Compromiso con la organización y el equipo de trabajo": t('orgCommitment'),
+    "Adaptabilidad para ajustarse a cambios": t('adaptability'),
+  }), [t]);
+
+  const optionLabels = useMemo(() => ({
+    "Muy bueno": t('veryGood'),
+    "bueno": t('good'),
+    "Regular": t('regular'),
+    "Malo": t('bad'),
+    "Muy malo": t('veryBad'),
+  }), [t]);
 
   const [responses, setResponses] = useState(habilidadResult?.responses || {});
   const [comments, setComments] = useState(habilidadResult?.comentarioHabilidad || "");
@@ -87,16 +106,16 @@ export default function StepTwo({habilidadResult, sethabilidadResult, onValidati
   return (
     <div className="flex flex-col h-full w-full p-1 overflow-auto">
       <div className="bg-white rounded-lg shadow-lg p-1 w-full h-full overflow-auto">
-        <h2 className="text-xl font-semibold mb-4 text-center">Evaluación de habilidades</h2>
+        <h2 className="text-xl font-semibold mb-4 text-center">{t('skillsEvaluation')}</h2>
 
         <div className="overflow-x-auto">
           <table className="w-full border-collapse border border-gray-300 table-auto">
             <thead className="bg-gray-100 text-lg">
               <tr>
-                <th className="border border-gray-300 p-2 text-left w-1/3">Habilidades</th>
+                <th className="border border-gray-300 p-2 text-left w-1/3">{t('skills')}</th>
                 {options.map(option => (
                   <th key={option} className="border border-gray-300 p-2 text-center">
-                    {option}
+                    {optionLabels[option] || option}
                   </th>
                 ))}
               </tr>
@@ -105,7 +124,7 @@ export default function StepTwo({habilidadResult, sethabilidadResult, onValidati
             <tbody>
               {indicators.map(indicator => (
                 <tr key={indicator} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 p-2">{indicator}</td>
+                  <td className="border border-gray-300 p-2">{indicatorLabels[indicator] || indicator}</td>
                   {options.map(option => (
                     <td key={option} className="border border-gray-300 p-2 text-center">
                       <input
@@ -125,11 +144,11 @@ export default function StepTwo({habilidadResult, sethabilidadResult, onValidati
         </div>
 
         <div className="mt-6">
-          <h3 className="font-medium text-lg mb-2">Comentarios adicionales</h3>
+          <h3 className="font-medium text-lg mb-2">{t('additionalComments')}</h3>
           <textarea
             className="h-72 w-full p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows="4"
-            placeholder="Ingrese sus comentarios adicionales aquí..."
+            placeholder={t('additionalCommentsPlaceholder')}
             value={comments}
             onChange={handleCommentsChange}
           ></textarea>

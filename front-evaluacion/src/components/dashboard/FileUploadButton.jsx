@@ -3,8 +3,11 @@ import { toast } from 'react-toastify';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useUpdateObjetivo, useUploadDocument } from '@/hooks/useQueries';
+import { useTranslations } from 'next-intl';
 
 const FileUploadButton = ({ objetivoId, setDialog }) => {
+  const t = useTranslations('objectives');
+  const tCommon = useTranslations('common');
   const [uploading, setUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [documentUrl, setDocumentUrl] = useState(null);
@@ -36,12 +39,12 @@ const FileUploadButton = ({ objetivoId, setDialog }) => {
     // Utilizar el hook actualizarObjetivo para cambiar el estado del objetivo a completado
     actualizarObjetivo.mutate(objetivoId, {
       onSuccess: () => {
-        toast.success('El objetivo se marcó como completado.');
+        toast.success(t('markCompleted'));
         setDialog(false);
       },
       onError: (error) => {
         console.error('Error al actualizar el objetivo:', error);
-        toast.error(error.message || 'No se pudo marcar el objetivo como completado. Por favor, intente de nuevo más tarde.');
+        toast.error(error.message || t('markCompletedError'));
       }
     });
   }
@@ -67,13 +70,13 @@ const FileUploadButton = ({ objetivoId, setDialog }) => {
             console.log('URL del documento:', fileUrl);
             setDocumentUrl(fileUrl);
           }
-          toast.success('El archivo de evidencia se subió correctamente.');
+          toast.success(t('uploadSuccessMessage'));
           setUploadComplete(true); // Mark upload as complete
           setUploading(false);
         },
         onError: (error) => {
           console.error('Error al subir el archivo:', error);
-          toast.error(error.message || 'No se pudo subir el archivo. Verifique que el formato sea válido (PDF, DOC, JPG, PNG) e intente de nuevo.');
+          toast.error(error.message || t('uploadError'));
           setUploading(false);
         }
       });
@@ -92,19 +95,19 @@ const FileUploadButton = ({ objetivoId, setDialog }) => {
         <button
           className='flex items-center gap-2 text-base text-white font-sans border border-gray-300 bg-gray-200 rounded-sm px-2 py-1 hover:bg-gray-300'
           onClick={handleFileClick}
-          title="Subir evidencia de completado"
+          title={t('uploadEvidence')}
         >
           {uploading ? (
             <CircularProgress size={16} color="inherit" />
           ) : (
             <CloudUploadIcon fontSize="small"/>
           )}
-          <span className='text-gray-500'>Subir archivo</span>
+          <span className='text-gray-500'>{t('uploadFile')}</span>
         </button>
       )}
 
       {uploadComplete && (
-        <span className='text-gray-500 border-gray-300 text-base bg-gray-200 rounded-sm px-2 py-1 font-sans'>Archivo subido correctamente</span>
+        <span className='text-gray-500 border-gray-300 text-base bg-gray-200 rounded-sm px-2 py-1 font-sans'>{t('uploadSuccess')}</span>
       )}
       
       <input
@@ -121,7 +124,7 @@ const FileUploadButton = ({ objetivoId, setDialog }) => {
           disabled ={objetivoId.estado_actual==="completado" || uploadComplete===false}
           hidden ={objetivoId.estado_actual==="completado"}
         >
-        listo
+        {tCommon('done')}
     </button>
 
     </>
