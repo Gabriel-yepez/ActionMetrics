@@ -73,7 +73,8 @@ app.use((err, req, res, next) => {
 // Probar la conexión a la base de datos y arrancar el servidor
 sequelize.authenticate()
   .then(() => {
-    console.log('Conexión a la base de datos establecida con éxito.');
+    const dbType = process.env.DATABASE_URL ? 'remota (Neon)' : 'local';
+    console.log(`Conexión a la base de datos ${dbType} establecida con éxito.`);
     app.listen(port, () => {
       console.log(`Servidor escuchando en http://localhost:${port}`);
     });

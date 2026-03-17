@@ -13,17 +13,31 @@ const RetroalimmentacionModel= require('../models/retroalimentacion')
 const DepartamentoModel= require('../models/departamento')
 
 //conectando a la BD
-const sequelize = new Sequelize(
-  process.env.DB_NAME || 'evaluacion',
-  process.env.DB_USER || 'postgres',
-  process.env.passwordDB,
-  {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    dialect: 'postgres',
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
-  }
-);
+const sequelizeOptions = {
+  dialect: 'postgres',
+  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+};
+
+const sequelize = process.env.DATABASE_URL
+  ? new Sequelize(process.env.DATABASE_URL, {
+      ...sequelizeOptions,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      },
+    })
+  : new Sequelize(
+      process.env.DB_NAME || 'evaluacion',
+      process.env.DB_USER || 'postgres',
+      process.env.passwordDB,
+      {
+        ...sequelizeOptions,
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 5432,
+      }
+    );
 
 //declaracion de los modelos
 const Usuario = UsuarioModel(sequelize);
