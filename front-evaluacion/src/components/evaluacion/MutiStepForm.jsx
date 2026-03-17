@@ -6,8 +6,11 @@ import StepOne from "./StepOne"
 import StepTwo from "./StepTwo"
 import StepThree from "./StepThree"
 import { useCreateEvaluacion } from "@/hooks/useQueries"
+import { useTranslations } from 'next-intl'
 
 export default function MutiStepForm() {
+  const t = useTranslations('evaluation');
+  const tCommon = useTranslations('common');
 
   const [step, setStep] = useState(1)
   const totalStep = 3
@@ -79,7 +82,7 @@ export default function MutiStepForm() {
           step2: false,
           step3: true
         })
-        toast.success("La evaluación se creó y guardó correctamente. Puede consultarla en el historial.", {
+        toast.success(t('createSuccess'), {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -90,7 +93,7 @@ export default function MutiStepForm() {
       },
       onError: (error) => {
         console.error("Error al crear la evaluación:", error)
-        toast.error(error.message || "No se pudo guardar la evaluación. Verifique que todos los pasos estén completos e intente de nuevo.", {
+        toast.error(error.message || t('createError'), {
           position: "top-right",
           autoClose: 3000,
           closeOnClick: true,
@@ -129,7 +132,7 @@ export default function MutiStepForm() {
             onClick={prevStep}
             className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg"
           >
-            Regresar
+            {tCommon('back')}
           </button>
         )}
 
@@ -139,14 +142,14 @@ export default function MutiStepForm() {
             disabled={step === 1 ? !stepsValid.step1 : step === 2 ? !stepsValid.step2 : false}
             className={`${step === 1 && !stepsValid.step1 || step === 2 && !stepsValid.step2 ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white font-medium py-2 px-6 rounded-lg`}
           >
-            Siguiente
+            {tCommon('next')}
           </button>
         ) : (
           <button
             className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg"
             onClick={completarEvaluacion}
           >
-            Completar
+            {tCommon('complete')}
           </button>
         )}
       </div>

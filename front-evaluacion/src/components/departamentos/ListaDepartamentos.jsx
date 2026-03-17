@@ -20,11 +20,14 @@ import DialogTitle from "@mui/material/DialogTitle"
 import Button from "@mui/material/Button"
 import Fab from "@mui/material/Fab"
 
+import { useTranslations } from 'next-intl'
 import { useDepartamentos, useCreateDepartamento, useUpdateDepartamento, useDeleteDepartamento } from "@/hooks/useQueries"
 import { useSesionStore } from "@/store/sesionStore"
 import { useState } from "react"
 
 export default function ListaDepartamentos() {
+    const t = useTranslations('department');
+    const tCommon = useTranslations('common');
     const { usuario } = useSesionStore()
     const isSuperAdmin = usuario && usuario.id_rol === 3
 
@@ -93,9 +96,9 @@ export default function ListaDepartamentos() {
     return (
         <div className="p-4 md:p-8">
             <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl md:text-4xl font-bold">Departamentos</h1>
+                <h1 className="text-2xl md:text-4xl font-bold">{t('title')}</h1>
                 {isSuperAdmin && (
-                    <Fab color="primary" size="medium" aria-label="Crear departamento" onClick={handleOpenCreate}>
+                    <Fab color="primary" size="medium" aria-label={t('createDepartment')} onClick={handleOpenCreate}>
                         <AddIcon />
                     </Fab>
                 )}
@@ -103,13 +106,13 @@ export default function ListaDepartamentos() {
 
             {isError && (
                 <Alert severity="error" className="mb-4">
-                    No se pudo cargar la lista de departamentos. {error?.message || "Verifique su conexión e intente de nuevo."}
+                    {t('loadError')} {error?.message || tCommon('connectionError')}
                 </Alert>
             )}
 
             {deleteDepartamento.isError && (
                 <Alert severity="error" className="mb-4">
-                    No se pudo eliminar el departamento. {deleteDepartamento.error?.message || "Es posible que tenga usuarios asignados. Reasigne los usuarios antes de eliminar."}
+                    {t('deleteError')} {deleteDepartamento.error?.message || t('deleteErrorDetail')}
                 </Alert>
             )}
 
@@ -122,9 +125,9 @@ export default function ListaDepartamentos() {
                     <Table>
                         <TableHead style={{ backgroundColor: "#f5f5f5" }}>
                             <TableRow>
-                                <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Nombre</strong></TableCell>
-                                <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>Descripción</strong></TableCell>
-                                {isSuperAdmin && <TableCell align="center" sx={{ fontSize: '1.05rem', px: '8px' }}><strong>Acciones</strong></TableCell>}
+                                <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>{tCommon('name')}</strong></TableCell>
+                                <TableCell sx={{ fontSize: '1.05rem', px: '8px' }} align="center"><strong>{tCommon('description')}</strong></TableCell>
+                                {isSuperAdmin && <TableCell align="center" sx={{ fontSize: '1.05rem', px: '8px' }}><strong>{tCommon('actions')}</strong></TableCell>}
                             </TableRow>
                         </TableHead>
                         <TableBody sx={{
@@ -165,7 +168,7 @@ export default function ListaDepartamentos() {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={3} align="center">
-                                        Aún no hay departamentos registrados. Cree uno nuevo con el botón "+".
+                                        {t('noDepartments')}
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -176,26 +179,26 @@ export default function ListaDepartamentos() {
 
             {/* Modal de confirmación para eliminar */}
             <Dialog open={openConfirmDialog} onClose={handleCancelDelete}>
-                <DialogTitle>Confirmar eliminación</DialogTitle>
+                <DialogTitle>{tCommon('confirmDelete')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Al eliminar este departamento, los usuarios asignados quedarán sin departamento y deberán ser reasignados manualmente. ¿Desea continuar?
+                        {t('confirmDeleteMessage')}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCancelDelete} color="error">Cancelar</Button>
-                    <Button onClick={handleConfirmDelete} color="primary" autoFocus>Aceptar</Button>
+                    <Button onClick={handleCancelDelete} color="error">{tCommon('cancel')}</Button>
+                    <Button onClick={handleConfirmDelete} color="primary" autoFocus>{tCommon('accept')}</Button>
                 </DialogActions>
             </Dialog>
 
             {/* Modal para crear/editar departamento */}
             <Dialog open={openFormDialog} onClose={handleCloseForm} maxWidth="sm" fullWidth>
-                <DialogTitle>{editingDept ? 'Editar departamento' : 'Crear departamento'}</DialogTitle>
+                <DialogTitle>{editingDept ? t('editDepartment') : t('createDepartment')}</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
                         margin="dense"
-                        label="Nombre"
+                        label={tCommon('name')}
                         fullWidth
                         variant="outlined"
                         value={formData.nombre}
@@ -203,7 +206,7 @@ export default function ListaDepartamentos() {
                     />
                     <TextField
                         margin="dense"
-                        label="Descripción"
+                        label={tCommon('description')}
                         fullWidth
                         variant="outlined"
                         multiline
@@ -213,7 +216,7 @@ export default function ListaDepartamentos() {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseForm} color="error">Cancelar</Button>
+                    <Button onClick={handleCloseForm} color="error">{tCommon('cancel')}</Button>
                     <Button
                         onClick={handleSubmitForm}
                         color="primary"
@@ -222,7 +225,7 @@ export default function ListaDepartamentos() {
                         {(createDepartamento.isPending || updateDepartamento.isPending) ? (
                             <CircularProgress size={24} />
                         ) : (
-                            editingDept ? 'Guardar' : 'Crear'
+                            editingDept ? tCommon('save') : tCommon('create')
                         )}
                     </Button>
                 </DialogActions>

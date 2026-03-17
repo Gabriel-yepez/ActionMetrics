@@ -3,8 +3,11 @@ import { useMemo, useCallback } from 'react';
 import { actualizarProgresoUsuarios } from '../../helper/calcularProgresoUsuario';
 import { useObjetivos } from '@/hooks/useQueries';
 import { useRouter } from 'next/router'
+import { useTranslations } from 'next-intl';
 
 const ModalProgreso = ({ titulo, porcentaje, onClose }) => {
+  const t = useTranslations('progress');
+  const tCommon = useTranslations('common');
   const { data: objetivosData } = useObjetivos()
   const users = useUserStore(state => state.users)
   const router = useRouter();
@@ -37,7 +40,7 @@ const ModalProgreso = ({ titulo, porcentaje, onClose }) => {
         }
       `}</style>
       <h2 id="modal-progreso" className="text-xl font-medium mb-2">
-        Progreso del {titulo} {porcentaje}%
+        {t('progressOf', { title: titulo, percentage: porcentaje })}
       </h2>
 
       <div className="mt-7">
@@ -46,16 +49,16 @@ const ModalProgreso = ({ titulo, porcentaje, onClose }) => {
             <table className="w-full border-separate border-spacing-y-2 text-center rounded-xl overflow-hidden">
               <thead>
                 <tr>
-                  <th className="text-center p-2">Persona</th>
-                  <th className="text-center p-2 w-32">Participación</th>
+                  <th className="text-center p-2">{t('person')}</th>
+                  <th className="text-center p-2 w-32">{t('participation')}</th>
                 </tr>
               </thead>
               <tbody>
                 {usuariosUnicos.map((usuario, index) => (
                   <tr key={usuario.id || index} className="hover:bg-gray-50">
-                    <td className="p-2">{usuario.nombre || 'No asignado'}</td>
+                    <td className="p-2">{usuario.nombre || t('notAssigned')}</td>
                     <td className={`p-2 ${usuario.progresoPromedio < 34 ? 'text-red-600 bg-red-50 rounded-full' : usuario.progresoPromedio >= 65 ? 'text-green-600 bg-green-50 rounded-full' : 'text-yellow-600 bg-yellow-50 rounded-full'}`}>{`${usuario.progresoPromedio}%`}</td>
-                    <td><button onClick={() => handleVerRendimiento(usuario.id)} className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full">Ver rendimiento</button></td>
+                    <td><button onClick={() => handleVerRendimiento(usuario.id)} className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full">{t('viewPerformance')}</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -63,7 +66,7 @@ const ModalProgreso = ({ titulo, porcentaje, onClose }) => {
           </div>
         ) : (
           <div className="text-gray-600 text-center w-full h-80 mt-60">
-            No hay personas con objetivos asignados.
+            {t('noPersonsWithObjectives')}
           </div>
         )}
       </div>
@@ -73,7 +76,7 @@ const ModalProgreso = ({ titulo, porcentaje, onClose }) => {
           onClick={onClose}
           className="rounded-xl text-blue-500 py-2 px-4 hover:bg-blue-50"
         >
-          Cerrar
+          {tCommon('close')}
         </button>
       </div>
     </div>

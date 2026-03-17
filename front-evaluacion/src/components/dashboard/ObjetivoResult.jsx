@@ -3,8 +3,10 @@ import ModalProgreso from './ModalProgreso'
 import InfoIcon from '@mui/icons-material/Info'
 import { useState } from 'react'
 import { useSesionStore } from "@/store/sesionStore"
+import { useTranslations } from 'next-intl';
 
 const ObjetivoResult = ({ porcentaje, peso, titulo, descripcion }) => {
+  const t = useTranslations('dashboard');
   // Estado para controlar la apertura/cierre de la modal
   const [modalOpen, setModalOpen] = useState(false);
   const { usuario } = useSesionStore();
@@ -55,7 +57,7 @@ const ObjetivoResult = ({ porcentaje, peso, titulo, descripcion }) => {
               }}
               onClick={openModal}
             >
-              Ver progreso
+              {t('viewProgress')}
             </Button>
           }
         </Box>
@@ -69,7 +71,7 @@ const ObjetivoResult = ({ porcentaje, peso, titulo, descripcion }) => {
           <Box sx={{ width: '70%' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
               <Typography variant="body2" color="text.secondary">
-                Cumplimiento actual
+                {t('currentCompliance')}
               </Typography>
               <Tooltip title={descripcion}>
                 <InfoIcon fontSize="small" sx={{ color: 'text.disabled', fontSize: '0.9rem' }} />
@@ -129,7 +131,7 @@ const ObjetivoResult = ({ porcentaje, peso, titulo, descripcion }) => {
           
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '20%' }}>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontSize: '0.75rem' }}>
-              Peso
+              {t('weight')}
             </Typography>
             <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CircularProgress

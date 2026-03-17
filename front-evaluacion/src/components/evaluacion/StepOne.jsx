@@ -4,15 +4,16 @@ import { useRef, useEffect, useState, useCallback, useMemo } from "react"
 import { filtrarUsuariosEmpleados } from '@/helper/filtroUsers'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { useTranslations } from 'next-intl'
 
-const formatearFecha = (fecha) => {
-  if (!fecha) return 'Sin fecha límite';
+const formatearFecha = (fecha, noDateText, invalidText) => {
+  if (!fecha) return noDateText;
   try {
     const fechaObj = new Date(fecha);
     fechaObj.setDate(fechaObj.getDate() + 1);
     return format(fechaObj, "d 'de' MMMM 'de' yyyy", { locale: es });
   } catch (error) {
-    return 'Fecha inválida';
+    return invalidText;
   }
 };
 
@@ -29,11 +30,11 @@ const getUrgencyColor = (fechaVencimiento) => {
 
 const getUrgencyText = (color) => {
   switch (color) {
-    case 'error': return 'Retrasado';
-    case 'warning': return 'Falta pocos días para que termine el objetivo';
-    case 'info': return 'Tiene 7 dias para terminar el objetivo';
-    case 'success': return 'En plazo';
-    default: return 'Sin plazo';
+    case 'error': return 'overdue';
+    case 'warning': return 'fewDays';
+    case 'info': return 'sevenDays';
+    case 'success': return 'onTrack';
+    default: return 'noDeadline';
   }
 };
 
@@ -48,6 +49,9 @@ const getUrgencyColorClass = (color) => {
 };
 
 export default function StepOne({dataEvaluacion, setDataEvaluacion, onValidation}) {
+    const t = useTranslations('evaluation');
+    const tUrgency = useTranslations('urgency');
+    const tCommon = useTranslations('common');
     const formRef = useRef(null)
 
     const [formValues, setFormValues] = useState({
@@ -114,20 +118,20 @@ export default function StepOne({dataEvaluacion, setDataEvaluacion, onValidation
     <div className='flex flex-col h-full w-full p-4'>
       <div className='flex flex-col md:flex-row w-full h-full gap-4'>
         <section className='w-full md:w-1/2 p-5 bg-slate-200 rounded-lg shadow-lg flex flex-col h-full'>
-          <h1 className='font-semibold text-xl mb-4 text-center'> Datos del evaluado</h1>
+          <h1 className='font-semibold text-xl mb-4 text-center'> {t('evalueeData')}</h1>
           <form ref={formRef} onChange={handleInputChange} className='h-full flex flex-col'>
               <div className='flex flex-col gap-2 flex-1 flex-grow'>
                 <label
                 htmlFor="id_usuario"
                 className='font-semibold mt-1 text-lg'
-                > Persona a evaluar</label>
+                > {t('personToEvaluate')}</label>
                 <select
                   name="id_usuario"
                   id="id_usuario"
                   className='border border-gray-300 rounded-md p-2 text-lg'
                   defaultValue={dataEvaluacion?.id_usuario || ''}
                 >
-                  <option value="">Selecione una persona</option>
+                  <option value="">{t('selectPerson')}</option>
                   {users && filtrarUsuariosEmpleados(users).map(user => (
                     <option key={user.id} value={user.id}>
                       {user.nombre} {user.apellido}
@@ -137,7 +141,7 @@ export default function StepOne({dataEvaluacion, setDataEvaluacion, onValidation
 
                 <label htmlFor="fecha"
                 className='font-semibold mt-1 text-lg'
-                >Fecha</label>
+                >{tCommon('date')}</label>
 
                 <input
                 type="date"
@@ -150,14 +154,14 @@ export default function StepOne({dataEvaluacion, setDataEvaluacion, onValidation
                 <label
                 htmlFor="comentario"
                 className='font-semibold mt-1 text-lg'
-                >Comentarios</label>
+                >{t('comments')}</label>
 
                 <div className="flex-1 min-h-[150px]">
                   <textarea
                   id="comentario"
                   name="comentario"
                   className='border border-gray-300 rounded-md p-2 h-full w-full resize-none text-lg'
-                  placeholder="Ingrese sus comentarios aquí"
+                  placeholder={t('commentsPlaceholder')}
                   defaultValue={dataEvaluacion?.comentarioEvaluacion || ''}
                   />
                 </div>
@@ -166,17 +170,17 @@ export default function StepOne({dataEvaluacion, setDataEvaluacion, onValidation
         </section>
 
         <section className='w-full md:w-1/2 p-5 bg-white rounded-lg shadow-lg flex flex-col h-full'>
-          <h1 className='font-semibold text-xl mb-4 text-center'>Objetivos del evaluado</h1>
+          <h1 className='font-semibold text-xl mb-4 text-center'>{t('evalueeObjectives')}</h1>
           <div className='flex-1 overflow-auto'>
             {!formValues.id_usuario ? (
               <div className='flex items-center justify-center h-full'>
-                <p className='font-bold text-lg'>Seleccione un usuario para ver sus objetivos</p>
+                <p className='font-bold text-lg'>{t('selectUserForObjectives')}</p>
               </div>
             ) : objetivosUsuarios.length > 0 ? (
               <ul className='space-y-2'>
                 {objetivosUsuarios.map((objetivo, index) => {
                   const urgencyColor = getUrgencyColor(objetivo.fecha_fin);
-                  const urgencyText = getUrgencyText(urgencyColor);
+                  const urgencyKey = getUrgencyText(urgencyColor);
 
                   return (
                     <li key={objetivo.id || index} className='border-b border-gray-300 py-2'>
@@ -186,10 +190,10 @@ export default function StepOne({dataEvaluacion, setDataEvaluacion, onValidation
 
                       {objetivo.fecha_fin && (
                         <div className='mt-1'>
-                          <span className='font-medium'>Fecha de culminación: </span>
-                          <span>{formatearFecha(objetivo.fecha_fin)} </span>
+                          <span className='font-medium'>{t('dueDate')} </span>
+                          <span>{formatearFecha(objetivo.fecha_fin, tCommon('noDateLimit'), tCommon('invalidDate'))} </span>
                           <span className={`${getUrgencyColorClass(urgencyColor)} rounded-full px-2 py-1`}>
-                              {urgencyText}
+                              {tUrgency(urgencyKey)}
                           </span>
                         </div>
                       )}
@@ -197,7 +201,7 @@ export default function StepOne({dataEvaluacion, setDataEvaluacion, onValidation
                       <div className='mt-1 flex flex-wrap gap-2'>
                         {objetivo.estado_actual && (
                           <div>
-                            <span className='font-medium'>Estado: </span>
+                            <span className='font-medium'>{t('statusLabel')} </span>
                             <span className={`${objetivo.estado_actual === 'completado' ? 'text-green-600 bg-green-100 rounded-full px-2 py-1' : 'text-red-600 bg-red-100 rounded-full px-2 py-1'}`}>
                               {objetivo.estado_actual}
                             </span>
@@ -210,7 +214,7 @@ export default function StepOne({dataEvaluacion, setDataEvaluacion, onValidation
               </ul>
             ) : (
               <div className='flex items-center justify-center h-full'>
-                <p className='font-bold text-lg'>El usuario no tiene objetivos asignados</p>
+                <p className='font-bold text-lg'>{t('noObjectivesAssigned')}</p>
               </div>
             )}
           </div>

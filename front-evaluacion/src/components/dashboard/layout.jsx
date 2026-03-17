@@ -13,9 +13,12 @@ import { useSesionStore } from '@/store/sesionStore';
 import { useDashboardStore } from '@/store/dashboardStore';
 import { urlApi } from '@/config/config';
 import DepartmentSelector from './DepartmentSelector';
+import LanguageSwitcher from '../LanguageSwitcher';
+import { useTranslations } from 'next-intl';
 
 export default function Layout({children}) {
 
+  const t = useTranslations('nav');
   const { usuario , logout } = useSesionStore()
   const { resetObjetivos } = useDashboardStore()
   const pathname = usePathname();
@@ -48,46 +51,46 @@ export default function Layout({children}) {
             <Link href="/dashboard"
             className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/dashboard' ? 'bg-indigo-600' : ''}`} >
             <DashboardIcon fontSize="small" className="md:text-[30px]" />
-            <span className="hidden sm:inline">Inicio</span>
+            <span className="hidden sm:inline">{t('home')}</span>
             </Link>
 
             {isAdmin &&
             <Link href="/evaluacion"
             className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/evaluacion' ? 'bg-indigo-600' : ''}`} >
             <TextSnippetIcon fontSize="small" className="md:text-[30px]"/>
-            <span className="hidden sm:inline">Evaluación</span>
+            <span className="hidden sm:inline">{t('evaluation')}</span>
             </Link>
             }
 
             <Link href="/historial"
             className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/historial' ? 'bg-indigo-600' : ''}`} >
             <HistoryIcon fontSize="small" className="md:text-[30px]"/>
-            <span className="hidden sm:inline">Historial</span>
+            <span className="hidden sm:inline">{t('history')}</span>
             </Link>
 
             <Link href="/personal"
             className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/personal' ? 'bg-indigo-600' : ''}`} >
             <PersonIcon fontSize="small" className="md:text-[30px]"/>
-            <span className="hidden sm:inline">Personal</span>
+            <span className="hidden sm:inline">{t('staff')}</span>
             </Link>
 
             <Link href="/rendimiento"
             className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/rendimiento' ? 'bg-indigo-600' : ''}`} >
             <LeaderboardIcon fontSize="small" className="md:text-[30px]"/>
-            <span className="hidden sm:inline">Rendimiento</span>
+            <span className="hidden sm:inline">{t('performance')}</span>
             </Link>
 
             <Link href="/notificaciones"
             className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/notificaciones' ? 'bg-indigo-600' : ''}`} >
             <NotificationsIcon fontSize="small" className="md:text-[30px]"/>
-            <span className="hidden sm:inline">Alertas</span>
+            <span className="hidden sm:inline">{t('alerts')}</span>
             </Link>
 
             {isSuperAdmin &&
             <Link href="/departamentos"
             className={`flex h-[48px] shrink-0 grow items-center justify-center gap-1 rounded-md p-2 text-sm md:text-lg text-white font-bold hover:bg-indigo-500 hover:text-white md:flex-none md:justify-start md:p-2 md:px-3 ${pathname === '/departamentos' ? 'bg-indigo-600' : ''}`} >
             <ApartmentIcon fontSize="small" className="md:text-[30px]"/>
-            <span className="hidden sm:inline">Departamentos</span>
+            <span className="hidden sm:inline">{t('departments')}</span>
             </Link>
             }
 
@@ -98,7 +101,7 @@ export default function Layout({children}) {
             onClick={borrarUsuarios}
             >
             <LogoutIcon fontSize="small" className="md:text-[30px]"/>
-            <span className="hidden sm:inline">Salir</span>
+            <span className="hidden sm:inline">{t('logout')}</span>
             </Link>
 
           </div>
@@ -107,7 +110,8 @@ export default function Layout({children}) {
       </aside>
             
        <div className="flex-grow flex flex-col md:overflow-y-auto">
-          <div className="p-3 flex justify-end bg-white shadow-sm">
+          <div className="p-3 flex justify-end items-center gap-3 bg-white shadow-sm">
+            <LanguageSwitcher />
             <DepartmentSelector />
           </div>
           <div className="flex-grow p-6 md:p-0">
