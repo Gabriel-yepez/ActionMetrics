@@ -24,10 +24,13 @@ import { useTranslations } from 'next-intl'
 import { useDepartamentos, useCreateDepartamento, useUpdateDepartamento, useDeleteDepartamento } from "@/hooks/useQueries"
 import { useSesionStore } from "@/store/sesionStore"
 import { useState } from "react"
+import { validateWithSchema, hasErrors } from "@/helper/formValidation"
+import { departamentoSchema } from "@/validations/schemas"
 
 export default function ListaDepartamentos() {
     const t = useTranslations('department');
     const tCommon = useTranslations('common');
+    const tVal = useTranslations('validation');
     const { usuario } = useSesionStore()
     const isSuperAdmin = usuario && usuario.id_rol === 3
 
@@ -42,6 +45,7 @@ export default function ListaDepartamentos() {
     const [openFormDialog, setOpenFormDialog] = useState(false)
     const [editingDept, setEditingDept] = useState(null)
     const [formData, setFormData] = useState({ nombre: '', descripcion: '' })
+    const [fieldErrors, setFieldErrors] = useState({})
 
     const handleDeleteClick = (deptId) => {
         setDeptToDelete(deptId)
@@ -64,6 +68,7 @@ export default function ListaDepartamentos() {
     const handleOpenCreate = () => {
         setEditingDept(null)
         setFormData({ nombre: '', descripcion: '' })
+        setFieldErrors({})
         setOpenFormDialog(true)
     }
 
@@ -77,10 +82,13 @@ export default function ListaDepartamentos() {
         setOpenFormDialog(false)
         setEditingDept(null)
         setFormData({ nombre: '', descripcion: '' })
+        setFieldErrors({})
     }
 
     const handleSubmitForm = () => {
-        if (!formData.nombre.trim()) return
+        const errors = validateWithSchema(departamentoSchema, formData)
+        setFieldErrors(errors)
+        if (hasErrors(errors)) return
 
         if (editingDept) {
             updateDepartamento.mutate({ id: editingDept.id, data: formData }, {
@@ -203,6 +211,8 @@ export default function ListaDepartamentos() {
                         variant="outlined"
                         value={formData.nombre}
                         onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                        error={!!fieldErrors.nombre}
+                        helperText={fieldErrors.nombre && tVal(fieldErrors.nombre)}
                     />
                     <TextField
                         margin="dense"

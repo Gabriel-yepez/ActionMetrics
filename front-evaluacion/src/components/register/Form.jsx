@@ -3,13 +3,15 @@ import { urlApi } from '@/config/config'
 import { toast,ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useState, useEffect } from 'react'
-import { validateForm, hasErrors } from '@/helper/formValidation';
+import { validateWithSchema, hasErrors } from '@/helper/formValidation';
+import { registerSchema } from '@/validations/schemas';
 import { useTranslations } from 'next-intl';
 
 
 export default function Form() {
     const t = useTranslations('register');
     const tCommon = useTranslations('common');
+    const tVal = useTranslations('validation');
     const router= useRouter()//enrutamiento
     const [errors, setErrors] = useState({})
     const [departamentos, setDepartamentos] = useState([])
@@ -43,19 +45,18 @@ export default function Form() {
         let id_rol= form.get('rol')
         const id_departamento = form.get('departamento') ? parseInt(form.get('departamento'), 10) : null
 
-        // Validar los campos
-        const formFields = {
+        // Validar los campos con Zod
+        const formErrors = validateWithSchema(registerSchema, {
           nombre,
           apellido,
           usuario: nombre_usuario,
-          contraseña: password,
+          password,
           email,
           cedula,
           rol: id_rol
-        }
-        const formErrors = validateForm(formFields)
+        })
         setErrors(formErrors)
-        
+
         // Si hay errores, detener el envío del formulario
         if (hasErrors(formErrors)) {
           return
@@ -121,7 +122,7 @@ export default function Form() {
                     placeholder={t('firstNamePlaceholder')}
                 />
                 {errors.nombre && (
-                  <p className="text-red-500 text-xs mt-1">{errors.nombre}</p>
+                  <p className="text-red-500 text-xs mt-1">{tVal(errors.nombre)}</p>
                 )}
             </div>
 
@@ -136,7 +137,7 @@ export default function Form() {
                     placeholder={t('lastNamePlaceholder')}
                 />
                 {errors.apellido && (
-                  <p className="text-red-500 text-xs mt-1">{errors.apellido}</p>
+                  <p className="text-red-500 text-xs mt-1">{tVal(errors.apellido)}</p>
                 )}
             </div>
 
@@ -150,7 +151,7 @@ export default function Form() {
                     placeholder={t('usernamePlaceholder')}
                 />
                 {errors.usuario && (
-                  <p className="text-red-500 text-xs mt-1">{errors.usuario}</p>
+                  <p className="text-red-500 text-xs mt-1">{tVal(errors.usuario)}</p>
                 )}
              </div>
 
@@ -161,11 +162,11 @@ export default function Form() {
                     name="password"
                     type="password" 
                     id="password"
-                    className={`shadow appearance-none border ${errors.contraseña ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
+                    className={`shadow appearance-none border ${errors.password ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                     placeholder={t('passwordPlaceholder')}
                 />
-                {errors.contraseña && (
-                  <p className="text-red-500 text-xs mt-1">{errors.contraseña}</p>
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{tVal(errors.password)}</p>
                 )}         
             </div>
 
@@ -180,7 +181,7 @@ export default function Form() {
                     placeholder={t('emailPlaceholder')}
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  <p className="text-red-500 text-xs mt-1">{tVal(errors.email)}</p>
                 )}         
             </div>
 
@@ -206,7 +207,7 @@ export default function Form() {
                     placeholder={t('cedulaPlaceholder')}
                 />
                 {errors.cedula && (
-                  <p className="text-red-500 text-xs mt-1">{errors.cedula}</p>
+                  <p className="text-red-500 text-xs mt-1">{tVal(errors.cedula)}</p>
                 )}          
             </div>
 
@@ -224,7 +225,7 @@ export default function Form() {
                     <option value="empleado">{t('employee')}</option>
                 </select>
                 {errors.rol && (
-                  <p className="text-red-500 text-xs mt-1">{errors.rol}</p>
+                  <p className="text-red-500 text-xs mt-1">{tVal(errors.rol)}</p>
                 )}
             </div>
 

@@ -6,7 +6,8 @@ import Link from "next/link"
 import LogoInicio from '../LogoInicio';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSesionStore } from '@/store/sesionStore';
-import { validateForm, hasErrors } from '@/helper/formValidation';
+import { validateWithSchema, hasErrors } from '@/helper/formValidation';
+import { loginSchema } from '@/validations/schemas';
 import { urlApi } from '@/config/config';
 import { useTranslations } from 'next-intl';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -15,6 +16,7 @@ export default function Login() {
 
   const t = useTranslations('login');
   const tCommon = useTranslations('common');
+  const tVal = useTranslations('validation');
   const router= useRouter()
   const [loading, setLoading]= useState(false)
   const [errors, setErrors] = useState({})
@@ -27,8 +29,7 @@ export default function Login() {
         const nombre_usuario= form.get('usuario')
         const password= form.get('password')
 
-        const formFields = { usuario: nombre_usuario, contraseña: password }
-        const formErrors = validateForm(formFields)
+        const formErrors = validateWithSchema(loginSchema, { usuario: nombre_usuario, password })
         setErrors(formErrors)
 
         if (hasErrors(formErrors)) {
@@ -95,7 +96,7 @@ export default function Login() {
                     placeholder={t('usernamePlaceholder')}
                   />
                   {errors.usuario && (
-                    <p className="text-red-500 text-xs  mt-1">{errors.usuario}</p>
+                    <p className="text-red-500 text-xs  mt-1">{tVal(errors.usuario)}</p>
                   )}
                 </div>
 
@@ -106,11 +107,11 @@ export default function Login() {
                     name="password"
                     type="password"
                     id="password"
-                    className={`shadow appearance-none border ${errors.contraseña ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mt-2`}
+                    className={`shadow appearance-none border ${errors.password ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mt-2`}
                     placeholder={t('passwordPlaceholder')}
                   />
-                  {errors.contraseña && (
-                    <p className="text-red-500 text-xs  mt-1">{errors.contraseña}</p>
+                  {errors.password && (
+                    <p className="text-red-500 text-xs  mt-1">{tVal(errors.password)}</p>
                   )}
                 </div>
 

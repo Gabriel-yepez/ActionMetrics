@@ -25,6 +25,8 @@ import { useUserStore } from "@/store/userStore"
 import { useSesionStore } from "@/store/sesionStore"
 import { useUsers, useDeleteUser, useCreateUser, useDepartamentos } from "@/hooks/useQueries"
 import { useState } from "react"
+import { validateWithSchema, hasErrors } from "@/helper/formValidation"
+import { createUserSchema } from "@/validations/schemas"
 
 const DEBOUNCE_TIME = 300
 
@@ -43,6 +45,7 @@ export default function ListaPersonal() {
     const t = useTranslations('staff');
     const tCommon = useTranslations('common');
     const tDept = useTranslations('department');
+    const tVal = useTranslations('validation');
     // Estado de la interfaz con Zustand
     const { search, setSearch } = useUserStore()
     const { usuario } = useSesionStore()
@@ -70,6 +73,7 @@ export default function ListaPersonal() {
     const [openCreateDialog, setOpenCreateDialog] = useState(false)
     const [formData, setFormData] = useState(initialFormState)
     const [formError, setFormError] = useState('')
+    const [fieldErrors, setFieldErrors] = useState({})
 
     // Constantes derivadas del resultado de la consulta
     const users = data?.users || []
@@ -103,6 +107,7 @@ export default function ListaPersonal() {
     const handleOpenCreate = () => {
         setFormData(initialFormState)
         setFormError('')
+        setFieldErrors({})
         setOpenCreateDialog(true)
     }
 
@@ -110,6 +115,7 @@ export default function ListaPersonal() {
         setOpenCreateDialog(false)
         setFormData(initialFormState)
         setFormError('')
+        setFieldErrors({})
     }
 
     const handleFormChange = (e) => {
@@ -118,28 +124,29 @@ export default function ListaPersonal() {
     }
 
     const handleCreateUser = () => {
-        const { nombre, apellido, nombre_usuario, password, email, ci, id_rol } = formData
-
-        // Validar campos requeridos
-        if (!nombre || !apellido || !nombre_usuario || !password || !email || !ci || !id_rol) {
-            setFormError(t('allFieldsRequired'))
-            return
-        }
+        // Validar con Zod
+        const errors = validateWithSchema(createUserSchema, formData)
 
         // Para superadmin, validar departamento
         if (isSuperAdmin && !formData.id_departamento) {
-            setFormError(t('allFieldsRequired'))
+            errors.id_departamento = 'required'
+        }
+
+        setFieldErrors(errors)
+
+        if (hasErrors(errors)) {
+            setFormError('')
             return
         }
 
         const userData = {
-            nombre,
-            apellido,
-            nombre_usuario,
-            password,
-            email,
-            ci: parseInt(ci, 10),
-            id_rol: parseInt(id_rol, 10),
+            nombre: formData.nombre,
+            apellido: formData.apellido,
+            nombre_usuario: formData.nombre_usuario,
+            password: formData.password,
+            email: formData.email,
+            ci: parseInt(formData.ci, 10),
+            id_rol: parseInt(formData.id_rol, 10),
         }
 
         // SuperAdmin asigna departamento desde el form; Gerente lo asigna el backend
@@ -300,6 +307,8 @@ export default function ListaPersonal() {
                 onChange={handleFormChange}
                 fullWidth
                 required
+                error={!!fieldErrors.nombre}
+                helperText={fieldErrors.nombre && tVal(fieldErrors.nombre)}
               />
               <TextField
                 name="apellido"
@@ -308,6 +317,8 @@ export default function ListaPersonal() {
                 onChange={handleFormChange}
                 fullWidth
                 required
+                error={!!fieldErrors.apellido}
+                helperText={fieldErrors.apellido && tVal(fieldErrors.apellido)}
               />
               <TextField
                 name="nombre_usuario"
@@ -316,6 +327,8 @@ export default function ListaPersonal() {
                 onChange={handleFormChange}
                 fullWidth
                 required
+                error={!!fieldErrors.nombre_usuario}
+                helperText={fieldErrors.nombre_usuario && tVal(fieldErrors.nombre_usuario)}
               />
               <TextField
                 name="email"
@@ -325,6 +338,8 @@ export default function ListaPersonal() {
                 onChange={handleFormChange}
                 fullWidth
                 required
+                error={!!fieldErrors.email}
+                helperText={fieldErrors.email && tVal(fieldErrors.email)}
               />
               <TextField
                 name="password"
@@ -334,6 +349,8 @@ export default function ListaPersonal() {
                 onChange={handleFormChange}
                 fullWidth
                 required
+                error={!!fieldErrors.password}
+                helperText={fieldErrors.password && tVal(fieldErrors.password)}
               />
               <TextField
                 name="ci"
@@ -348,6 +365,8 @@ export default function ListaPersonal() {
                 inputMode="numeric"
                 fullWidth
                 required
+                error={!!fieldErrors.ci}
+                helperText={fieldErrors.ci && tVal(fieldErrors.ci)}
               />
               <TextField
                 name="id_rol"
@@ -357,6 +376,8 @@ export default function ListaPersonal() {
                 select
                 fullWidth
                 required
+                error={!!fieldErrors.id_rol}
+                helperText={fieldErrors.id_rol && tVal(fieldErrors.id_rol)}
               >
                 <MenuItem value="">{t('selectRole')}</MenuItem>
                 <MenuItem value="1">{t('manager')}</MenuItem>
@@ -371,6 +392,8 @@ export default function ListaPersonal() {
                   select
                   fullWidth
                   required
+                  error={!!fieldErrors.id_departamento}
+                  helperText={fieldErrors.id_departamento && tVal(fieldErrors.id_departamento)}
                 >
                   <MenuItem value="">{t('selectDepartment')}</MenuItem>
                   {departamentos.map((dept) => (
