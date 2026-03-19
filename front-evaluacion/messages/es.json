@@ -35,6 +35,14 @@
     "completedStatus": "completado",
     "notCompletedStatus": "no completado"
   },
+  "validation": {
+    "required": "Este campo es requerido",
+    "minLength": "Mínimo 3 caracteres",
+    "minLengthPassword": "La contraseña debe tener al menos 6 caracteres",
+    "invalidEmail": "Email inválido",
+    "onlyNumbers": "Solo se permiten números",
+    "endDateBeforeStart": "La fecha de fin no puede ser anterior a la de inicio"
+  },
   "nav": {
     "home": "Inicio",
     "evaluation": "Evaluación",
