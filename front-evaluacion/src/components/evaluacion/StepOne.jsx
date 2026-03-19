@@ -1,10 +1,9 @@
-import { useUserStore } from "@/store/userStore"
-import { useDashboardStore } from "@/store/dashboardStore"
 import { useRef, useEffect, useState, useCallback, useMemo } from "react"
 import { filtrarUsuariosEmpleados } from '@/helper/filtroUsers'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useTranslations } from 'next-intl'
+import { useAllUsers, useObjetivos } from '@/hooks/useQueries'
 
 const formatearFecha = (fecha, noDateText, invalidText) => {
   if (!fecha) return noDateText;
@@ -60,8 +59,8 @@ export default function StepOne({dataEvaluacion, setDataEvaluacion, onValidation
       comentario: dataEvaluacion?.comentarioEvaluacion || ''
     })
 
-    const users = useUserStore(state => state.users)
-    const objetivos = useDashboardStore(state => state.objetivos)
+    const { data: users = [] } = useAllUsers()
+    const { data: objetivos = [] } = useObjetivos()
 
     // Derivar objetivos del usuario seleccionado con useMemo en lugar de useState + useEffect
     const objetivosUsuarios = useMemo(() => {

@@ -1,7 +1,6 @@
-import { useUserStore } from '@/store/userStore';
 import { useMemo, useCallback } from 'react';
 import { actualizarProgresoUsuarios } from '../../helper/calcularProgresoUsuario';
-import { useObjetivos } from '@/hooks/useQueries';
+import { useObjetivos, useAllUsers } from '@/hooks/useQueries';
 import { useRouter } from 'next/router'
 import { useTranslations } from 'next-intl';
 
@@ -9,12 +8,12 @@ const ModalProgreso = ({ titulo, porcentaje, onClose }) => {
   const t = useTranslations('progress');
   const tCommon = useTranslations('common');
   const { data: objetivosData } = useObjetivos()
-  const users = useUserStore(state => state.users)
+  const { data: users = [] } = useAllUsers()
   const router = useRouter();
 
-  // Calcular usuarios con progreso usando useMemo en lugar de useEffect + setState
+  // Calcular usuarios con progreso usando useMemo
   const usuariosUnicos = useMemo(() => {
-    if (!objetivosData || !users || users.length === 0) return [];
+    if (!objetivosData || users.length === 0) return [];
     const resultado = [];
     actualizarProgresoUsuarios(objetivosData, users, (data) => { resultado.push(...data); });
     return resultado;

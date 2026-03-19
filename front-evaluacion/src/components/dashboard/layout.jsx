@@ -10,7 +10,7 @@ import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import { useSesionStore } from '@/store/sesionStore';
-import { useDashboardStore } from '@/store/dashboardStore';
+import { useQueryClient } from '@tanstack/react-query';
 import { urlApi } from '@/config/config';
 import DepartmentSelector from './DepartmentSelector';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -20,7 +20,7 @@ export default function Layout({children}) {
 
   const t = useTranslations('nav');
   const { usuario , logout } = useSesionStore()
-  const { resetObjetivos } = useDashboardStore()
+  const queryClient = useQueryClient()
   const pathname = usePathname();
   const isAdmin = usuario && (usuario.id_rol === 1 || usuario.id_rol === 3);
   const isSuperAdmin = usuario && usuario.id_rol === 3;
@@ -30,7 +30,7 @@ export default function Layout({children}) {
       await fetch(`${urlApi}/auth/logout`, { method: 'POST', credentials: 'include' })
     } catch (e) { /* ignorar errores de red */ }
     logout()
-    resetObjetivos()
+    queryClient.clear()
   }
   return (
 

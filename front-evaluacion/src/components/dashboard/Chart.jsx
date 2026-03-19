@@ -1,9 +1,8 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Typography, Box } from '@mui/material';
-import { useUserStore } from '@/store/userStore';
 import { useSesionStore } from '@/store/sesionStore';
-import { useGraficaGeneral, useGraficaUsuario } from '@/hooks/useQueries';
+import { useGraficaGeneral, useGraficaUsuario, useAllUsers } from '@/hooks/useQueries';
 import { filtrarUsuariosEmpleados } from '@/helper/filtroUsers'
 import { useTranslations } from 'next-intl';
 
@@ -11,8 +10,7 @@ export default function Chart() {
   const t = useTranslations('chart');
   const tCommon = useTranslations('common');
   const usuario = useSesionStore(state => state.usuario)
-  const users = useUserStore(state => state.users)
-  const conseguirUsers = useUserStore(state => state.conseguirUsers)
+  const { data: users = [] } = useAllUsers();
   const [selectedUser, setSelectedUser] = useState("");
 
   const isAdmin = usuario && (usuario.id_rol === 1 || usuario.id_rol === 3);
@@ -21,13 +19,6 @@ export default function Chart() {
 
   const { data: datosGenerales, isLoading: loadingGeneral } = useGraficaGeneral();
   const { data: datosUsuario, isLoading: loadingUsuario } = useGraficaUsuario(userIdToQuery);
-
-  // Cargar usuarios solo si admin y no hay usuarios cargados
-  useEffect(() => {
-    if (isAdmin && (!users || users.length === 0)) {
-      conseguirUsers();
-    }
-  }, [isAdmin, users, conseguirUsers]);
 
   // Derivar datos con useMemo en lugar de useEffect + setState
   const data = useMemo(() => {
