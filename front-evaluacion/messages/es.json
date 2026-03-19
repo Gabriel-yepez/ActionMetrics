@@ -233,7 +233,19 @@
     "cedula": "Cédula",
     "confirmDeleteMessage": "Esta acción eliminará al usuario y todos sus datos asociados de forma permanente. ¿Desea continuar?",
     "noUsersFound": "No se encontraron usuarios con los criterios de búsqueda. Intente con otro término.",
-    "vPrefix": "V-"
+    "vPrefix": "V-",
+    "addUser": "Agregar Usuario",
+    "createUser": "Crear Usuario",
+    "username": "Nombre de usuario",
+    "password": "Contraseña",
+    "role": "Rol",
+    "selectRole": "Seleccionar rol",
+    "manager": "Gerente",
+    "employee": "Empleado",
+    "selectDepartment": "Seleccionar departamento",
+    "createSuccess": "Usuario creado exitosamente.",
+    "createError": "No se pudo crear el usuario. Verifique los datos e intente de nuevo.",
+    "allFieldsRequired": "Todos los campos son requeridos."
   },
   "performance": {
     "employeePerformance": "Rendimiento de Empleados",

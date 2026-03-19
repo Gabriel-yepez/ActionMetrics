@@ -233,7 +233,19 @@
     "cedula": "ID Number",
     "confirmDeleteMessage": "This action will permanently delete the user and all their associated data. Do you want to continue?",
     "noUsersFound": "No users found matching the search criteria. Try a different term.",
-    "vPrefix": "V-"
+    "vPrefix": "V-",
+    "addUser": "Add User",
+    "createUser": "Create User",
+    "username": "Username",
+    "password": "Password",
+    "role": "Role",
+    "selectRole": "Select role",
+    "manager": "Manager",
+    "employee": "Employee",
+    "selectDepartment": "Select department",
+    "createSuccess": "User created successfully.",
+    "createError": "Could not create user. Check the data and try again.",
+    "allFieldsRequired": "All fields are required."
   },
   "performance": {
     "employeePerformance": "Employee Performance",
