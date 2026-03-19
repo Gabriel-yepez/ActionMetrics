@@ -10,6 +10,19 @@ const { deleteHabilidad, getHabilidad } = require("../controllers/habilidadContr
 const { getAllDepartamentos, getDepartamentoById, createDepartamento, updateDepartamento, deleteDepartamento, getDepartamentoCount } = require("../controllers/departamentoControllers");
 const upload = require("../middleware/uploadMiddleware");
 const { verifyToken, requireAdmin, requireSuperAdmin } = require("../middleware/authMiddleware");
+const { validate } = require("../validations/validate");
+const {
+    loginSchema,
+    registerSchema,
+    createUserSchema,
+    updateUserSchema,
+    createObjetivoSchema,
+    updateObjetivoSchema,
+    createRetroalimentacionSchema,
+    createDepartamentoSchema,
+    updateDepartamentoSchema,
+    createEvaluacionSchema,
+} = require("../validations/schemas");
 
 const router = Router();
 
@@ -18,8 +31,8 @@ const router = Router();
         res.send("Api is Healthy!!!");
       });
 
-    router.post("/auth/register", registerUser)
-    router.post("/auth/login", loginUser)
+    router.post("/auth/register", validate(registerSchema), registerUser)
+    router.post("/auth/login", validate(loginSchema), loginUser)
     router.get("/departamentos/public", getAllDepartamentos)
 
     // Logout (limpia la cookie)
@@ -35,15 +48,15 @@ const router = Router();
     router.get("/usuarios/count", getUserCount)
     router.get("/usuarios", getAllUsers)
     router.get("/usuarios/:id", getByid)
-    router.post("/usuarios", requireAdmin, createUser)
-    router.put("/usuarios/:id", requireAdmin, updateUser)
+    router.post("/usuarios", requireAdmin, validate(createUserSchema), createUser)
+    router.put("/usuarios/:id", requireAdmin, validate(updateUserSchema), updateUser)
     router.delete("/usuarios/:id", requireAdmin, deleteUser)
 
     //evaluaciones
     router.get("/evaluaciones/count", getEvaluacionCount)
     router.get("/evaluaciones/count/:userId", getUserEvaluationCount)
     router.get("/evaluaciones", getAllEvaluacion)
-    router.post("/evaluaciones", requireAdmin, createEvaluacion)
+    router.post("/evaluaciones", requireAdmin, validate(createEvaluacionSchema), createEvaluacion)
     router.get("/evaluaciones/grafica", getEstadisticasGenerales)
     router.get("/evaluaciones/grafica/:idUsuario", getEstadisticasUsuario)
     router.delete("/evaluaciones/:id", requireAdmin, deleteEvaluacion)
@@ -51,8 +64,8 @@ const router = Router();
     // objetivos
     router.get("/objetivos", getAllObjetivos)
     router.get("/objetivos/:id", getObjetivoById)
-    router.post("/objetivos", requireAdmin, createObjetivo)
-    router.put("/objetivos/:id", updateObjetivoEstado)
+    router.post("/objetivos", requireAdmin, validate(createObjetivoSchema), createObjetivo)
+    router.put("/objetivos/:id", validate(updateObjetivoSchema), updateObjetivoEstado)
     router.delete("/objetivos/:id", requireAdmin, deleteObjetivo)
 
     // reportes
@@ -63,7 +76,7 @@ const router = Router();
     // retroalimentaciones
     router.get("/retroalimentacion", getAllRetroalimentaciones)
     router.get("/retroalimentacion/:id", getRetroalimentacionById)
-    router.post("/retroalimentacion", createRetroalimentacion)
+    router.post("/retroalimentacion", validate(createRetroalimentacionSchema), createRetroalimentacion)
     router.put("/retroalimentacion/:id", updateRetroalimentacion)
     router.delete("/retroalimentacion/:id", requireAdmin, deleteRetroalimentacion)
     router.get("/retroalimentacion/usuario/:idUsuario", getRetroalimentacionesByUsuario)
@@ -82,8 +95,8 @@ const router = Router();
     router.get("/departamentos/count", getDepartamentoCount)
     router.get("/departamentos", getAllDepartamentos)
     router.get("/departamentos/:id", getDepartamentoById)
-    router.post("/departamentos", requireSuperAdmin, createDepartamento)
-    router.put("/departamentos/:id", requireSuperAdmin, updateDepartamento)
+    router.post("/departamentos", requireSuperAdmin, validate(createDepartamentoSchema), createDepartamento)
+    router.put("/departamentos/:id", requireSuperAdmin, validate(updateDepartamentoSchema), updateDepartamento)
     router.delete("/departamentos/:id", requireSuperAdmin, deleteDepartamento)
 
 module.exports= router;
