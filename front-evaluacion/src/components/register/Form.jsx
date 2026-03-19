@@ -187,9 +187,20 @@ export default function Form() {
             <div className="mb-4">
 
             <label htmlFor="cedula" className="text-gray-700 font-bold mb-2">{t('cedula')}</label>
-                <input 
+                <input
                     name="cedula"
-                    type="number" 
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    onKeyDown={(e) => {
+                      if (!/[0-9]/.test(e.key) && !['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'].includes(e.key) && !e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const paste = e.clipboardData.getData('text');
+                      if (!/^\d+$/.test(paste)) e.preventDefault();
+                    }}
                     id="cedula"
                     className={`shadow appearance-none border ${errors.cedula ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
                     placeholder={t('cedulaPlaceholder')}

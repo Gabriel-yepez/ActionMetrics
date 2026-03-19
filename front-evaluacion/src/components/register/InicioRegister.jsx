@@ -2,6 +2,7 @@ import LogoInicio from "../LogoInicio";
 import Form from "./Form";
 import { useTranslations } from 'next-intl';
 import LanguageSwitcher from '../LanguageSwitcher';
+import Link from 'next/link';
 
 export default function InicioRegister() {
   const t = useTranslations('register');
@@ -18,6 +19,11 @@ export default function InicioRegister() {
         <h1 className="text-2xl font-bold mb-5">{t('title')}</h1>
         <div className="w-full max-w-sm">
           <Form/>
+          <div className="mt-4 text-center">
+            <Link href="/" className="text-indigo-500 hover:text-indigo-700 font-medium transition-colors">
+              ← {t('backToLogin')}
+            </Link>
+          </div>
         </div>
       </div>
     </div>
