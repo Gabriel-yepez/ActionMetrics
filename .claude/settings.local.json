@@ -32,7 +32,12 @@
       "WebFetch(domain:github.com)",
       "Bash(grep:*)",
       "WebFetch(domain:next-intl.dev)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(node db/setup.js)",
+      "Bash(node:*)",
+      "Bash(node -e \"console.log\\(require\\(''pg/package.json''\\).version\\)\")",
+      "Bash(nslookup:*)",
+      "Bash(npm install:*)"
     ]
   }
 }
