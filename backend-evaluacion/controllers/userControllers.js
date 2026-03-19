@@ -49,7 +49,13 @@ const getByid = async (req, res)=>{
 const createUser = async (req, res)=>{
 
     try {
-        const newUser = req.body
+        const newUser = { ...req.body }
+
+        // Si es gerente (id_rol=1), forzar el departamento del creador
+        if (req.user.id_rol === 1) {
+            newUser.id_departamento = req.user.id_departamento;
+        }
+
         const result = await services.createUser(newUser)
         res.status(201).json({ ok: true, data: result, message: "Usuario creado exitosamente." })
       } catch (error) {

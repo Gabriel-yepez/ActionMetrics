@@ -78,4 +78,18 @@ const logoutUser = (req, res) => {
     res.status(200).json({ ok: true, data: null, message: "Sesión cerrada exitosamente" });
 };
 
-  module.exports = { registerUser, loginUser, logoutUser };
+const getMe = async (req, res) => {
+    try {
+      const user = await services.getUserByfield({ id: req.user.id });
+      if (!user) {
+        return res.status(404).json({ ok: false, data: null, message: "Usuario no encontrado" });
+      }
+      const { password: _, ...userSinPassword } = user.toJSON ? user.toJSON() : user;
+      res.status(200).json({ ok: true, data: userSinPassword, message: "Usuario obtenido exitosamente" });
+    } catch (error) {
+      console.log("error getMe :>> ", error);
+      res.status(500).json({ ok: false, data: null, message: "Error al obtener usuario" });
+    }
+  };
+
+  module.exports = { registerUser, loginUser, logoutUser, getMe };
