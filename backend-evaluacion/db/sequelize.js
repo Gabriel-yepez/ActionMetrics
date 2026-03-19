@@ -18,16 +18,22 @@ const sequelizeOptions = {
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
 };
 
+// Si hay DATABASE_URL (Neon), usar driver serverless vía WebSocket
+if (process.env.DATABASE_URL) {
+  const { neonConfig, Pool } = require('@neondatabase/serverless');
+  const ws = require('ws');
+  neonConfig.webSocketConstructor = ws;
+  sequelizeOptions.dialectModule = require('@neondatabase/serverless');
+  sequelizeOptions.dialectOptions = {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  };
+}
+
 const sequelize = process.env.DATABASE_URL
-  ? new Sequelize(process.env.DATABASE_URL, {
-      ...sequelizeOptions,
-      dialectOptions: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false,
-        },
-      },
-    })
+  ? new Sequelize(process.env.DATABASE_URL, sequelizeOptions)
   : new Sequelize(
       process.env.DB_NAME || 'evaluacion',
       process.env.DB_USER || 'postgres',
