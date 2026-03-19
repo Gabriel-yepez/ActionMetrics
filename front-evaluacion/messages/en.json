@@ -81,7 +81,8 @@
     "selectDepartment": "Select department",
     "submit": "Register",
     "success": "Account created successfully. Redirecting to sign in...",
-    "error": "Could not create account. Check the entered data and try again."
+    "error": "Could not create account. Check the entered data and try again.",
+    "backToLogin": "Back to login"
   },
   "dashboard": {
     "title": "Dashboard | ActionMetrics",

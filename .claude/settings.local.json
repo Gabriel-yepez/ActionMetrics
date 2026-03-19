@@ -37,7 +37,8 @@
       "Bash(node:*)",
       "Bash(node -e \"console.log\\(require\\(''pg/package.json''\\).version\\)\")",
       "Bash(nslookup:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(find C:ProjectsmisreposActionMetricsfront-evaluacion/src/pages -type f \\\\\\(-name *.jsx -o -name *.tsx \\\\\\))"
     ]
   }
 }
