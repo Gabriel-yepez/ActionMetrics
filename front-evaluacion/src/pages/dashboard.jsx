@@ -6,26 +6,21 @@ import ObjetivoResult from "@/components/dashboard/ObjetivoResult"
 import CrearObjetivo from "@/components/dashboard/CrearObjetivo"
 import Chart from "@/components/dashboard/Chart"
 import Cargando from "@/components/Cargando"
-import { useDashboardStore } from "@/store/dashboardStore"
 import { useEvaluacionesCount, useEvaluacionesCountByUser, useUsuariosCount, useCreateObjetivo, useObjetivos } from "@/hooks/useQueries"
 import Alert from "@mui/material/Alert"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useMemo } from "react"
 import { useSesionStore } from "@/store/sesionStore"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useTranslations } from 'next-intl';
+import { getProgresoGlobal } from '@/helper/progresoGlobal';
 
 export default function Dashboard() {
   const tMeta = useTranslations('meta');
   const tDash = useTranslations('dashboard');
   const tCommon = useTranslations('common');
   const tNotif = useTranslations('notifications');
-
-  // Estado global con Zustand - selectores granulares para evitar re-renders innecesarios
-  const objetivos = useDashboardStore(state => state.objetivos);
-  const setObjetivos = useDashboardStore(state => state.setObjetivos);
-  const getProgresoGlobal = useDashboardStore(state => state.getProgresoGlobal);
 
   const { usuario } = useSesionStore();
 
@@ -43,12 +38,10 @@ export default function Dashboard() {
   const usuariosQuery = useUsuariosCount();
   const objetivosQuery = useObjetivos();
   const createObjetivoMutation = useCreateObjetivo();
-  // Sincronizar los objetivos de la API con el estado global (una sola actualización)
-  useEffect(() => {
-    if (objetivosQuery.data && objetivosQuery.data.length > 0) {
-      setObjetivos(objetivosQuery.data);
-    }
-  }, [objetivosQuery.data, setObjetivos]);
+
+  // Datos de objetivos directamente de TanStack Query
+  const objetivos = objetivosQuery.data || [];
+  const porcentajeGlobal = useMemo(() => getProgresoGlobal(objetivos), [objetivos]);
 
   // Mostrar notificaciones de objetivos urgentes al cargar la página
   useEffect(() => {
@@ -130,7 +123,7 @@ export default function Dashboard() {
           </div>,
           { autoClose: 10000 }
         );
-      }, 1000); // Retraso para no mostrar todos los toasts a la vez
+      }, 1000);
     }
 
     if (objetivosProximos.length > 0) {
@@ -147,7 +140,7 @@ export default function Dashboard() {
           </div>,
           { autoClose: 8000 }
         );
-      }, 2000); // Retraso para no mostrar todos los toasts a la vez
+      }, 2000);
     }
   }, [objetivos, usuario, tNotif]);
 
@@ -208,7 +201,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
           <div className="border border-gray-300 rounded-lg shadow-md p-2">
             <ObjetivoResult
-              porcentaje={getProgresoGlobal()}
+              porcentaje={porcentajeGlobal}
               peso={100}
               titulo={tDash('globalResult')}
               descripcion={tDash('globalResultDescription')}

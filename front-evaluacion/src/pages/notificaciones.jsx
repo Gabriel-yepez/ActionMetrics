@@ -3,9 +3,8 @@ import Layout from "@/components/dashboard/layout"
 import NotificacionesObjetivos from "@/components/notificaciones/NotificacionesObjetivos"
 import Cargando from "@/components/Cargando"
 import { useSesionStore } from "@/store/sesionStore"
-import { useDashboardStore } from "@/store/dashboardStore"
 import { useObjetivos } from "@/hooks/useQueries"
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 import Alert from "@mui/material/Alert"
 import { ToastContainer } from "react-toastify"
 import { ordenarObjetivosPorFecha } from "@/helper/FiltrarFecha"
@@ -16,19 +15,10 @@ export default function Notificaciones() {
   const tNotif = useTranslations('notifications');
   const tCommon = useTranslations('common');
 
-  const objetivos = useDashboardStore(state => state.objetivos);
-  const setObjetivos = useDashboardStore(state => state.setObjetivos);
   const usuario = useSesionStore(state => state.usuario);
-
   const objetivosQuery = useObjetivos();
 
-  // Sincronización batch
-  useEffect(() => {
-    if (objetivosQuery.data && objetivosQuery.data.length > 0) {
-      setObjetivos(objetivosQuery.data);
-    }
-  }, [objetivosQuery.data, setObjetivos]);
-
+  const objetivos = objetivosQuery.data || [];
   const isLoading = objetivosQuery.isLoading;
   const hasErrors = objetivosQuery.isError;
 

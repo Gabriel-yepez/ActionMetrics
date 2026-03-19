@@ -91,6 +91,17 @@ export function useUsuariosCount() {
   });
 }
 
+// Hook para obtener todos los usuarios (sin búsqueda, para dropdowns y listas)
+export function useAllUsers() {
+  const deptFilter = useDeptFilter();
+  return useQuery({
+    queryKey: [queryKeys.users, '', deptFilter],
+    queryFn: () => fetchUsers('', deptFilter),
+    select: (data) => data.users || [],
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 // Hook para crear un usuario
 export function useCreateUser() {
   const queryClient = useQueryClient();
