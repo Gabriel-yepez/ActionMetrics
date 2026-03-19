@@ -6,13 +6,13 @@ import PersonIcon from '@mui/icons-material/Person'
 import FlagIcon from '@mui/icons-material/Flag'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import {useUserStore} from '@/store/userStore'
+import { useAllUsers } from '@/hooks/useQueries'
 
 const NotificacionesObjetivos = ({ objetivos }) => {
   const t = useTranslations('notifications');
   const tUrgency = useTranslations('urgency');
   const tCommon = useTranslations('common');
-  const { users } = useUserStore();
+  const { data: users = [] } = useAllUsers();
   // Función para formatear la fecha de vencimiento
   const formatearFecha = (fecha) => {
     if (!fecha) return tCommon('noDateLimit');

@@ -1,8 +1,7 @@
 import { useTranslations } from 'next-intl';
-import { useUserStore } from '@/store/userStore';
 import { useSesionStore } from '@/store/sesionStore';
 import { useState, useMemo, useCallback } from 'react';
-import { useEvaluaciones } from '@/hooks/useQueries';
+import { useEvaluaciones, useAllUsers } from '@/hooks/useQueries';
 import { useGuardarRetroalimentacion, useGetAllRetroalimentacion } from '@/hooks/useQueries';
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -13,7 +12,7 @@ export default function ListaHistorial() {
     const t = useTranslations('history');
     const tCommon = useTranslations('common');
 
-    const users = useUserStore(state => state.users)
+    const { data: users = [] } = useAllUsers()
     const usuario = useSesionStore(state => state.usuario)
     const { data, isLoading, isError } = useEvaluaciones()
     const guardadoRetroalimentacion = useGuardarRetroalimentacion()

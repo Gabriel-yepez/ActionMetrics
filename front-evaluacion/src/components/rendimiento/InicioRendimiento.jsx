@@ -1,14 +1,13 @@
 import { useTranslations } from 'next-intl'
 import Card from "./Card"
-import { useUserStore } from '@/store/userStore'
 import { useSesionStore } from '@/store/sesionStore'
 import { useState, useEffect, useMemo } from 'react'
 import { filtrarUsuariosEmpleados } from '@/helper/filtroUsers'
-import { useObjetivos } from '@/hooks/useQueries'
+import { useObjetivos, useAllUsers } from '@/hooks/useQueries'
 
 export default function InicioRendimiento({ selectedUserId: initialSelectedId }) {
   const t = useTranslations('performance');
-  const users = useUserStore(state => state.users)
+  const { data: users = [] } = useAllUsers()
   const usuario = useSesionStore(state => state.usuario)
   const { data: objetivosData } = useObjetivos()
   const [selectedUserId, setSelectedUserId] = useState('')
