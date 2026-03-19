@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchUsers } from '@/services/search';
 import { fetchData, fetchEvaluaciones, fetchEvaluacionesByUser } from '@/services/api';
 import { deleteUser } from '@/services/delete';
+import { crearUsuario } from '@/services/usuario';
 import { fetchObjetivos, crearObjetivo, actualizarObjetivo } from '@/services/objetivo';
 import { getReport,getReportIA } from '@/services/reporte';
 import { createEvaluacion, getEvaluaciones } from '@/services/evaluacion';
@@ -87,6 +88,19 @@ export function useUsuariosCount() {
     queryFn: () => fetchData(deptFilter),
     select: (data) => data || 0,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+// Hook para crear un usuario
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userData) => crearUsuario(userData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.users] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.usuariosCount] });
+    }
   });
 }
 
