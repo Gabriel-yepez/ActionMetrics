@@ -1,4 +1,4 @@
-const ObjetivoServices = require("../services/ObjetivoServices");
+const ObjetivoServices = require("../services/objetivoServices");
 const { getDepartmentFilter, getUserIdsByDepartment } = require("../middleware/departmentFilter");
 const services = new ObjetivoServices();
 
