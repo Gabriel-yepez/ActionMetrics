@@ -17,32 +17,32 @@
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
-    "@mui/icons-material": "^6.4.8",
-    "@mui/material": "^6.4.8",
-    "@tanstack/react-query": "^5.72.2",
-    "@tanstack/react-query-devtools": "^5.72.2",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^6.5.0",
+    "@mui/material": "^6.5.0",
+    "@tanstack/react-query": "^5.104.2",
+    "@tanstack/react-query-devtools": "^5.104.2",
     "@uidotdev/usehooks": "^2.4.1",
-    "date-fns": "^4.1.0",
-    "next": "~15.2.8",
-    "next-intl": "^4.8.3",
-    "react": "~19.0.4",
-    "react-dom": "~19.0.4",
-    "react-toastify": "^11.0.3",
-    "recharts": "^2.15.2",
-    "zod": "^4.3.6",
-    "zustand": "^5.0.3"
+    "date-fns": "^4.4.0",
+    "next": "~15.5.28",
+    "next-intl": "^4.14.9",
+    "react": "~19.0.9",
+    "react-dom": "~19.0.9",
+    "react-toastify": "^11.1.0",
+    "recharts": "^2.15.4",
+    "zod": "^4.6.7",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "concurrently": "^9.1.2",
-    "electron": "^34.1.1",
-    "electron-builder": "^25.1.8",
-    "eslint": "^9",
-    "eslint-config-next": "~15.2.8",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "wait-on": "^8.0.3"
+    "@eslint/eslintrc": "^3.3.7",
+    "concurrently": "^9.2.5",
+    "electron": "^44.7.2",
+    "electron-builder": "^26.15.3",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "~15.5.28",
+    "postcss": "^8.5.30",
+    "tailwindcss": "^3.4.19",
+    "wait-on": "^8.0.5"
   },
   "build": {
     "appId": "com.actionmetrics.app",
@@ -100,5 +100,8 @@
       "uninstallerIcon": "public/icon-512x512.png",
       "installerHeaderIcon": "public/icon-512x512.png"
     }
+  },
+  "overrides": {
+    "postcss": "$postcss"
   }
 }
