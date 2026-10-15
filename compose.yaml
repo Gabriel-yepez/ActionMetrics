@@ -6,6 +6,7 @@ name: actionmetrics
 #   docker compose run --rm backend node db/setup.js   # solo la primera vez (crea tablas y roles)
 #
 # Frontend: http://localhost:3000  ·  API: http://localhost:4001/api
+# Producción en un VPS detrás de Nginx: ver deploy/README.md
 
 services:
   db:
@@ -49,9 +50,10 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      TRUST_PROXY: ${TRUST_PROXY:-0}
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
     ports:
-      - "${BACKEND_PORT:-4001}:4001"
+      - "${BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-4001}:4001"
     volumes:
       - uploads:/app/public
     security_opt:
@@ -69,7 +71,7 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      - "${BIND_ADDRESS:-127.0.0.1}:${FRONTEND_PORT:-3000}:3000"
     security_opt:
       - no-new-privileges:true
 

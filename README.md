@@ -154,6 +154,9 @@ Para ascender a super admin a un usuario ya existente: `node db/crear-superadmin
 CI/CD y monitoreo
 -----------------
 
+- **CI** (`.github/workflows/ci.yml`): en cada push a `dev` se ejecutan la auditoría de dependencias, el lint y build del frontend, las pruebas de seguridad de la API contra PostgreSQL (`backend-evaluacion/tests/security.test.mjs`), el build de las imágenes Docker y la validación de la configuración de Nginx.
+- **Despliegue en VPS** con Nginx y HTTPS: ver [`deploy/README.md`](deploy/README.md).
+
 - Integración en CI: lint, tests unitarios, build y despliegue automático en `main` o `release`.
 - Monitoreo: logs centralizados (ELK/Graylog) y alertas para errores críticos.
 

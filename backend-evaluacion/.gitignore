@@ -1,3 +1,5 @@
 .env
 
 node_modules
+# Documentos y reportes generados en tiempo de ejecución
+public/

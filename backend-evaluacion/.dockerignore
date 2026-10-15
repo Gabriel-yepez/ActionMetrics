@@ -14,3 +14,6 @@ public
 Dockerfile
 .dockerignore
 *.md
+
+# Pruebas (no forman parte de la imagen de producción)
+tests

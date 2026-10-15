@@ -12,6 +12,13 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const port = process.env.PORT || 4001;
 
+// Detrás de un proxy inverso (Nginx): número de proxies de confianza. Sin esto, todas las
+// peticiones parecen venir del proxy y el rate limiting se compartiría entre todos los usuarios.
+const trustProxyHops = parseInt(process.env.TRUST_PROXY, 10);
+if (trustProxyHops > 0) {
+  app.set('trust proxy', trustProxyHops);
+}
+
 // Headers de seguridad
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -47,7 +54,8 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { message: 'Demasiados intentos de autenticación, intente de nuevo en 15 minutos.' },
 });
-app.use('/api/auth', authLimiter);
+// Solo login y registro: /api/auth/me se consulta al navegar y no debe agotar el límite
+app.use(['/api/auth/login', '/api/auth/register'], authLimiter);
 
 // Rate limiting para la generación con IA (consume la API de pago de DeepSeek)
 const aiLimiter = rateLimit({

@@ -1,0 +1,176 @@
+name: CI
+
+# Integración continua: solo en push a la rama dev
+on:
+  push:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+# Un push nuevo cancela la ejecución anterior de la misma rama
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend · API y pruebas de seguridad
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend-evaluacion
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: evaluacion
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d evaluacion"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      PORT: 4001
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_NAME: evaluacion
+      DB_USER: postgres
+      passwordDB: postgres
+      # Valores solo para CI (base de datos efímera del job)
+      JWT_SECRET: ci-only-jwt-secret-0123456789abcdef0123456789abcdef
+      SUPERADMIN_USER: root
+      SUPERADMIN_PASSWORD: ci-SuperAdmin-123
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend-evaluacion/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci --no-audit --no-fund
+
+      - name: Comprobar sintaxis
+        run: find . -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 -n1 node --check
+
+      - name: Auditoría de dependencias de producción
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Inicializar base de datos
+        run: |
+          node db/setup.js
+          node db/crear-superadmin.js "$SUPERADMIN_USER" root@ci.local Root Admin 999
+
+      - name: Arrancar la API
+        run: |
+          node index.js > api.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:4001/api/health && exit 0
+            sleep 1
+          done
+          cat api.log
+          exit 1
+
+      - name: Pruebas de seguridad
+        run: npm run test:security
+
+      - name: Logs de la API
+        if: failure()
+        run: cat api.log || true
+
+  frontend:
+    name: Frontend · lint y build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: front-evaluacion
+    env:
+      # Electron solo hace falta para la app de escritorio
+      ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: front-evaluacion/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci --no-audit --no-fund
+
+      - name: Auditoría de dependencias de producción
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Caché de compilación de Next.js
+        uses: actions/cache@v4
+        with:
+          path: front-evaluacion/.next/cache
+          key: nextjs-${{ hashFiles('front-evaluacion/package-lock.json') }}-${{ hashFiles('front-evaluacion/src/**') }}
+          restore-keys: |
+            nextjs-${{ hashFiles('front-evaluacion/package-lock.json') }}-
+
+      - name: Build
+        run: npm run build
+
+  docker:
+    name: Docker y Nginx · validar despliegue
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Validar compose.yaml
+        env:
+          DB_PASSWORD: ci
+          JWT_SECRET: ci
+        run: docker compose config --quiet
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build imagen backend
+        uses: docker/build-push-action@v6
+        with:
+          context: backend-evaluacion
+          push: false
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Build imagen frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: front-evaluacion
+          push: false
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+      - name: Validar configuración de Nginx
+        run: |
+          mkdir -p "$RUNNER_TEMP/certs"
+          openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=tudominio.com" \
+            -keyout "$RUNNER_TEMP/certs/privkey.pem" -out "$RUNNER_TEMP/certs/fullchain.pem"
+          docker run --rm --network host \
+            -v "$PWD/deploy/nginx/actionmetrics-frontend.conf:/etc/nginx/conf.d/actionmetrics-frontend.conf:ro" \
+            -v "$PWD/deploy/nginx/actionmetrics-backend.conf:/etc/nginx/conf.d/actionmetrics-backend.conf:ro" \
+            -v "$PWD/deploy/nginx/snippets:/etc/nginx/snippets:ro" \
+            -v "$RUNNER_TEMP/certs:/etc/letsencrypt/live/tudominio.com:ro" \
+            nginx:1.24-alpine nginx -t
