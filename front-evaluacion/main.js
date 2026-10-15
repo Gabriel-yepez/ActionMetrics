@@ -9,6 +9,26 @@ const DEV_URL = `http://localhost:${PORT}`;
 let mainWindow = null;
 let nextProcess = null;
 
+// URLs propias de la app: el servidor Next local (y el backend en localhost)
+function isAppUrl(url) {
+  try {
+    const { protocol, hostname } = new URL(url);
+    return (protocol === 'http:' || protocol === 'https:') && (hostname === 'localhost' || hostname === '127.0.0.1');
+  } catch {
+    return false;
+  }
+}
+
+// Solo http(s): openExternal con file:// u otros protocolos puede ejecutar programas locales
+function openExternalSafe(url) {
+  try {
+    const { protocol } = new URL(url);
+    if (protocol === 'http:' || protocol === 'https:') shell.openExternal(url);
+  } catch {
+    // URL inválida: ignorar
+  }
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -32,11 +52,19 @@ function createWindow() {
 
   // Abrir links externos en el navegador del sistema
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('http://localhost') || url.startsWith('file://')) {
+    if (isAppUrl(url)) {
       return { action: 'allow' };
     }
-    shell.openExternal(url);
+    openExternalSafe(url);
     return { action: 'deny' };
+  });
+
+  // La ventana principal solo navega dentro de la app; lo demás se abre en el navegador
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (!isAppUrl(url)) {
+      event.preventDefault();
+      openExternalSafe(url);
+    }
   });
 
   // Cargar la app

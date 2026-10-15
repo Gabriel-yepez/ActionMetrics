@@ -1,12 +1,11 @@
 export const emparejarDocumentosConObjetivos = (documentos, objetivos) => {
-  // Depuración: Mostrar los documentos y objetivos recibidos
-  console.log('Documentos recibidos:', documentos);
-  console.log('Objetivos recibidos:', objetivos);
-
   // Crear un mapa de documentos por ID de objetivo para búsqueda rápida
   const documentosPorObjetivo = {};
   
-  documentos.data.forEach(doc => {
+  // getDocument() devuelve el array de documentos directamente
+  const listaDocumentos = Array.isArray(documentos) ? documentos : (documentos?.data || []);
+
+  listaDocumentos.forEach(doc => {
     if (doc.url) {
       // Intentar extraer el ID del objetivo de la URL del documento
       // Formato esperado: "/document/obj_38_20250616_1306"

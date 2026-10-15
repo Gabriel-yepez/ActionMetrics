@@ -14,7 +14,6 @@ export const registerSchema = z.object({
   password: z.string().min(6, 'minLengthPassword'),
   email: z.string().email('invalidEmail'),
   cedula: z.string().min(1, 'required').regex(/^\d+$/, 'onlyNumbers'),
-  rol: z.string().min(1, 'required'),
   departamento: z.string().optional(),
 });
 

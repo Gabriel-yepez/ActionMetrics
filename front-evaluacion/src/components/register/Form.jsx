@@ -42,7 +42,6 @@ export default function Form() {
         const password= form.get('password')
         const email = form.get('email')
         const cedula= form.get('cedula')
-        let id_rol= form.get('rol')
         const id_departamento = form.get('departamento') ? parseInt(form.get('departamento'), 10) : null
 
         // Validar los campos con Zod
@@ -52,8 +51,7 @@ export default function Form() {
           usuario: nombre_usuario,
           password,
           email,
-          cedula,
-          rol: id_rol
+          cedula
         })
         setErrors(formErrors)
 
@@ -71,21 +69,11 @@ export default function Form() {
           return;
         }
 
-        if(id_rol==="gerente"){
-          id_rol=1
-        }
-        else if(id_rol==="empleado"){
-          id_rol=2
-        }
-        else if(id_rol==="superadmin"){
-          id_rol=3
-        }
-
       try {
         const response = await fetch(`${urlApi}/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre_usuario, nombre, apellido, email, password, ci, id_rol, id_departamento }),
+          body: JSON.stringify({ nombre_usuario, nombre, apellido, email, password, ci, id_departamento }),
           credentials: 'include',
         })
 
@@ -209,24 +197,6 @@ export default function Form() {
                 {errors.cedula && (
                   <p className="text-red-500 text-xs mt-1">{tVal(errors.cedula)}</p>
                 )}          
-            </div>
-
-            <div className="mb-4">
-            <label htmlFor="rol" className="text-gray-700 font-bold mb-2">{t('role')}</label>
-
-                <select
-                    name="rol"
-                    id="rol"
-                    className={`shadow appearance-none border ${errors.rol ? 'border-red-500' : ''} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
-                >
-                    <option value="">{t('selectRole')}</option>
-                    <option value="superadmin">{t('superAdmin')}</option>
-                    <option value="gerente">{t('departmentManager')}</option>
-                    <option value="empleado">{t('employee')}</option>
-                </select>
-                {errors.rol && (
-                  <p className="text-red-500 text-xs mt-1">{tVal(errors.rol)}</p>
-                )}
             </div>
 
             <div className="mb-4">
