@@ -12,8 +12,7 @@
     "lint": "next lint",
     "electron:dev": "concurrently -k \"next dev --turbopack\" \"wait-on http://localhost:3000 && electron .\"",
     "electron:build": "next build && electron-builder",
-    "electron:pack": "next build && electron-builder --dir",
-    "postinstall": "electron-builder install-app-deps"
+    "electron:pack": "next build && electron-builder --dir"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -53,18 +52,37 @@
     "files": [
       "main.js",
       "preload.js",
-      ".next/standalone/**/*",
-      ".next/static/**/*",
-      "public/**/*"
+      "public/**/*",
+      "!node_modules/**/*"
     ],
     "extraResources": [
       {
+        "from": ".next/standalone",
+        "to": "standalone",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": ".next/standalone/node_modules",
+        "to": "standalone/node_modules",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
         "from": ".next/static",
-        "to": ".next/static"
+        "to": "standalone/.next/static",
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "public",
-        "to": "public"
+        "to": "standalone/public",
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {
@@ -99,7 +117,8 @@
       "installerIcon": "public/icon-512x512.png",
       "uninstallerIcon": "public/icon-512x512.png",
       "installerHeaderIcon": "public/icon-512x512.png"
-    }
+    },
+    "npmRebuild": false
   },
   "overrides": {
     "postcss": "$postcss"

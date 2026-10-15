@@ -1,6 +1,5 @@
-const { app, BrowserWindow, Menu, shell, dialog, nativeTheme } = require('electron');
+const { app, BrowserWindow, Menu, shell, dialog, utilityProcess } = require('electron');
 const path = require('path');
-const { spawn } = require('child_process');
 
 // Determinar si estamos en desarrollo o producción
 const isDev = !app.isPackaged;
@@ -51,7 +50,9 @@ function createWindow() {
   } else {
     // En producción, servir Next.js con el servidor standalone
     startNextServer().then((url) => {
-      mainWindow.loadURL(url);
+      mainWindow.loadURL(url).catch(() => {
+        retryLoadURL(mainWindow, url);
+      });
     });
   }
 
@@ -82,29 +83,56 @@ function retryLoadURL(win, url, retries = 30) {
 }
 
 // Iniciar el servidor Next.js en producción
+// El servidor standalone se empaqueta fuera del asar (extraResources -> resources/standalone)
+// y se ejecuta con utilityProcess, que usa el Node.js integrado en Electron.
 function startNextServer() {
   return new Promise((resolve) => {
-    const serverPath = path.join(__dirname, '.next', 'standalone', 'server.js');
-    nextProcess = spawn(process.execPath, [serverPath], {
+    const serverDir = path.join(process.resourcesPath, 'standalone');
+    const url = `http://localhost:${PORT}`;
+    let resolved = false;
+    const done = () => {
+      if (!resolved) {
+        resolved = true;
+        resolve(url);
+      }
+    };
+
+    nextProcess = utilityProcess.fork(path.join(serverDir, 'server.js'), [], {
+      cwd: serverDir,
       env: {
         ...process.env,
+        NODE_ENV: 'production',
         PORT: String(PORT),
         HOSTNAME: 'localhost',
       },
       stdio: 'pipe',
+      serviceName: 'ActionMetrics Next.js',
     });
 
     nextProcess.stdout.on('data', (data) => {
       const output = data.toString();
       if (output.includes('Ready') || output.includes('started')) {
-        resolve(`http://localhost:${PORT}`);
+        done();
+      }
+    });
+
+    nextProcess.stderr.on('data', (data) => {
+      console.error(`[next] ${data}`);
+    });
+
+    nextProcess.on('exit', (code) => {
+      nextProcess = null;
+      if (!resolved) {
+        dialog.showErrorBox(
+          'Error al iniciar',
+          `El servidor interno de la aplicación se cerró inesperadamente (código ${code}).`
+        );
+        app.quit();
       }
     });
 
     // Timeout: resolver después de 5s si el servidor no emite "Ready"
-    setTimeout(() => {
-      resolve(`http://localhost:${PORT}`);
-    }, 5000);
+    setTimeout(done, 5000);
   });
 }
 
@@ -214,7 +242,7 @@ function createMenu() {
   // En macOS, agregar el menú de la app
   if (process.platform === 'darwin') {
     template.unshift({
-      label: app.getName(),
+      label: app.name,
       submenu: [
         { label: 'Acerca de ActionMetrics', role: 'about' },
         { type: 'separator' },
