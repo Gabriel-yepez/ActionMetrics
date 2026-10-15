@@ -7,6 +7,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { filtrarUsuariosEmpleados } from '@/helper/filtroUsers'
 import { ordenarPorFechaMasReciente } from '@/helper/FiltrarFecha';
+import { urlBackend } from '@/config/config';
 
 export default function ListaHistorial() {
     const t = useTranslations('history');
@@ -254,7 +255,7 @@ export default function ListaHistorial() {
               <div className="flex-grow mb-4 overflow-hidden">
                 <div className="bg-gray-100 rounded overflow-hidden h-full">
                   <iframe
-                    src={`http://localhost:4001${selectedUrl}#zoom=page-fit&toolbar=0`}
+                    src={`${urlBackend}${selectedUrl}#zoom=page-fit&toolbar=0`}
                     className="w-full h-full border-0"
                     title="Reporte de Evaluación"
                     allowFullScreen

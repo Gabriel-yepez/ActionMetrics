@@ -3,6 +3,11 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'actionmetrics_jwt_secret_key_change_in_production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+// Cookie "Secure" (solo HTTPS). Por defecto activa en producción; COOKIE_SECURE=false
+// permite servir en producción sobre HTTP plano (p. ej. Docker en local o en una LAN).
+const COOKIE_SECURE = process.env.COOKIE_SECURE
+  ? process.env.COOKIE_SECURE === 'true'
+  : IS_PRODUCTION;
 
 /**
  * Genera un token JWT para un usuario
@@ -26,7 +31,7 @@ const setTokenCookie = (res, token) => {
 
   res.cookie('token', token, {
     httpOnly: true,
-    secure: IS_PRODUCTION,
+    secure: COOKIE_SECURE,
     sameSite: IS_PRODUCTION ? 'strict' : 'lax',
     maxAge: maxAgeMs,
     path: '/',
@@ -39,7 +44,7 @@ const setTokenCookie = (res, token) => {
 const clearTokenCookie = (res) => {
   res.cookie('token', '', {
     httpOnly: true,
-    secure: IS_PRODUCTION,
+    secure: COOKIE_SECURE,
     sameSite: IS_PRODUCTION ? 'strict' : 'lax',
     maxAge: 0,
     path: '/',

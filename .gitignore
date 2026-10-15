@@ -1,0 +1,2 @@
+# Variables de docker compose (contienen secretos)
+.env

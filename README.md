@@ -102,7 +102,7 @@ Instalación y ejecución (entorno de desarrollo)
 
 Requisitos mínimos:
 
-- Node.js v16+ (preferible v18+)
+- Node.js 22.12+ (requerido por Electron 44)
 - npm o pnpm
 - PostgreSQL (local o remoto)
 
@@ -128,6 +128,23 @@ cd ../front-evaluacion
 npm install
 npm run dev
 ```
+
+Ejecución con Docker
+--------------------
+
+Requisitos: Docker con Compose v2. Levanta PostgreSQL, el backend y el frontend:
+
+```bash
+cp .env.example .env        # completar DB_PASSWORD y JWT_SECRET (openssl rand -hex 32)
+docker compose up -d --build
+docker compose run --rm backend node db/setup.js   # solo la primera vez: tablas y roles
+```
+
+- Frontend: http://localhost:3000 · API: http://localhost:4001/api
+- Los datos de PostgreSQL y los documentos subidos persisten en los volúmenes `db-data` y `uploads`.
+- `NEXT_PUBLIC_BACKEND_URL` se incrusta al compilar el frontend: si cambia, reconstruir con `docker compose build frontend`.
+- Detrás de HTTPS, usar `COOKIE_SECURE=true` y ajustar `CORS_ORIGINS` / `NEXT_PUBLIC_BACKEND_URL` al dominio real.
+- Comandos útiles: `docker compose logs -f backend`, `docker compose down` (conserva datos), `docker compose down -v` (borra datos).
 
 CI/CD y monitoreo
 -----------------

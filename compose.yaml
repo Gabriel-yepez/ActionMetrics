@@ -1,0 +1,78 @@
+name: actionmetrics
+
+# Uso:
+#   cp .env.example .env              # y completar DB_PASSWORD y JWT_SECRET
+#   docker compose up -d --build
+#   docker compose run --rm backend node db/setup.js   # solo la primera vez (crea tablas y roles)
+#
+# Frontend: http://localhost:3000  ·  API: http://localhost:4001/api
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-evaluacion}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    # Sin puertos publicados: solo accesible desde la red interna de compose.
+    # Para conectarte desde tu equipo, descomenta:
+    # ports:
+    #   - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend-evaluacion
+    image: actionmetrics-backend
+    restart: unless-stopped
+    init: true
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4001
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-evaluacion}
+      DB_USER: ${DB_USER:-postgres}
+      passwordDB: ${DB_PASSWORD:?Define DB_PASSWORD en .env}
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+    ports:
+      - "${BACKEND_PORT:-4001}:4001"
+    volumes:
+      - uploads:/app/public
+    security_opt:
+      - no-new-privileges:true
+
+  frontend:
+    build:
+      context: ./front-evaluacion
+      args:
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:4001}
+    image: actionmetrics-frontend
+    restart: unless-stopped
+    init: true
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  db-data:
+  uploads:

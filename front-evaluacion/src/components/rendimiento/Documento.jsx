@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl'
 import { useState, useEffect } from "react"
+import { urlBackend } from "@/config/config"
 
 export default function Documento({url}) {
   const t = useTranslations('performance');
@@ -48,17 +49,17 @@ export default function Documento({url}) {
               {url && url.toLowerCase().endsWith('.pdf') ? (
                 // Visualizador de PDF usando el visor de PDF integrado del navegador
                 <object
-                  data={`http://localhost:4001${url}#zoom=page-fit&toolbar=0`}
+                  data={`${urlBackend}${url}#zoom=page-fit&toolbar=0`}
                   type="application/pdf"
                   className="w-full h-full"
                 >
-                  <p>{t('pdfNotSupported')} <a href={`http://localhost:4001${url}`} target="_blank" rel="noopener noreferrer">{t('downloadHere')}</a>.</p>
+                  <p>{t('pdfNotSupported')} <a href={`${urlBackend}${url}`} target="_blank" rel="noopener noreferrer">{t('downloadHere')}</a>.</p>
                 </object>
               ) : url && /\.(jpe?g|png|gif|bmp|webp)$/i.test(url) ? (
                 // Visualizador de imágenes
                 <div className="flex items-center justify-center h-full bg-gray-100">
                   <img 
-                    src={`http://localhost:4001${url}`} 
+                    src={`${urlBackend}${url}`} 
                     alt={t('document')}
                     className="max-w-full max-h-full object-contain"
                   />
@@ -66,7 +67,7 @@ export default function Documento({url}) {
               ) : (
                 // Iframe como fallback para otros tipos de documentos
                 <iframe 
-                  src={`http://localhost:4001${url}#zoom=page-fit&toolbar=0`} 
+                  src={`${urlBackend}${url}#zoom=page-fit&toolbar=0`} 
                   className="w-full h-full"
                   title={t('document')}
                   sandbox="allow-same-origin allow-scripts"
