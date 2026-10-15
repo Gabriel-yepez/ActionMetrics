@@ -1,6 +1,21 @@
 const fs = require('fs');
 const path = require('path');
 
+const DOCUMENTS_DIR = path.join(process.cwd(), 'public', 'document');
+
+// Solo nombres simples (sin rutas ni archivos ocultos)
+const SAFE_FILENAME = /^[A-Za-z0-9_\-][A-Za-z0-9_\-. ()]*$/;
+
+/**
+ * Devuelve la ruta absoluta de un archivo dentro de `dir`, o null si el nombre
+ * no es seguro (evita path traversal como "../../index.js").
+ */
+const resolveSafePath = (dir, fileName) => {
+  if (typeof fileName !== 'string' || !SAFE_FILENAME.test(fileName) || fileName.includes('..')) return null;
+  const filePath = path.join(dir, fileName);
+  return path.dirname(filePath) === dir ? filePath : null;
+};
+
 /**
  * Servicio para manejar documentos
  */
@@ -18,14 +33,15 @@ class DocumentService {
       }
 
       // Crear la carpeta si no existe
-      const uploadDir = path.join(process.cwd(), 'public', 'document');
+      const uploadDir = DOCUMENTS_DIR;
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
       // Generar un nombre único para el archivo
       const fileName = customFileName || `${Date.now()}-${file.originalname}`;
-      const filePath = path.join(uploadDir, fileName);
+      const filePath = resolveSafePath(uploadDir, fileName);
+      if (!filePath) throw new Error('Nombre de archivo inválido');
 
       // Guardar el archivo
       fs.writeFileSync(filePath, file.buffer);
@@ -38,8 +54,7 @@ class DocumentService {
         originalName: file.originalname,
         size: file.size,
         mimetype: file.mimetype,
-        url: documentUrl,
-        path: filePath
+        url: documentUrl
       };
     } catch (error) {
       console.error('Error al guardar el documento:', error);
@@ -54,9 +69,9 @@ class DocumentService {
    */
   async deleteDocument(fileName) {
     try {
-      const filePath = path.join(process.cwd(), 'public', 'document', fileName);
-      
-      if (!fs.existsSync(filePath)) {
+      const filePath = resolveSafePath(DOCUMENTS_DIR, fileName);
+
+      if (!filePath || !fs.existsSync(filePath)) {
         throw new Error('El archivo no existe');
       }
 
@@ -74,7 +89,7 @@ class DocumentService {
    */
   async getDocuments() {
     try {
-      const documentsDir = path.join(process.cwd(), 'public', 'document');
+      const documentsDir = DOCUMENTS_DIR;
       
       // Crear la carpeta si no existe
       if (!fs.existsSync(documentsDir)) {
@@ -104,3 +119,5 @@ class DocumentService {
 }
 
 module.exports = new DocumentService();
+module.exports.DOCUMENTS_DIR = DOCUMENTS_DIR;
+module.exports.resolveSafePath = resolveSafePath;

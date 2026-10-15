@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const {sequelize} = require('./db/sequelize');
 const routes = require('./routes/routes');
+const filesRouter = require('./routes/files');
 const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -19,7 +20,7 @@ app.use(helmet({
 
 // CORS configurado (permitir solo orígenes conocidos)
 const allowedOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(',')
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()).filter(Boolean)
   : ['http://localhost:3000', 'http://localhost:3001'];
 
 app.use(cors({
@@ -48,20 +49,35 @@ const authLimiter = rateLimit({
 });
 app.use('/api/auth', authLimiter);
 
+// Rate limiting para la generación con IA (consume la API de pago de DeepSeek)
+const aiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false, data: null, message: 'Demasiadas solicitudes de reportes con IA, intente de nuevo más tarde.' },
+});
+app.use('/api/reportes/ai', aiLimiter);
+
 // Middlewares
 app.use(cookieParser());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(morgan("dev"))
 
-// Configuración para servir archivos estáticos
-app.use(express.static('public'));
+// Documentos y reportes PDF: solo con sesión y permiso sobre el recurso
+app.use(filesRouter(allowedOrigins));
 
 // Rutas
 app.use("/api", routes);
 
 // Manejador de errores global
 app.use((err, req, res, next) => {
+  // Errores del cliente (archivo no permitido o demasiado grande, JSON inválido, etc.)
+  const status = err.status || err.statusCode || (err.name === 'MulterError' ? 400 : 500);
+  if (status < 500) {
+    return res.status(status).json({ ok: false, data: null, message: err.expose === false ? 'Solicitud inválida' : err.message });
+  }
   console.error('Error no manejado:', err);
   res.status(500).json({
     ok: false,

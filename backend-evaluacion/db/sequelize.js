@@ -27,7 +27,9 @@ if (process.env.DATABASE_URL) {
   sequelizeOptions.dialectOptions = {
     ssl: {
       require: true,
-      rejectUnauthorized: false,
+      // Verificar el certificado del servidor (Neon usa certificados públicos válidos);
+      // con false la conexión aceptaría cualquier certificado y podría ser interceptada.
+      rejectUnauthorized: true,
     },
   };
 }

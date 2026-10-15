@@ -7,7 +7,7 @@
  */
 
 require('dotenv').config();
-const { sequelize, Rol } = require('./sequelize');
+const { sequelize, Rol, TipoObjetivo } = require('./sequelize');
 
 async function setup() {
   try {
@@ -36,6 +36,16 @@ async function setup() {
       } else {
         console.log(`Rol "${rol.nombre}" (id=${rol.id}) ya existe, omitiendo.`);
       }
+    }
+
+    // Tipos de objetivo usados por la app (1 = general/grupal, 2 = individual)
+    const tiposObjetivo = [
+      { id: 1, nombre: 'general' },
+      { id: 2, nombre: 'individual' },
+    ];
+    for (const tipo of tiposObjetivo) {
+      const [, created] = await TipoObjetivo.findOrCreate({ where: { id: tipo.id }, defaults: tipo });
+      console.log(created ? `Tipo de objetivo "${tipo.nombre}" creado.` : `Tipo de objetivo "${tipo.nombre}" ya existe, omitiendo.`);
     }
 
     console.log('\nConfiguración inicial completada exitosamente.');

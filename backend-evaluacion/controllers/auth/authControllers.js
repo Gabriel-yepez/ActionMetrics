@@ -2,6 +2,12 @@ const userServices = require("../../services/userServices")
 const services = new userServices()
 const bcrypt = require("bcrypt");
 const { generateToken, setTokenCookie, clearTokenCookie } = require("../../middleware/authMiddleware");
+const { ROL } = require("../../middleware/access");
+
+// Hash de referencia para comparar cuando el usuario no existe: el login tarda lo mismo
+// exista o no el usuario, y no se puede averiguar qué nombres de usuario existen.
+const DUMMY_HASH = bcrypt.hashSync("actionmetrics-dummy-password", 10);
+const CREDENCIALES_INVALIDAS = "Usuario o contraseña incorrectos";
 
 
 const registerUser = async (req, res)=>{
@@ -17,7 +23,9 @@ const registerUser = async (req, res)=>{
         const user = await services.getUserByfield({nombre_usuario})
         if (user) return res.status(400).json({ ok: false, data: null, message: "El usuario ya existe" })
 
-        const newUser = await services.createUser(req.body)
+        // El registro público siempre crea empleados: el rol nunca lo elige el cliente.
+        // Gerentes y super admins se crean desde el panel de un administrador.
+        const newUser = await services.createUser({ ...req.body, id_rol: ROL.EMPLEADO })
 
         // Excluir el password de la respuesta
         const { password: _, ...userSinPassword } = newUser.toJSON ? newUser.toJSON() : newUser;
@@ -48,12 +56,12 @@ const loginUser = async (req, res) => {
       }
 
       // Busca el usuario por el usuario.
-      const user = await services.getUserByfield({ nombre_usuario });
-      if (!user) return res.status(404).json({ ok: false, data: null, message: "Usuario no encontrado" });
+      const user = await services.getUserForLogin(nombre_usuario);
 
       // Compara la contraseña enviada en el login con la contraseña hasheada almacenada.
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) return res.status(401).json({ ok: false, data: null, message: "Contraseña incorrecta" });
+      // Mismo mensaje y mismo costo de cómputo tanto si el usuario no existe como si la contraseña falla.
+      const isMatch = await bcrypt.compare(password, user ? user.password : DUMMY_HASH);
+      if (!user || !isMatch) return res.status(401).json({ ok: false, data: null, message: CREDENCIALES_INVALIDAS });
 
       // Excluir el password del objeto de respuesta
       const { password: _, ...userSinPassword } = user.toJSON ? user.toJSON() : user;

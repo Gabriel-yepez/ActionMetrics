@@ -8,8 +8,8 @@ class ObjetivoServices {
         return newObjetivo;
     }
 
-    async getAllObjetivos(userIds = null) {
-        const where = {};
+    async getAllObjetivos(userIds = null, extraWhere = null) {
+        const where = { ...(extraWhere || {}) };
         if (userIds) {
             where.id_usuario = { [Op.in]: userIds };
         }

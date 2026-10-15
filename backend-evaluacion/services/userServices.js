@@ -7,12 +7,15 @@ class UserServices{
         return newUser
     }
 
-    async getAllUsers(filter = null){
+    async getAllUsers(filter = null, attributes = null){
         const options = {
             include: [{ model: Departamento, attributes: ['id', 'nombre'] }]
         }
         if(filter){
             options.where = filter
+        }
+        if(attributes){
+            options.attributes = attributes
         }
         const users = await Usuario.findAll(options)
         return users
@@ -28,6 +31,15 @@ class UserServices{
     async getUserByfield(field){
         const user = await Usuario.findOne({
             where: field,
+            include: [{ model: Departamento, attributes: ['id', 'nombre'] }]
+        })
+        return user
+    }
+
+    // Único método que carga el hash de la contraseña (solo para el login)
+    async getUserForLogin(nombre_usuario){
+        const user = await Usuario.scope('withPassword').findOne({
+            where: { nombre_usuario },
             include: [{ model: Departamento, attributes: ['id', 'nombre'] }]
         })
         return user

@@ -137,8 +137,13 @@ Requisitos: Docker con Compose v2. Levanta PostgreSQL, el backend y el frontend:
 ```bash
 cp .env.example .env        # completar DB_PASSWORD y JWT_SECRET (openssl rand -hex 32)
 docker compose up -d --build
-docker compose run --rm backend node db/setup.js   # solo la primera vez: tablas y roles
+docker compose run --rm backend node db/setup.js   # solo la primera vez: tablas, roles y tipos de objetivo
+# Primer super admin (el registro público solo crea empleados):
+docker compose run --rm -e SUPERADMIN_PASSWORD='clave-segura' backend \
+  node db/crear-superadmin.js admin admin@empresa.com Nombre Apellido 12345678
 ```
+
+Para ascender a super admin a un usuario ya existente: `node db/crear-superadmin.js <nombre_usuario>`.
 
 - Frontend: http://localhost:3000 · API: http://localhost:4001/api
 - Los datos de PostgreSQL y los documentos subidos persisten en los volúmenes `db-data` y `uploads`.

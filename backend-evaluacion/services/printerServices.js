@@ -30,8 +30,14 @@ class PrinterServices {
     savePdf = async (docDefinition, userId, fecha) => {
         return new Promise((resolve, reject) => {
             try {
+                // Validar las partes del nombre: evita escribir fuera de REPORTS_DIR
+                const safeUserId = Number(userId);
+                if (!Number.isInteger(safeUserId) || safeUserId <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(String(fecha))) {
+                    throw new Error('Datos inválidos para el nombre del reporte');
+                }
+
                 // Crear un nombre de archivo base
-                let baseFilename = `reporte_${userId}_${fecha}`;
+                let baseFilename = `reporte_${safeUserId}_${fecha}`;
                 let filename = `${baseFilename}.pdf`;
                 let filePath = path.join(REPORTS_DIR, filename);
                 
@@ -78,3 +84,4 @@ class PrinterServices {
 }
 
 module.exports = PrinterServices;
+module.exports.REPORTS_DIR = REPORTS_DIR;

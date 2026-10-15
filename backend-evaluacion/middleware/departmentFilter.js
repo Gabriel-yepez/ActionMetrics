@@ -1,5 +1,8 @@
 const { Usuario } = require('../db/sequelize')
 
+// Departamento inexistente: hace que los filtros no devuelvan resultados
+const SIN_DEPARTAMENTO = -1
+
 /**
  * Resuelve el filtro de departamento según el rol del usuario.
  *
@@ -10,11 +13,12 @@ const { Usuario } = require('../db/sequelize')
 function getDepartmentFilter(req) {
     // Super Admin puede ver todo o filtrar por query param
     if (req.user.id_rol === 3) {
-        const deptId = req.query.departamento;
-        return deptId ? parseInt(deptId) : null;
+        const deptId = parseInt(req.query.departamento, 10);
+        return deptId > 0 ? deptId : null;
     }
-    // Admin de departamento y empleados ven solo su departamento
-    return req.user.id_departamento || null;
+    // Admin de departamento y empleados ven solo su departamento.
+    // Sin departamento asignado no ven datos (antes null = sin filtro = todo).
+    return req.user.id_departamento || SIN_DEPARTAMENTO;
 }
 
 /**

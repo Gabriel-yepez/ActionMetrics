@@ -1,12 +1,14 @@
 const RetroalimentacionServices = require("../services/retroalimentacionServices")
-const { getDepartmentFilter, getUserIdsByDepartment } = require("../middleware/departmentFilter")
 const { Op } = require("sequelize")
+const { isSuperAdmin, getScopedUserIds, canAccessUser, canAccessEvaluacion } = require("../middleware/access")
 const services = new RetroalimentacionServices()
+
+const accesoDenegado = (res) =>
+    res.status(403).json({ ok: false, data: null, message: "Acceso denegado." })
 
 const getAllRetroalimentaciones = async (req, res) => {
     try {
-        const departamentoId = getDepartmentFilter(req);
-        const userIds = await getUserIdsByDepartment(departamentoId);
+        const userIds = await getScopedUserIds(req);
         let filter = null;
         if (userIds) {
             filter = { id_usuario: { [Op.in]: userIds } };
@@ -24,6 +26,7 @@ const getRetroalimentacionById = async (req, res) => {
     try {
         const retroalimentacion = await services.getById(req.params.id)
         if (!retroalimentacion) return res.status(404).json({ ok: false, data: null, message: "Retroalimentación no encontrada." });
+        if (!(await canAccessUser(req.user, retroalimentacion.id_usuario))) return accesoDenegado(res);
         res.status(200).json({ ok: true, data: retroalimentacion, message: "Retroalimentación obtenida exitosamente." })
     } catch (error) {
         console.log(error)
@@ -33,7 +36,9 @@ const getRetroalimentacionById = async (req, res) => {
 
 const createRetroalimentacion = async (req, res) => {
     try {
-        const newRetroalimentacion = req.body
+        // El autor es siempre el usuario autenticado, sobre una evaluación a la que tenga acceso
+        const newRetroalimentacion = { ...req.body, id_usuario: req.user.id }
+        if (!(await canAccessEvaluacion(req.user, newRetroalimentacion.id_evaluacion))) return accesoDenegado(res);
         if (!newRetroalimentacion.fecha) {
             newRetroalimentacion.fecha = new Date().toISOString().split('T')[0];
         }
@@ -47,8 +52,11 @@ const createRetroalimentacion = async (req, res) => {
 
 const updateRetroalimentacion = async (req, res) => {
     try {
-        const retroalimentacion = await services.updateRetroalimentacion(req.params.id, req.body)
-        if (!retroalimentacion) return res.status(404).json({ ok: false, data: null, message: "Retroalimentación no encontrada para actualizar." });
+        const existente = await services.getById(req.params.id)
+        if (!existente) return res.status(404).json({ ok: false, data: null, message: "Retroalimentación no encontrada para actualizar." });
+        // Solo el autor (o un super admin) puede editar, y solo el comentario
+        if (existente.id_usuario !== req.user.id && !isSuperAdmin(req.user)) return accesoDenegado(res);
+        const retroalimentacion = await services.updateRetroalimentacion(req.params.id, { comentario: req.body.comentario })
         res.status(200).json({ ok: true, data: retroalimentacion, message: "Retroalimentación actualizada exitosamente." })
     } catch (error) {
         console.log(error)
@@ -58,6 +66,8 @@ const updateRetroalimentacion = async (req, res) => {
 
 const deleteRetroalimentacion = async (req, res) => {
     try {
+        const existente = await services.getById(req.params.id)
+        if (existente && !(await canAccessUser(req.user, existente.id_usuario))) return accesoDenegado(res);
         const retroalimentacion = await services.deleteRetroalimentacion(req.params.id)
         if (!retroalimentacion) return res.status(404).json({ ok: false, data: null, message: "Retroalimentación no encontrada para eliminar." });
         res.status(200).json({ ok: true, data: null, message: "Retroalimentación eliminada exitosamente." })
@@ -69,6 +79,7 @@ const deleteRetroalimentacion = async (req, res) => {
 
 const getRetroalimentacionesByUsuario = async (req, res) => {
     try {
+        if (!(await canAccessUser(req.user, req.params.idUsuario))) return accesoDenegado(res);
         const retroalimentaciones = await services.getRetroalimentacionesByUsuario(req.params.idUsuario)
         if (retroalimentaciones.length === 0) return res.status(404).json({
             ok: false, data: [], message: "No se encontraron retroalimentaciones para este usuario."
@@ -82,6 +93,7 @@ const getRetroalimentacionesByUsuario = async (req, res) => {
 
 const getRetroalimentacionesByEvaluacion = async (req, res) => {
     try {
+        if (!(await canAccessEvaluacion(req.user, req.params.idEvaluacion))) return accesoDenegado(res);
         const retroalimentaciones = await services.getRetroalimentacionesByEvaluacion(req.params.idEvaluacion)
         if (retroalimentaciones.length === 0) return res.status(404).json({
             ok: false, data: [], message: "No se encontraron retroalimentaciones para esta evaluación."

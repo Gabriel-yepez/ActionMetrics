@@ -1,6 +1,15 @@
 const jwt = require('jsonwebtoken');
+const { Usuario } = require('../db/sequelize');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'actionmetrics_jwt_secret_key_change_in_production';
+// Sin secreto por defecto: un valor fijo en el código permitiría falsificar tokens
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET no está definido. Configúralo en el archivo .env (p. ej. openssl rand -hex 32).');
+}
+if (JWT_SECRET.length < 32) {
+  console.warn('ADVERTENCIA: JWT_SECRET tiene menos de 32 caracteres; usa un secreto más largo y aleatorio.');
+}
+const JWT_ALGORITHM = 'HS256';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 // Cookie "Secure" (solo HTTPS). Por defecto activa en producción; COOKIE_SECURE=false
@@ -19,7 +28,7 @@ const generateToken = (user) => {
     id_rol: user.id_rol,
     id_departamento: user.id_departamento,
   };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN, algorithm: JWT_ALGORITHM });
 };
 
 /**
@@ -55,7 +64,7 @@ const clearTokenCookie = (res) => {
  * Middleware que verifica el token JWT.
  * Busca primero en la cookie httpOnly, luego en el header Authorization como fallback.
  */
-const verifyToken = (req, res, next) => {
+const verifyToken = async (req, res, next) => {
   // 1. Intentar leer de cookie httpOnly
   let token = req.cookies?.token;
 
@@ -71,10 +80,9 @@ const verifyToken = (req, res, next) => {
     return res.status(401).json({ ok: false, data: null, message: 'Acceso denegado. Token no proporcionado.' });
   }
 
+  let decoded;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
+    decoded = jwt.verify(token, JWT_SECRET, { algorithms: [JWT_ALGORITHM] });
   } catch (error) {
     // Si el token es inválido/expirado, limpiar la cookie
     clearTokenCookie(res);
@@ -83,6 +91,22 @@ const verifyToken = (req, res, next) => {
       return res.status(401).json({ ok: false, data: null, message: 'Token expirado. Inicie sesión nuevamente.' });
     }
     return res.status(401).json({ ok: false, data: null, message: 'Token inválido.' });
+  }
+
+  try {
+    // Rol y departamento se leen de la BD: un usuario eliminado o con permisos
+    // cambiados no conserva los del token hasta que expire.
+    const user = await Usuario.findByPk(decoded.id, {
+      attributes: ['id', 'nombre_usuario', 'id_rol', 'id_departamento'],
+    });
+    if (!user) {
+      clearTokenCookie(res);
+      return res.status(401).json({ ok: false, data: null, message: 'Usuario no válido. Inicie sesión nuevamente.' });
+    }
+    req.user = user.get({ plain: true });
+    next();
+  } catch (error) {
+    next(error);
   }
 };
 

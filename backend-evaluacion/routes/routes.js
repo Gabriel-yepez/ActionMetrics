@@ -19,6 +19,8 @@ const {
     createObjetivoSchema,
     updateObjetivoSchema,
     createRetroalimentacionSchema,
+    updateRetroalimentacionSchema,
+    reportSchema,
     createDepartamentoSchema,
     updateDepartamentoSchema,
     createEvaluacionSchema,
@@ -68,16 +70,15 @@ const router = Router();
     router.put("/objetivos/:id", validate(updateObjetivoSchema), updateObjetivoEstado)
     router.delete("/objetivos/:id", requireAdmin, deleteObjetivo)
 
-    // reportes
-    router.get("/reportes", getReport)
-    router.post("/reportes", getReport)
-    router.post("/reportes/ai", getReportWithAI)
+    // reportes (solo evaluadores: gerentes y super admin)
+    router.post("/reportes", requireAdmin, validate(reportSchema), getReport)
+    router.post("/reportes/ai", requireAdmin, validate(reportSchema), getReportWithAI)
 
     // retroalimentaciones
     router.get("/retroalimentacion", getAllRetroalimentaciones)
     router.get("/retroalimentacion/:id", getRetroalimentacionById)
     router.post("/retroalimentacion", validate(createRetroalimentacionSchema), createRetroalimentacion)
-    router.put("/retroalimentacion/:id", updateRetroalimentacion)
+    router.put("/retroalimentacion/:id", validate(updateRetroalimentacionSchema), updateRetroalimentacion)
     router.delete("/retroalimentacion/:id", requireAdmin, deleteRetroalimentacion)
     router.get("/retroalimentacion/usuario/:idUsuario", getRetroalimentacionesByUsuario)
     router.get("/retroalimentacion/evaluacion/:idEvaluacion", getRetroalimentacionesByEvaluacion)

@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 module.exports = (sequelize)=>{
 
-    return sequelize.define('usuario', 
+    const Usuario = sequelize.define('usuario', 
         {
             id:{
                 type: DataTypes.INTEGER,
@@ -41,6 +41,13 @@ module.exports = (sequelize)=>{
         },{
             freezeTableName: true,
             timestamps: false,
+            // El hash de la contraseña nunca se carga salvo que se pida explícitamente
+            defaultScope: {
+                attributes: { exclude: ['password'] },
+            },
+            scopes: {
+                withPassword: {},
+            },
             hooks: {
                 beforeCreate: async (usuario) => {
                     if (usuario.password) {
@@ -57,4 +64,13 @@ module.exports = (sequelize)=>{
             }
         }
     )
+
+    // Defensa adicional: nunca serializar el hash en respuestas JSON
+    Usuario.prototype.toJSON = function () {
+        const values = { ...this.get() }
+        delete values.password
+        return values
+    }
+
+    return Usuario
 }

@@ -3,17 +3,19 @@ const HabilidadServices = require("../services/habilidadServices");
 const PrinterServices = require("../services/printerServices");
 const { getReportDefinitionById } = require('../controllers/reportControllers');
 const { generarConteoGeneral, generarConteoUsuario } = require('../services/datosChart');
-const { getDepartmentFilter, getUserIdsByDepartment } = require('../middleware/departmentFilter');
+const { getScopedUserIds, canAccessUser, canAccessEvaluacion } = require('../middleware/access');
 
 const evaluacionServices = new EvaluacionServices();
 const habilidadServices = new HabilidadServices();
 const printerServices = new PrinterServices();
 
+const accesoDenegado = (res) =>
+    res.status(403).json({ ok: false, data: null, message: "Acceso denegado." })
+
 const getEvaluacionCount = async (req, res)=>{
 
     try {
-        const departamentoId = getDepartmentFilter(req);
-        const userIds = await getUserIdsByDepartment(departamentoId);
+        const userIds = await getScopedUserIds(req);
         const count = await evaluacionServices.getEvaluacionCount(userIds)
         res.status(200).json({ ok: true, data: count, message: "Conteo de evaluaciones obtenido." })
       } catch (error) {
@@ -24,8 +26,7 @@ const getEvaluacionCount = async (req, res)=>{
 
 const getAllEvaluacion = async (req, res)=>{
     try {
-        const departamentoId = getDepartmentFilter(req);
-        const userIds = await getUserIdsByDepartment(departamentoId);
+        const userIds = await getScopedUserIds(req);
         const evaluacion = await evaluacionServices.getAllEvaluacion(userIds)
         if(evaluacion.length === 0) return res.status(404).json({ ok: false, data: [], message: "No se encontraron evaluaciones." });
         res.status(200).json({ ok: true, data: evaluacion, message: "Evaluaciones obtenidas exitosamente." })
@@ -58,6 +59,8 @@ const createEvaluacion = async (req, res) => {
         }
 
         const { docDefinition, reportData } = cachedReport;
+
+        if (!(await canAccessUser(req.user, reportData.id_usuario))) return accesoDenegado(res);
 
         const pdfResult = await printerServices.savePdf(docDefinition, reportData.id_usuario, reportData.fecha);
 
@@ -97,8 +100,7 @@ const createEvaluacion = async (req, res) => {
 
 const getEstadisticasGenerales = async (req, res) => {
   try {
-    const departamentoId = getDepartmentFilter(req);
-    const userIds = await getUserIdsByDepartment(departamentoId);
+    const userIds = await getScopedUserIds(req);
     const estadisticasMensuales = await generarConteoGeneral(userIds);
 
     res.status(200).json({
@@ -127,6 +129,8 @@ const getEstadisticasUsuario = async (req, res) => {
         message: "Se requiere el ID del usuario"
       });
     }
+
+    if (!(await canAccessUser(req.user, idUsuario))) return accesoDenegado(res);
 
     const estadisticasUsuario = await generarConteoUsuario(idUsuario);
 
@@ -157,6 +161,8 @@ const getUserEvaluationCount = async (req, res) => {
       });
     }
 
+    if (!(await canAccessUser(req.user, userId))) return accesoDenegado(res);
+
     const evaluacionCount = await evaluacionServices.getEvaluacionCountByUser(userId);
 
     res.status(200).json({ ok: true, data: evaluacionCount, message: "Conteo de evaluaciones del usuario obtenido." });
@@ -172,6 +178,7 @@ const getUserEvaluationCount = async (req, res) => {
 
 const deleteEvaluacion = async (req, res) => {
     try {
+        if (!(await canAccessEvaluacion(req.user, req.params.id))) return accesoDenegado(res);
         const evaluacion = await evaluacionServices.deleteEvaluacion(req.params.id)
         if (!evaluacion) return res.status(404).json({ ok: false, data: null, message: "Evaluación no encontrada para eliminar." });
         res.status(200).json({ ok: true, data: null, message: "Evaluación eliminada exitosamente." })

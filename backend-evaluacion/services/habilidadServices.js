@@ -1,4 +1,5 @@
-const { ResultadoHabilidad } = require('../db/sequelize')
+const { ResultadoHabilidad, Evaluacion } = require('../db/sequelize')
+const { Op } = require('sequelize')
 
 class habilidadServices{
  
@@ -7,9 +8,21 @@ class habilidadServices{
         return newhabilidad
     }
 
-    async getHabilidad(){
-        const habilidad = await ResultadoHabilidad.findAll();
-        return habilidad
+    // userIds: limita a resultados de evaluaciones de esos usuarios (null = todos)
+    async getHabilidad(userIds = null){
+        if (!userIds) return ResultadoHabilidad.findAll();
+        const evaluaciones = await Evaluacion.findAll({
+            where: { id_usuario: { [Op.in]: userIds } },
+            attributes: ['id'],
+            raw: true
+        });
+        return ResultadoHabilidad.findAll({
+            where: { id_evaluacion: { [Op.in]: evaluaciones.map(e => e.id) } }
+        });
+    }
+
+    async getHabilidadById(id){
+        return ResultadoHabilidad.findByPk(id);
     }
 
     async deleteHabilidad(id){

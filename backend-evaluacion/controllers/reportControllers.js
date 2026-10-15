@@ -1,5 +1,9 @@
 const ReportServices = require('../services/reportServices');
+const { canAccessUser } = require('../middleware/access');
 const services = new ReportServices();
+
+const accesoDenegado = (res) =>
+    res.status(403).json({ ok: false, data: null, message: "Acceso denegado." });
 
 // Almacenamiento temporal de definiciones de documentos (en producción usaría Redis)
 const reportCache = new Map();
@@ -17,6 +21,9 @@ setInterval(() => {
 
 const getReport = async (req, res) => {
     try {
+        // Solo reportes de usuarios a los que el evaluador tiene acceso
+        if (!(await canAccessUser(req.user, req.body.id_usuario))) return accesoDenegado(res);
+
         // Generar un ID basado solo en usuario y fecha (igual para ambos tipos de reporte)
         const reportId = `reporte_${req.body.id_usuario}_${req.body.fecha}`;
         
@@ -48,6 +55,9 @@ const getReport = async (req, res) => {
 
 const getReportWithAI = async (req, res) => {
     try {
+        // Solo reportes de usuarios a los que el evaluador tiene acceso
+        if (!(await canAccessUser(req.user, req.body.id_usuario))) return accesoDenegado(res);
+
         // Usar el mismo formato de ID que el reporte normal para sobreescribirlo
         const reportId = `reporte_${req.body.id_usuario}_${req.body.fecha}`;
         

@@ -14,7 +14,7 @@ const registerSchema = z.object({
   apellido: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
   email: z.string().email('Email inválido').max(255, 'Máximo 255 caracteres'),
   ci: z.number({ invalid_type_error: 'La cédula debe ser un número' }).int('Debe ser un número entero').positive('Debe ser positivo'),
-  id_rol: z.number().int().min(1).max(3).optional(),
+  // Sin id_rol: el registro público siempre crea empleados
   id_departamento: z.number().int().positive().optional().nullable(),
 });
 
@@ -44,11 +44,13 @@ const updateUserSchema = z.object({
 
 // --- Objetivos ---
 
+const ESTADOS_OBJETIVO = ['completado', 'no completado'];
+
 const createObjetivoSchema = z.object({
   descripcion: z.string().min(1, 'La descripción es requerida').max(255, 'Máximo 255 caracteres'),
   fecha_inicio: z.string().min(1, 'La fecha de inicio es requerida'),
   fecha_fin: z.string().min(1, 'La fecha de fin es requerida'),
-  estado_actual: z.string().max(255).optional(),
+  estado_actual: z.enum(ESTADOS_OBJETIVO, { errorMap: () => ({ message: 'Estado inválido' }) }).optional(),
   estado_deseado: z.string().max(255).optional(),
   id_usuario: z.number().int().positive(),
   id_tipo_objetivo: z.number().int().min(1).max(2),
@@ -58,7 +60,7 @@ const createObjetivoSchema = z.object({
 });
 
 const updateObjetivoSchema = z.object({
-  estado_actual: z.string().max(255).optional(),
+  estado_actual: z.enum(ESTADOS_OBJETIVO, { errorMap: () => ({ message: 'Estado inválido' }) }).optional(),
   estado_deseado: z.string().max(255).optional(),
   descripcion: z.string().min(1).max(255).optional(),
   fecha_inicio: z.string().optional(),
@@ -72,6 +74,31 @@ const createRetroalimentacionSchema = z.object({
   fecha: z.string().optional(),
   id_usuario: z.number().int().positive('ID de usuario inválido'),
   id_evaluacion: z.number().int().positive('ID de evaluación inválido'),
+});
+
+const updateRetroalimentacionSchema = z.object({
+  comentario: z.string().min(1, 'El comentario es requerido').max(255, 'Máximo 255 caracteres'),
+});
+
+// --- Reportes ---
+// Solo tipos primitivos: los valores se insertan en la definición del PDF (pdfmake),
+// y un objeto ahí podría hacer que el generador lea archivos del servidor.
+
+const textoOpcional = (max) => z.string().max(max).optional().nullable();
+
+const reportSchema = z.object({
+  id_usuario: z.coerce.number().int().positive('Usuario inválido'),
+  fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha inválida (formato AAAA-MM-DD)'),
+  comentarioEvaluacion: textoOpcional(5000),
+  comentarioHabilidad: textoOpcional(5000),
+  puntuacion: z.union([z.number(), z.string().max(20)]).optional().nullable(),
+  objetivos_usuario: z.array(z.object({
+    descripcion: textoOpcional(1000),
+    estado_actual: textoOpcional(255),
+    fecha_inicio: textoOpcional(50),
+    fecha_fin: textoOpcional(50),
+  })).max(500).optional().nullable(),
+  responses: z.record(z.string().max(500), z.union([z.string().max(2000), z.number()])).optional().nullable(),
 });
 
 // --- Departamentos ---
@@ -106,6 +133,8 @@ module.exports = {
   createObjetivoSchema,
   updateObjetivoSchema,
   createRetroalimentacionSchema,
+  updateRetroalimentacionSchema,
+  reportSchema,
   createDepartamentoSchema,
   updateDepartamentoSchema,
   createEvaluacionSchema,
