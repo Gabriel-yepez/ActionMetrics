@@ -1,0 +1,172 @@
+name: CD
+
+# Despliegue continuo: cada push a main pasa la CI, publica las imágenes en
+# GitHub Container Registry y las despliega en el VPS por SSH.
+# Configuración (secretos y variables): ver deploy/README.md, sección "Despliegue automático".
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Nunca dos despliegues a la vez; uno nuevo espera a que termine el anterior
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    name: Publicar imágenes en GHCR
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_prefix: ${{ steps.vars.outputs.image_prefix }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Comprobar configuración
+        id: vars
+        env:
+          BACKEND_URL: ${{ vars.NEXT_PUBLIC_BACKEND_URL }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            echo "::error::Falta la variable NEXT_PUBLIC_BACKEND_URL (ej.: https://api.tudominio.com) en Settings > Secrets and variables > Actions > Variables"
+            exit 1
+          fi
+          # GHCR exige minúsculas: ghcr.io/<usuario>/<repo>
+          echo "image_prefix=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publicar imagen backend
+        uses: docker/build-push-action@v6
+        with:
+          context: backend-evaluacion
+          push: true
+          platforms: ${{ vars.DOCKER_PLATFORMS || 'linux/amd64' }}
+          tags: |
+            ${{ steps.vars.outputs.image_prefix }}-backend:${{ github.sha }}
+            ${{ steps.vars.outputs.image_prefix }}-backend:latest
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Publicar imagen frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: front-evaluacion
+          push: true
+          platforms: ${{ vars.DOCKER_PLATFORMS || 'linux/amd64' }}
+          build-args: |
+            NEXT_PUBLIC_BACKEND_URL=${{ vars.NEXT_PUBLIC_BACKEND_URL }}
+          tags: |
+            ${{ steps.vars.outputs.image_prefix }}-frontend:${{ github.sha }}
+            ${{ steps.vars.outputs.image_prefix }}-frontend:latest
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+  deploy:
+    name: Desplegar en el VPS
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    env:
+      VPS_PORT: ${{ vars.VPS_PORT || '22' }}
+      APP_DIR: ${{ vars.VPS_APP_DIR || '/opt/actionmetrics' }}
+      IMAGE_PREFIX: ${{ needs.build.outputs.image_prefix }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Configurar SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          for name in VPS_HOST VPS_USER VPS_SSH_KEY VPS_KNOWN_HOSTS; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Falta el secreto $name (Settings > Environments > production)"
+              exit 1
+            fi
+          done
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Huella del servidor fijada: evita conectarse a un servidor suplantado
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host vps
+            HostName $VPS_HOST
+            User $VPS_USER
+            Port $VPS_PORT
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            UserKnownHostsFile ~/.ssh/known_hosts
+            ServerAliveInterval 30
+          EOF
+
+      - name: Copiar archivos de despliegue
+        # Las variables se expanden en el runner a propósito (SC2029)
+        run: |
+          # shellcheck disable=SC2029
+          ssh vps "mkdir -p '$APP_DIR'"
+          scp compose.yaml compose.prod.yaml deploy/deploy.sh "vps:$APP_DIR/"
+
+      - name: Acceso del VPS a GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Token temporal del job (solo lectura de paquetes), enviado por stdin; caduca al terminar el job
+          # shellcheck disable=SC2029
+          printf '%s' "$GHCR_TOKEN" | ssh vps "docker login ghcr.io -u '$GITHUB_ACTOR' --password-stdin"
+
+      - name: Desplegar
+        run: |
+          # shellcheck disable=SC2029
+          ssh vps "cd '$APP_DIR' && ./deploy.sh '$IMAGE_PREFIX' '$GITHUB_SHA'"
+
+      - name: Cerrar sesión de GHCR en el VPS
+        if: always()
+        run: ssh vps "docker logout ghcr.io" || true
+
+      - name: Comprobar la API pública
+        env:
+          BACKEND_URL: ${{ vars.NEXT_PUBLIC_BACKEND_URL }}
+        run: |
+          for _ in $(seq 1 10); do
+            if curl -fsS --max-time 10 "$BACKEND_URL/api/health"; then
+              echo
+              echo "Despliegue de $GITHUB_SHA en producción completado"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::$BACKEND_URL/api/health no responde a través de Nginx (revisa DNS, certificados y Nginx)"
+          exit 1

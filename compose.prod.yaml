@@ -1,0 +1,14 @@
+# Producción (VPS): usa las imágenes publicadas por el CD en GitHub Container Registry
+# en lugar de construirlas en el servidor. Se combina con compose.yaml:
+#
+#   IMAGE_PREFIX=ghcr.io/<usuario>/actionmetrics IMAGE_TAG=<commit> \
+#     docker compose -f compose.yaml -f compose.prod.yaml up -d --no-build
+#
+# Normalmente lo ejecuta deploy/deploy.sh desde GitHub Actions (ver deploy/README.md).
+
+services:
+  backend:
+    image: ${IMAGE_PREFIX:?Define IMAGE_PREFIX}-backend:${IMAGE_TAG:-latest}
+
+  frontend:
+    image: ${IMAGE_PREFIX:?Define IMAGE_PREFIX}-frontend:${IMAGE_TAG:-latest}

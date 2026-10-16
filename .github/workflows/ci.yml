@@ -1,9 +1,11 @@
 name: CI
 
-# Integración continua: solo en push a la rama dev
+# Integración continua: automática solo en push a la rama dev.
+# El despliegue (deploy.yml) la reutiliza como requisito antes de desplegar main.
 on:
   push:
     branches: [dev]
+  workflow_call:
 
 permissions:
   contents: read
@@ -76,7 +78,7 @@ jobs:
       - name: Arrancar la API
         run: |
           node index.js > api.log 2>&1 &
-          for i in $(seq 1 30); do
+          for _ in $(seq 1 30); do
             curl -sf http://127.0.0.1:4001/api/health && exit 0
             sleep 1
           done
