@@ -1,5 +1,7 @@
 const { z } = require('zod');
 
+const cedulaError = (issue) => (issue.input === undefined ? 'La cédula es requerida' : 'La cédula debe ser un número');
+
 // --- Auth ---
 
 const loginSchema = z.object({
@@ -13,7 +15,7 @@ const registerSchema = z.object({
   nombre: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
   apellido: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
   email: z.string().email('Email inválido').max(255, 'Máximo 255 caracteres'),
-  ci: z.number({ invalid_type_error: 'La cédula debe ser un número' }).int('Debe ser un número entero').positive('Debe ser positivo'),
+  ci: z.number({ error: cedulaError }).int('Debe ser un número entero').positive('Debe ser positivo'),
   // Sin id_rol: el registro público siempre crea empleados
   id_departamento: z.number().int().positive().optional().nullable(),
 });
@@ -26,7 +28,7 @@ const createUserSchema = z.object({
   nombre: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
   apellido: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
   email: z.string().email('Email inválido').max(255, 'Máximo 255 caracteres'),
-  ci: z.number({ invalid_type_error: 'La cédula debe ser un número' }).int().positive('Debe ser positivo'),
+  ci: z.number({ error: cedulaError }).int().positive('Debe ser positivo'),
   id_rol: z.number().int().min(1).max(3),
   id_departamento: z.number().int().positive().optional().nullable(),
 });
@@ -50,7 +52,7 @@ const createObjetivoSchema = z.object({
   descripcion: z.string().min(1, 'La descripción es requerida').max(255, 'Máximo 255 caracteres'),
   fecha_inicio: z.string().min(1, 'La fecha de inicio es requerida'),
   fecha_fin: z.string().min(1, 'La fecha de fin es requerida'),
-  estado_actual: z.enum(ESTADOS_OBJETIVO, { errorMap: () => ({ message: 'Estado inválido' }) }).optional(),
+  estado_actual: z.enum(ESTADOS_OBJETIVO, { error: 'Estado inválido' }).optional(),
   estado_deseado: z.string().max(255).optional(),
   id_usuario: z.number().int().positive(),
   id_tipo_objetivo: z.number().int().min(1).max(2),
@@ -60,7 +62,7 @@ const createObjetivoSchema = z.object({
 });
 
 const updateObjetivoSchema = z.object({
-  estado_actual: z.enum(ESTADOS_OBJETIVO, { errorMap: () => ({ message: 'Estado inválido' }) }).optional(),
+  estado_actual: z.enum(ESTADOS_OBJETIVO, { error: 'Estado inválido' }).optional(),
   estado_deseado: z.string().max(255).optional(),
   descripcion: z.string().min(1).max(255).optional(),
   fecha_inicio: z.string().optional(),

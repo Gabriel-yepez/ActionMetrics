@@ -67,7 +67,9 @@ function classifyError(error, config) {
   }
   if (status === 429) {
     // Respetar Retry-After si el proveedor lo envía
-    const retryAfter = parseFloat(error.headers?.['retry-after']);
+    // openai >= 5 entrega un objeto Headers; versiones anteriores, un objeto plano
+    const headers = error.headers;
+    const retryAfter = parseFloat(typeof headers?.get === 'function' ? headers.get('retry-after') : headers?.['retry-after']);
     const fromHeader = retryAfter > 0 ? retryAfter * SECOND : null;
     return { reason: 'rate_limit', status, baseCooldown: fromHeader || config.rateLimitCooldownMs, exact: !!fromHeader };
   }
