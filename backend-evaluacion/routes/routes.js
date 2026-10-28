@@ -11,6 +11,7 @@ const { getAllDepartamentos, getDepartamentoById, createDepartamento, updateDepa
 const upload = require("../middleware/uploadMiddleware");
 const { verifyToken, requireAdmin, requireSuperAdmin } = require("../middleware/authMiddleware");
 const { validate } = require("../validations/validate");
+const { aiPool } = require("../services/aiProviderPool");
 const {
     loginSchema,
     registerSchema,
@@ -69,6 +70,11 @@ const router = Router();
     router.post("/objetivos", requireAdmin, validate(createObjetivoSchema), createObjetivo)
     router.put("/objetivos/:id", validate(updateObjetivoSchema), updateObjetivoEstado)
     router.delete("/objetivos/:id", requireAdmin, deleteObjetivo)
+
+    // estado de los proveedores/claves de IA (sin las claves): solo super admin
+    router.get("/ia/estado", requireSuperAdmin, (req, res) => {
+        res.status(200).json({ ok: true, data: aiPool.getStatus(), message: "Estado de los proveedores de IA." })
+    })
 
     // reportes (solo evaluadores: gerentes y super admin)
     router.post("/reportes", requireAdmin, validate(reportSchema), getReport)

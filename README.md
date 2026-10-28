@@ -129,6 +129,24 @@ npm install
 npm run dev
 ```
 
+IA con varias API keys
+----------------------
+
+Los planes de mejora con IA admiten varias claves y proveedores compatibles con la API de OpenAI
+(DeepSeek, Groq, Gemini, OpenRouter, Mistral, Cerebras o uno propio), configurados en el `.env`:
+
+```bash
+DEEPSEEK_API_KEYS=sk-aaa,sk-bbb       # claves separadas por coma (DEEPSEEK_API_KEY sigue funcionando)
+GROQ_API_KEYS=gsk-ccc
+GROQ_MODEL=llama-3.3-70b-versatile
+AI_ROTATION=random                     # o round-robin
+```
+
+En cada reporte se elige una clave al azar; si falla (límite del plan gratuito, saldo agotado, clave
+inválida, servicio caído) se usa otra al instante y la que falló queda en pausa, con espera creciente
+si sigue fallando. Si ninguna responde se genera el análisis simulado. El super admin puede ver el
+estado en `GET /api/ia/estado`. Detalles en `.env.example` y `backend-evaluacion/services/aiProviderPool.js`.
+
 Ejecución con Docker
 --------------------
 

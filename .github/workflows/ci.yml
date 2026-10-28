@@ -70,6 +70,9 @@ jobs:
       - name: Auditoría de dependencias de producción
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Pruebas unitarias (rotación de API keys de IA)
+        run: npm test
+
       - name: Inicializar base de datos
         run: |
           node db/setup.js

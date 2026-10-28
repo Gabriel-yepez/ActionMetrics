@@ -73,8 +73,10 @@ npm run lint     # ESLint
 - All routes prefixed with `/api/` (auth, usuarios, evaluaciones, objetivos, reportes, retroalimentacion, departamentos)
 
 ### AI Integration
-- Uses OpenAI SDK configured to point at **DeepSeek API** for generating improvement plans
-- Service: `backend-evaluacion/services/aiService.js`
+- Uses the OpenAI SDK against OpenAI-compatible APIs (DeepSeek by default) for generating improvement plans
+- Service: `backend-evaluacion/services/aiService.js`; it calls `aiPool.chatCompletion()` from `services/aiProviderPool.js`
+- The pool rotates API keys/providers configured in `.env` (`<PROVIDER>_API_KEYS`, `<PROVIDER>_MODEL`, `AI_PROVIDERS`, `AI_ROTATION`) and fails over on 429/402/401/5xx/timeouts; with no keys it falls back to a simulated analysis
+- Tests: `npm test` (pool, with a fake OpenAI-compatible server) and `npm run test:security` (API, needs a running backend + DB)
 
 ### Security
 - Rate limiting: 500 req/15min global, 20 auth attempts/15min

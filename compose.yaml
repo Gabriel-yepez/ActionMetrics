@@ -38,6 +38,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Todas las variables del .env llegan al backend (incluidas las claves de IA:
+    # DEEPSEEK_API_KEYS, GROQ_API_KEYS, ...). Las de "environment" tienen prioridad.
+    env_file:
+      - path: .env
+        required: false
     environment:
       NODE_ENV: production
       PORT: 4001
@@ -51,7 +56,6 @@ services:
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       TRUST_PROXY: ${TRUST_PROXY:-0}
-      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
     ports:
       - "${BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-4001}:4001"
     volumes:

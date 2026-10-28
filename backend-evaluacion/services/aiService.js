@@ -1,16 +1,11 @@
 require('dotenv').config();
-const OpenAI = require('openai');
+const { aiPool } = require('./aiProviderPool');
 
 class AIService {
-  constructor() {
-    // Debes crear un archivo .env y añadir la variable DEEPSEEK_API_KEY con tu clave de DeepSeek
-    this.apiKey = process.env.DEEPSEEK_API_KEY || 'tu-api-key-aqui';
-    
-    // Inicializar el cliente de OpenAI pero configurado para DeepSeek
-    this.client = new OpenAI({
-      apiKey: this.apiKey,
-      baseURL: 'https://api.deepseek.com/v1', // URL base de la API de DeepSeek
-    });
+  constructor(pool = aiPool) {
+    // Pool de proveedores/claves compatibles con la API de OpenAI (DeepSeek, Groq, Gemini...),
+    // configurado por variables de entorno. Ver services/aiProviderPool.js y .env.example.
+    this.pool = pool;
   }
 
   async generateAIComment(userData, evaluationData) {
@@ -18,8 +13,8 @@ class AIService {
       console.log(`generateAIComment - Datos de usuario: ${userData ? 'Presente' : 'No presente'}`);
       console.log(`generateAIComment - Datos de evaluación: ${evaluationData ? 'Presente' : 'No presente'}`);
       
-      // Si no hay API key configurada, usar el método simulado
-      if (this.apiKey === 'tu-api-key-aqui') {
+      // Si no hay ninguna API key configurada, usar el método simulado
+      if (this.pool.size === 0) {
         console.log('Usando método simulado por falta de API key');
         const resultado = this._generateSimulatedComment(userData, evaluationData);
         console.log('Resultado simulado generado:', resultado ? resultado.substring(0, 50) + '...' : 'vacío');
@@ -92,11 +87,10 @@ class AIService {
                     Por favor responde en contexto a los datos y en español la respuesta.
                     `;
       
-      console.log('Preparando llamada a la API de DeepSeek...');
-      
-      // Llamar a la API de DeepSeek
-      const response = await this.client.chat.completions.create({
-        model: 'deepseek-reasoner', // Modelo DeepSeek-R1 optimizado para razonamiento complejo
+      console.log('Preparando llamada a la API de IA...');
+
+      // Llamar a la IA: el pool elige proveedor/clave y, si uno falla, prueba con otro
+      const { response, entryId } = await this.pool.chatCompletion({
         messages: [
           { role: 'system', 
             content: `Eres un asistente especializado en evaluación de desempeño, 
@@ -111,14 +105,12 @@ class AIService {
         temperature: 0.5 // Reducido para respuestas más consistentes y precisas
       });
       
-      console.log('Respuesta recibida de DeepSeek');
-      console.log('Estructura de respuesta completa:', JSON.stringify(response, null, 2));
-      console.log('Choices disponibles:', response.choices ? response.choices.length : 0);
+      console.log(`Respuesta recibida de la IA (${entryId})`);
       
       // Validar que la respuesta tenga la estructura esperada
       if (!response || !response.choices || response.choices.length === 0 || !response.choices[0].message) {
-        console.error('Estructura de respuesta inválida de DeepSeek:', JSON.stringify(response));
-        return "La API de DeepSeek devolvió una respuesta con estructura inválida. Utilizando análisis simulado.\n\n" + 
+        console.error(`Estructura de respuesta inválida de la IA (${entryId})`);
+        return "La API de IA devolvió una respuesta con estructura inválida. Utilizando análisis simulado.\n\n" + 
                this._generateSimulatedComment(userData, evaluationData);
       }
       
@@ -195,17 +187,17 @@ class AIService {
           }
         }
         
-        console.error('No se encontró contenido válido en la respuesta de DeepSeek');
-        return "La API de DeepSeek devolvió contenido vacío. Utilizando análisis simulado.\n\n" + 
+        console.error(`No se encontró contenido válido en la respuesta de la IA (${entryId})`);
+        return "La API de IA devolvió contenido vacío. Utilizando análisis simulado.\n\n" + 
                this._generateSimulatedComment(userData, evaluationData);
       }
       
-      console.log('Contenido válido recibido de DeepSeek:', content.substring(0, 50) + '...');
+      console.log(`Contenido válido recibido de la IA (${entryId})`);
       return content;
 
     } catch (error) {
-      console.error('Error llamando a la API de DeepSeek:', error);
-      // Si hay error con la API, usar el método simulado como fallback
+      // Ningún proveedor respondió (o error inesperado): usar el método simulado como fallback
+      console.error('Error llamando a la API de IA:', error.message);
       return this._generateSimulatedComment(userData, evaluationData);
     }
   }
@@ -267,8 +259,7 @@ class AIService {
       const contentToTranslate = englishContent.length > 3000 ? 
         englishContent.substring(0, 3000) : englishContent;
       
-      const response = await this.client.chat.completions.create({
-        model: 'deepseek-reasoner',
+      const { response } = await this.pool.chatCompletion({
         messages: [
           { 
             role: 'system', 

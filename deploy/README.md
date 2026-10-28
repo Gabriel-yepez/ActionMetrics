@@ -56,8 +56,13 @@ COOKIE_SECURE=true                 # la cookie solo viaja por HTTPS
 TRUST_PROXY=1                      # IP real del usuario detrás de Nginx (rate limiting)
 CORS_ORIGINS=https://tudominio.com
 BIND_ADDRESS=127.0.0.1             # contenedores accesibles solo desde el propio VPS
-DEEPSEEK_API_KEY=<opcional>
+# IA (opcional): varias claves y proveedores; se rotan y si una falla se usa otra
+DEEPSEEK_API_KEYS=<clave1>,<clave2>
+# GROQ_API_KEYS=<clave>        GROQ_MODEL=<modelo>   (ver .env.example para más proveedores)
 ```
+
+Estado de las claves de IA (cuáles están en pausa y por qué, sin mostrar las claves):
+`GET https://api.tudominio.com/api/ia/estado` con sesión de super admin.
 
 `NEXT_PUBLIC_BACKEND_URL` no va aquí: se incrusta al compilar el frontend en GitHub Actions
 (variable del repositorio, ver paso 2).
