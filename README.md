@@ -147,13 +147,39 @@ inválida, servicio caído) se usa otra al instante y la que falló queda en pau
 si sigue fallando. Si ninguna responde se genera el análisis simulado. El super admin puede ver el
 estado en `GET /api/ia/estado`. Detalles en `.env.example` y `backend-evaluacion/services/aiProviderPool.js`.
 
+Cifrado de datos sensibles
+--------------------------
+
+Los datos personales y de desempeño se guardan **cifrados en la base de datos** (AES-256-GCM) y la API
+los devuelve descifrados, así que el frontend no cambia:
+
+| Tabla | Campos cifrados |
+|---|---|
+| `usuario` | `nombre`, `apellido`, `email`, `ci` |
+| `evaluacion` | `comentario` |
+| `resultado_habilidad` | `comentario` |
+| `retroalimentacion` | `comentario` |
+| `plan_mejora` | `detalles` |
+| `objetivos` | `descripcion`, `estado_deseado` |
+
+- Clave en `DATA_ENCRYPTION_KEY` (`openssl rand -base64 32`). El backend no arranca sin ella.
+  **Guarda una copia segura fuera del servidor: si se pierde, los datos cifrados no se pueden recuperar.**
+- Quien acceda a la base de datos o a una copia de seguridad sin la clave solo ve texto cifrado. Cada valor
+  va ligado a su tabla y columna: si se modifica o se copia a otro campo, no se descifra.
+- Los datos existentes se cifran con `node db/cifrar-datos.js` (también lo hacen `db/setup.js` y cada despliegue).
+- Cambio de clave: nueva en `DATA_ENCRYPTION_KEY`, anterior en `DATA_ENCRYPTION_OLD_KEYS`, ejecutar
+  `node db/cifrar-datos.js` y luego quitar la anterior.
+- `nombre_usuario` no se cifra porque se usa para iniciar sesión. La búsqueda de usuarios se hace en el
+  backend sobre los datos ya descifrados.
+- Los PDF de reportes y documentos subidos se guardan como archivos (volumen `uploads`), no en la base de datos.
+
 Ejecución con Docker
 --------------------
 
 Requisitos: Docker con Compose v2. Levanta PostgreSQL, el backend y el frontend:
 
 ```bash
-cp .env.example .env        # completar DB_PASSWORD y JWT_SECRET (openssl rand -hex 32)
+cp .env.example .env        # completar DB_PASSWORD, JWT_SECRET (openssl rand -hex 32) y DATA_ENCRYPTION_KEY (openssl rand -base64 32)
 docker compose up -d --build
 docker compose run --rm backend node db/setup.js   # solo la primera vez: tablas, roles y tipos de objetivo
 # Primer super admin (el registro público solo crea empleados):

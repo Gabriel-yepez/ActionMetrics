@@ -54,6 +54,15 @@ check('Empleado solo ve su departamento y sin email/cédula', uA1.data.data.ever
 const uSin = await sinDep.req('GET', '/api/usuarios');
 check('Usuario sin departamento no ve a todos', uSin.status === 404, `status ${uSin.status}`);
 
+// Datos cifrados en la BD: la API los devuelve legibles y la búsqueda sigue funcionando
+const fichaA1 = (await root.req('GET', `/api/usuarios/${empA1.id}`)).data.data || {};
+check('API devuelve los datos sensibles descifrados', fichaA1.nombre === 'Emp' && fichaA1.apellido === 'Uno' && fichaA1.email === 'e1@x.com' && fichaA1.ci === 111, JSON.stringify({ n: fichaA1.nombre, e: fichaA1.email, ci: fichaA1.ci }));
+const buscar = async (c, q) => { const r = await c.req('GET', `/api/usuarios?search=${encodeURIComponent(q)}`); return r.status === 200 ? r.data.data.map(u => u.nombre_usuario).sort() : []; };
+check('Búsqueda por apellido sobre datos cifrados', JSON.stringify(await buscar(adminA, 'uNo')) === JSON.stringify(['empA1']));
+check('Búsqueda por email (admin)', JSON.stringify(await buscar(adminA, 'e2@x')) === JSON.stringify(['empA2']));
+check('Empleado no puede buscar por email', (await buscar(empA1, 'e2@x')).length === 0);
+check('Búsqueda trata % y _ como texto', (await buscar(adminA, '%')).length === 0);
+
 // 4-5. Gestión de usuarios entre departamentos / escalada
 check('Empleado A no ve usuario de B por id', (await empA1.req('GET', `/api/usuarios/${empB1.id}`)).status === 403);
 check('Admin A no ve usuario de B por id', (await adminA.req('GET', `/api/usuarios/${empB1.id}`)).status === 403);

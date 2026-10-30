@@ -1,4 +1,5 @@
 const {DataTypes}=require('sequelize')
+const { encryptedAttribute } = require('../services/dataEncryption')
 
 module.exports = (sequelize)=>{
 
@@ -9,10 +10,7 @@ module.exports = (sequelize)=>{
                 autoIncrement: true,
                 primaryKey: true,
             },
-            comentario:{
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
+            comentario: encryptedAttribute('retroalimentacion', 'comentario'),
             fecha:{
                 type: DataTypes.DATEONLY,
                 allowNull: false,

@@ -8,6 +8,7 @@
 
 require('dotenv').config();
 const { sequelize, Rol, TipoObjetivo } = require('./sequelize');
+const { cifrarDatos } = require('./cifrar-datos');
 
 async function setup() {
   try {
@@ -18,6 +19,10 @@ async function setup() {
     // Crear todas las tablas según los modelos definidos
     await sequelize.sync({ alter: true });
     console.log('Todas las tablas sincronizadas correctamente.\n');
+
+    // Cifrar datos sensibles guardados antes de activar el cifrado
+    await cifrarDatos(sequelize);
+    console.log();
 
     // Insertar roles iniciales si no existen
     const rolesIniciales = [

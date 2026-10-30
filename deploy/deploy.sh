@@ -42,10 +42,16 @@ start() {
   compose up -d --no-build --remove-orphans --wait --wait-timeout "$WAIT_TIMEOUT"
 }
 
+# Con la imagen nueva: cifra los datos sensibles pendientes y adapta sus columnas
+# (no hace nada si ya está todo cifrado ni si la base de datos aún no tiene tablas)
+migrate() {
+  compose run --rm backend node db/cifrar-datos.js
+}
+
 echo "==> Desplegando $IMAGE_PREFIX-{backend,frontend}:$IMAGE_TAG (anterior: ${PREVIOUS_TAG:-ninguna})"
 write_state "$IMAGE_TAG"
 
-if compose pull backend frontend && start; then
+if compose pull backend frontend && migrate && start; then
   echo "==> Despliegue correcto: todos los servicios healthy"
   compose ps
   # Liberar espacio: imágenes que ya no usa ningún contenedor

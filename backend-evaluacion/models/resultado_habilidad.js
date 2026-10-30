@@ -1,4 +1,5 @@
 const {DataTypes}=require('sequelize')
+const { encryptedAttribute } = require('../services/dataEncryption')
 
 module.exports = (sequelize)=>{
 
@@ -17,10 +18,7 @@ module.exports = (sequelize)=>{
                     max: 5,
                 }
             },
-            comentario:{
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
+            comentario: encryptedAttribute('resultado_habilidad', 'comentario'),
         },{
             freezeTableName: true,
             timestamps: false,

@@ -1,4 +1,5 @@
 const {DataTypes}=require('sequelize')
+const { encryptedAttribute } = require('../services/dataEncryption')
 const bcrypt = require('bcrypt');
 
 module.exports = (sequelize)=>{
@@ -14,26 +15,14 @@ module.exports = (sequelize)=>{
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            nombre:{
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
-            apellido:{
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
-            email:{
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
+            nombre: encryptedAttribute('usuario', 'nombre'),
+            apellido: encryptedAttribute('usuario', 'apellido'),
+            email: encryptedAttribute('usuario', 'email'),
             password:{
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            ci:{
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
+            ci: encryptedAttribute('usuario', 'ci', { parse: Number }),
             id_departamento:{
                 type: DataTypes.INTEGER,
                 allowNull: true,

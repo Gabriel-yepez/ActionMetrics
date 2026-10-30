@@ -52,6 +52,7 @@ Contenido de `/opt/actionmetrics/.env`:
 ```bash
 DB_PASSWORD=<contraseña larga y aleatoria>
 JWT_SECRET=<salida de: openssl rand -hex 32>
+DATA_ENCRYPTION_KEY=<salida de: openssl rand -base64 32>   # cifra los datos sensibles en la BD
 COOKIE_SECURE=true                 # la cookie solo viaja por HTTPS
 TRUST_PROXY=1                      # IP real del usuario detrás de Nginx (rate limiting)
 CORS_ORIGINS=https://tudominio.com
@@ -60,6 +61,9 @@ BIND_ADDRESS=127.0.0.1             # contenedores accesibles solo desde el propi
 DEEPSEEK_API_KEYS=<clave1>,<clave2>
 # GROQ_API_KEYS=<clave>        GROQ_MODEL=<modelo>   (ver .env.example para más proveedores)
 ```
+
+**Guarda una copia de `DATA_ENCRYPTION_KEY` fuera del VPS** (gestor de contraseñas): sin ella los datos
+cifrados de la base de datos y de sus copias de seguridad no se pueden recuperar.
 
 Estado de las claves de IA (cuáles están en pausa y por qué, sin mostrar las claves):
 `GET https://api.tudominio.com/api/ia/estado` con sesión de super admin.
@@ -146,12 +150,18 @@ Automáticos: **cada push a `main`** (normalmente un merge desde `dev`) ejecuta:
 
 1. **CI** completa (pruebas de seguridad, lint, build). Si falla, no se despliega nada.
 2. **Imágenes** `ghcr.io/<usuario>/actionmetrics-{backend,frontend}` etiquetadas con el commit y `latest`.
-3. **Despliegue** por SSH con `deploy.sh`: descarga las imágenes, reinicia y espera a que los
+3. **Despliegue** por SSH con `deploy.sh`: descarga las imágenes, cifra los datos sensibles que aún
+   no lo estén (`db/cifrar-datos.js`), reinicia y espera a que los
    servicios estén *healthy*. **Si fallan, vuelve automáticamente a la versión anterior** y el
    workflow termina en rojo.
 4. Comprueba `https://api.tudominio.com/api/health` a través de Nginx.
 
 Dos despliegues nunca se ejecutan a la vez. Los datos (volúmenes `db-data` y `uploads`) se conservan.
+
+**Activación del cifrado de datos:** el primer despliegue que incluye el cifrado añade
+`DATA_ENCRYPTION_KEY` al `.env` del VPS **antes** de hacer el merge a `main` (sin ella el despliegue falla
+y se queda la versión anterior). Ese despliegue cifra los datos existentes; a partir de ahí una versión
+anterior al cifrado ya no puede leerlos, así que no vuelvas a una de esas versiones.
 
 **Volver a una versión anterior:** en *Actions → CD*, abre la ejecución de ese commit y pulsa
 **Re-run all jobs**.

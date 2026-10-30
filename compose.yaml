@@ -1,7 +1,7 @@
 name: actionmetrics
 
 # Uso:
-#   cp .env.example .env              # y completar DB_PASSWORD y JWT_SECRET
+#   cp .env.example .env              # y completar DB_PASSWORD, JWT_SECRET y DATA_ENCRYPTION_KEY
 #   docker compose up -d --build
 #   docker compose run --rm backend node db/setup.js   # solo la primera vez (crea tablas y roles)
 #
@@ -52,6 +52,7 @@ services:
       DB_USER: ${DB_USER:-postgres}
       passwordDB: ${DB_PASSWORD:?Define DB_PASSWORD en .env}
       JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en .env}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:?Define DATA_ENCRYPTION_KEY en .env}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}

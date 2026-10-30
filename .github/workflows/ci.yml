@@ -49,6 +49,7 @@ jobs:
       passwordDB: postgres
       # Valores solo para CI (base de datos efímera del job)
       JWT_SECRET: ci-only-jwt-secret-0123456789abcdef0123456789abcdef
+      DATA_ENCRYPTION_KEY: Y2ktb25seS1kYXRhLWtleS0wMTIzNDU2Nzg5YWJjZGU=
       SUPERADMIN_USER: root
       SUPERADMIN_PASSWORD: ci-SuperAdmin-123
 
@@ -70,7 +71,7 @@ jobs:
       - name: Auditoría de dependencias de producción
         run: npm audit --omit=dev --audit-level=high
 
-      - name: Pruebas unitarias (rotación de API keys de IA)
+      - name: Pruebas unitarias (rotación de API keys de IA y cifrado de datos)
         run: npm test
 
       - name: Inicializar base de datos
@@ -90,6 +91,9 @@ jobs:
 
       - name: Pruebas de seguridad
         run: npm run test:security
+
+      - name: Datos sensibles cifrados en la base de datos
+        run: npm run test:cifrado
 
       - name: Logs de la API
         if: failure()
@@ -148,6 +152,7 @@ jobs:
         env:
           DB_PASSWORD: ci
           JWT_SECRET: ci
+          DATA_ENCRYPTION_KEY: ci
         run: docker compose config --quiet
 
       - uses: docker/setup-buildx-action@v3

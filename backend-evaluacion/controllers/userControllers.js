@@ -1,6 +1,5 @@
 const userServices = require("../services/userServices")
 const services = new userServices()
-const { Op } = require("sequelize");
 const { getDepartmentFilter } = require("../middleware/departmentFilter");
 const { ROL, isSuperAdmin, canAccessUser } = require("../middleware/access");
 
@@ -26,25 +25,19 @@ const getAllUsers = async (req, res)=>{
     try {
         const {search} = req.query
         const departamentoId = getDepartmentFilter(req);
-        let filter = {};
+        const filter = departamentoId ? { id_departamento: departamentoId } : null
 
+        const esEmpleado = req.user.id_rol === ROL.EMPLEADO
+        let users = await services.getAllUsers(filter, esEmpleado ? ATRIBUTOS_PUBLICOS : null)
+
+        // Nombre, apellido y email están cifrados en la base de datos: la búsqueda se hace
+        // sobre los datos ya descifrados. Un empleado no ve emails, así que tampoco busca por ellos.
         if (typeof search === 'string' && search) {
-          filter = {
-              [Op.or]: [
-                  { nombre_usuario: { [Op.iLike]: `%${search}%` } },
-                  { nombre: { [Op.iLike]: `%${search}%` } },
-                  { apellido: { [Op.iLike]: `%${search}%` } },
-                  { email: { [Op.iLike]: `%${search}%` } }
-              ]
-          };
-      }
-
-        if (departamentoId) {
-            filter.id_departamento = departamentoId;
+            const texto = search.toLowerCase()
+            const campos = esEmpleado ? ['nombre_usuario', 'nombre', 'apellido'] : ['nombre_usuario', 'nombre', 'apellido', 'email']
+            users = users.filter(user => campos.some(campo => String(user[campo] ?? '').toLowerCase().includes(texto)))
         }
 
-        const attributes = req.user.id_rol === ROL.EMPLEADO ? ATRIBUTOS_PUBLICOS : null
-        const users = await services.getAllUsers(Object.keys(filter).length > 0 ? filter : null, attributes)
         if (users.length === 0) return res.status(404).json({ ok: false, data: [], message: "No se encontraron usuarios." });
         res.status(200).json({ ok: true, data: users, message: "Usuarios obtenidos exitosamente." })
       } catch (error) {

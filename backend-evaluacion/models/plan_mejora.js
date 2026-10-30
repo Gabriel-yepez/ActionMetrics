@@ -1,4 +1,5 @@
 const {DataTypes}=require('sequelize')
+const { encryptedAttribute } = require('../services/dataEncryption')
 
 module.exports = (sequelize)=>{
 
@@ -9,10 +10,7 @@ module.exports = (sequelize)=>{
                 autoIncrement: true,
                 primaryKey: true,
             },
-            detalles:{
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
+            detalles: encryptedAttribute('plan_mejora', 'detalles'),
             fecha_creacion:{
                 type: DataTypes.DATEONLY,
                 allowNull: false,

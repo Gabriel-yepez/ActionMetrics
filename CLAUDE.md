@@ -79,5 +79,6 @@ npm run lint     # ESLint
 - Tests: `npm test` (pool, with a fake OpenAI-compatible server) and `npm run test:security` (API, needs a running backend + DB)
 
 ### Security
+- Sensitive DB fields are encrypted at rest with AES-256-GCM (`services/dataEncryption.js`, key in `DATA_ENCRYPTION_KEY`): models declare them with `encryptedAttribute(table, field)`, which encrypts on set and decrypts on get, so API responses carry plain text. They can't be used in SQL `WHERE`/`ORDER BY` (filter in JS after loading), and `raw: true` queries return ciphertext. `db/cifrar-datos.js` encrypts legacy rows / rotates keys (`DATA_ENCRYPTION_OLD_KEYS`)
 - Rate limiting: 500 req/15min global, 20 auth attempts/15min
 - Helmet security headers, CORS via `CORS_ORIGINS` env var

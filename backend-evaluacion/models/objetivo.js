@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize');
+const { encryptedAttribute } = require('../services/dataEncryption');
 
 module.exports = (sequelize) => {
     return sequelize.define('objetivos', // Cambiado a "objetivos" para coincidir con el nombre de la tabla
@@ -8,10 +9,7 @@ module.exports = (sequelize) => {
                 autoIncrement: true,
                 primaryKey: true,
             },
-            descripcion: {
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
+            descripcion: encryptedAttribute('objetivos', 'descripcion'),
             fecha_inicio: {
                 type: DataTypes.DATEONLY,
                 allowNull: false,
@@ -24,10 +22,7 @@ module.exports = (sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            estado_deseado: {
-                type: DataTypes.STRING,
-                allowNull: false,
-            },
+            estado_deseado: encryptedAttribute('objetivos', 'estado_deseado'),
         },
         {
             freezeTableName: true, // Asegura que el nombre de la tabla sea exactamente "objetivos"
